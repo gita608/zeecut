@@ -1,0 +1,67 @@
+<!-- partial:partials/_sidebar.html -->
+<nav class="sidebar">
+  <div class="sidebar-header">
+    @if(Route::has('admin.dashboard'))
+      <a href="{{ route('admin.dashboard') }}" class="sidebar-brand">
+        {{ env('APP_NAME') }}
+      </a>
+    @endif
+    <div class="sidebar-toggler not-active">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+  </div>
+  <div class="sidebar-body">
+    <ul class="nav">
+      <li class="nav-item nav-category">Menu</li>
+
+      @if(Route::has('admin.dashboard'))
+        <li class="nav-item">
+          <a href="{{ route('admin.dashboard') }}" class="nav-link">
+            <i class="link-icon" data-feather="box"></i>
+            <span class="link-title">Dashboard</span>
+          </a>
+        </li>
+      @endif
+
+      <li class="nav-item d-none">
+        <a class="nav-link" data-bs-toggle="collapse" href="#emails" role="button" aria-expanded="false"
+          aria-controls="emails">
+          <i class="link-icon" data-feather="mail"></i>
+          <span class="link-title">Users</span>
+          <i class="link-arrow" data-feather="chevron-down"></i>
+        </a>
+        <div class="collapse" id="emails">
+          <ul class="nav sub-menu">
+            <li class="nav-item">
+              <a href="#" class="nav-link">Inbox</a>
+            </li>
+            <li class="nav-item">
+              <a href="pages/email/read.html" class="nav-link">Read</a>
+            </li>
+            <li class="nav-item">
+              <a href="pages/email/compose.html" class="nav-link">Compose</a>
+            </li>
+          </ul>
+        </div>
+      </li>
+
+      @if(Route::has('user.index'))
+        <li class="nav-item">
+          <a href="{{ route('user.index') }}" class="nav-link">
+            <i class="link-icon" data-feather="users"></i>
+            <span class="link-title">Users</span>
+          </a>
+        </li>
+      @endif
+
+      <li class="nav-item">
+        <a href="#" class="nav-link">
+          <i class="link-icon" data-feather="calendar"></i>
+          <span class="link-title">Calendar</span>
+        </a>
+      </li>
+    </ul>
+  </div>
+</nav>
