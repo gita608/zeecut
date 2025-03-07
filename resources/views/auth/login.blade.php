@@ -1,129 +1,102 @@
-<!doctype html>
+<!DOCTYPE html>
+
 <html lang="en">
 
 <head>
-    <meta charset="utf-8" />
-    <title>Login | {{ config('app.name') }}</title>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta content="{{ config('app.name') }}" name="description" />
-    <link rel="shortcut icon" href="{{ asset('assets/images/favicon.ico') }}">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="description" content="Responsive HTML Admin Dashboard Template based on Bootstrap 5">
+    <meta name="author" content="NobleUI">
+    <meta name="keywords"
+        content="nobleui, bootstrap, bootstrap 5, bootstrap5, admin, dashboard, template, responsive, css, sass, html, theme, front-end, ui kit, web">
 
-    <!-- preloader css -->
-    <link rel="stylesheet" href="{{ asset('assets/css/preloader.min.css') }}" type="text/css" />
+    <title>{{Env('APP_NAME')}} - Login</title>
 
-    <!-- Bootstrap Css -->
-    <link href="{{ asset('assets/css/bootstrap.min.css') }}" rel="stylesheet" type="text/css" />
-    <!-- Icons Css -->
-    <link href="{{ asset('assets/css/icons.min.css') }}" rel="stylesheet" type="text/css" />
-    <!-- App Css-->
-    <link href="{{ asset('assets/css/app.min.css') }}" rel="stylesheet" type="text/css" />
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&amp;display=swap"
+        rel="stylesheet">
+    <!-- End fonts -->
 
-    <style>
-        body {
-            background-color: #f8f9fa;
-        }
+    <!-- core:css -->
+    <link rel="stylesheet" href="../../../assets/vendors/core/core.css">
+    <!-- endinject -->
 
-        .auth-page {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-        }
+    <!-- Plugin css for this page -->
+    <!-- End plugin css for this page -->
 
-        .auth-form-container {
-            background: #fff;
-            padding: 2rem;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            max-width: 400px;
-            width: 100%;
-        }
+    <!-- inject:css -->
+    <link rel="stylesheet" href="../../../assets/fonts/feather-font/css/iconfont.css">
+    <link rel="stylesheet" href="../../../assets/vendors/flag-icon-css/css/flag-icon.min.css">
+    <!-- endinject -->
 
-        .auth-logo {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 1.5rem;
-        }
+    <!-- Layout styles -->
+    <link rel="stylesheet" href="../../../assets/css/demo1/style.min.css">
+    <!-- End layout styles -->
 
-        .auth-logo img {
-            height: 40px;
-            margin-right: 8px;
-        }
-
-        .auth-logo span {
-            font-size: 1.25rem;
-            font-weight: bold;
-        }
-
-        .form-control {
-            border-radius: 5px;
-        }
-
-        .btn-primary {
-            border-radius: 5px;
-        }
-
-        .alert {
-            margin-bottom: 1.5rem;
-        }
-    </style>
+    <link rel="shortcut icon" href="../../../assets/images/favicon.png" />
 </head>
 
 <body>
-    <div class="auth-page">
-        <div class="auth-form-container">
-            <div class="auth-logo">
-                <img src="{{ asset('assets/images/logo-sm.svg') }}" alt="Logo">
-                <span>{{ config('app.name') }}</span>
-            </div>
-            <!-- Display error message if set -->
-            @if (session('error'))
-                <div class="alert alert-danger" role="alert">
-                    {{ session('error') }}
-                </div>
-            @endif
-            <form action="{{ route('verify') }}" method="post">
-                @csrf
-                <div class="mb-3">
-                    <label class="form-label" for="email">Email</label>
-                    <input type="email" name="email" id="email" class="form-control" placeholder="Enter your email"
-                        required>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label" for="password">Password</label>
-                    <div class="input-group">
-                        <input type="password" name="password" id="password" class="form-control"
-                            placeholder="Enter your password" required>
-                        <button class="btn btn-light" type="button" id="password-addon">
-                            <i class="mdi mdi-eye-outline"></i>
-                        </button>
+    <div class="main-wrapper">
+        <div class="page-wrapper full-page">
+            <div class="page-content d-flex align-items-center justify-content-center">
+
+                <div class="row w-100 mx-0 auth-page">
+                    <div class="col-md-8 col-xl-6 mx-auto">
+                        <div class="card">
+                            <div class="row">
+                                <div class="col-md-4 pe-md-0">
+                                    <div class="auth-side-wrapper">
+
+                                    </div>
+                                </div>
+                                <div class="col-md-8 ps-md-0">
+                                    <div class="auth-form-wrapper px-4 py-5">
+                                        <a href="#" class="noble-ui-logo d-block mb-2">{{Env('APP_NAME')}}</a>
+                                        <h5 class="text-muted fw-normal mb-4">Welcome back! Log in to your account.</h5>
+                                        @if (session('error'))
+                                        <div class="alert alert-danger" role="alert">
+                                            {{ session('error') }}
+                                        </div>
+                                        @endif
+                                        <form action="{{ route('verify') }}" class="forms-sample" method="POST">
+                                            @csrf
+                                            <div class="mb-3">
+                                                <label for="userEmail" class="form-label">Email address</label>
+                                                <input type="email" class="form-control" id="userEmail"
+                                                    placeholder="Email" name="email">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="userPassword" class="form-label">Password</label>
+                                                <input type="password" name="password" class="form-control"
+                                                    id="userPassword" autocomplete="current-password"
+                                                    placeholder="Password">
+                                            </div>
+                                            <div class="form-check mb-3 d-none">
+                                                <input type="checkbox" class="form-check-input" id="authCheck">
+                                                <label class="form-check-label" for="authCheck">
+                                                    Remember me
+                                                </label>
+                                            </div>
+                                            <div>
+                                                <button type="submit"
+                                                    class="btn btn-primary me-2 mb-2 mb-md-0 text-white">Login</button>
+
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <!-- <div class="mb-3 text-end">
-                    <a href="#" class="text-muted small">Forgot password?</a>
-                </div> -->
-                <div class="mb-3">
-                    <button class="btn btn-primary w-100" type="submit">Log In</button>
-                </div>
-                <p class="text-center">
-                    <a href="{{route('register')}}">Register Here</a>
-                </p>
-            </form>
+
+            </div>
         </div>
     </div>
-
-    <!-- JAVASCRIPT -->
-    <script src="{{ asset('assets/js/jquery.min.js') }}"></script>
-    <script src="{{ asset('assets/js/bootstrap.bundle.min.js') }}"></script>
-    <script src="{{ asset('assets/js/metisMenu.min.js') }}"></script>
-    <script src="{{ asset('assets/js/simplebar.min.js') }}"></script>
-    <script src="{{ asset('assets/js/waves.min.js') }}"></script>
-    <script src="{{ asset('assets/js/feather.min.js') }}"></script>
-    <!-- pace js -->
-    <script src="{{ asset('assets/js/pace.min.js') }}"></script>
-    <!-- password addon init -->
-    <script src="{{ asset('assets/js/pass-addon.init.js') }}"></script>
 
 </body>
 
