@@ -3,10 +3,12 @@
         <div class="col-md-12 grid-margin stretch-card">
             <div class="card">
                 <div class="card-body">
+
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h6 class="card-title">{{ $page_title ?? '' }}</h6>
-                        <a href="add.php" class="btn btn-primary btn-sm">
-                            <i class="fas fa-plus"></i> Add User
+                        <a href="javascript:void(0);" class="btn btn-primary btn-sm"
+                            onclick="show_small_modal('{{ route('user.add') }}', 'Add {{ $page_title ?? '' }}')">
+                            <i class="fas fa-plus"></i> Add {{ $page_title ?? '' }}
                         </a>
                     </div>
 
@@ -33,12 +35,16 @@
                                     <td>{{ $item->created_at ? date('d-m-Y', strtotime($item->created_at )) : '' }}</td>
                                     <td>
                                         <div class="btn-group" role="group">
-                                            <a href="edit.php?id={{ $item->id }}" class="btn btn-sm btn-warning">
+                                            <a href="javascript:void(0);" class="btn btn-sm btn-warning"
+                                                onclick="show_small_modal('{{ route('user.edit',$item->id) }}', 'Edit {{ $page_title ?? '' }}')">
                                                 <i class="fas fa-edit"></i> Edit
                                             </a>
-                                            <a href="delete.php?id={{ $item->id }}" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this user?');">
+
+                                            <a class="btn btn-sm btn-danger" href="javascript:void(0);"
+                                                onclick="delete_modal('{{ route('user.delete',$item->id) }}')">
                                                 <i class="fas fa-trash"></i> Delete
                                             </a>
+
                                         </div>
                                     </td>
                                 </tr>
