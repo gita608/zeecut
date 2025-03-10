@@ -12,7 +12,7 @@ class BaseModel extends Model
     /**
      * Fetch records with conditions.
      */
-    public function get(array $conditions = [], array $select = ['*'], array $orderBy = [], $limit = null, $offset = null)
+    public function getData(array $conditions = [], array $select = ['*'], array $orderBy = [], $limit = null, $offset = null)
     {
         $query = DB::table($this->table)->select($select);
         $query = $this->applyConditions($query, $conditions);

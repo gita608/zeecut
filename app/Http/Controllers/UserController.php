@@ -17,7 +17,7 @@ class UserController extends Controller
 
     public function index()
     {
-        $data['list_items'] = $this->userModel->get(['role_id' => 2]);
+        $data['list_items'] = $this->userModel->getData(['role_id' => 2]);
         $data['page_title'] = 'Users';
         $data['page_name'] = 'admin.user.index';
 
