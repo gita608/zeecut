@@ -28,7 +28,7 @@ class UserController extends Controller
     {
         return view('admin.user.add');
     }
-
+    
     public function submit(Request $request)
     {
         // Validate request data
