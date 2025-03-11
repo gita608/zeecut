@@ -27,16 +27,6 @@ Route::middleware(RoleMiddleware::class)->group(function () {
     Route::post('/user-update/{id}', [UserController::class, 'update'])->name('user.update');
     Route::get('/user-delete/{id}', [UserController::class, 'delete'])->name('user.delete');
 
-
-    //category
-    Route::get('/categories', [CategoriesConroller::class, 'index'])->name('categories.index');
-    Route::get('/categories-add', [CategoriesConroller::class, 'add'])->name('categories.add');
-    Route::get('/categories-edit/{id}', [CategoriesConroller::class, 'edit'])->name('categories.edit');
-    Route::post('/categories-submit', [CategoriesConroller::class, 'submit'])->name('categories.submit');
-    Route::post('/categories-update/{id}', [CategoriesConroller::class, 'update'])->name('categories.update');
-    Route::get('/categories-delete/{id}', [CategoriesConroller::class, 'delete'])->name('categories.delete');
-
-
     //product
     Route::get('/product', [ProductContoller::class, 'index'])->name('product.index');
     Route::get('/product-add', [ProductContoller::class, 'ajax_add'])->name('product.add');
