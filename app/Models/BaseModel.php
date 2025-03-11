@@ -60,26 +60,32 @@ class BaseModel extends Model
     }
 
     /**
-     * Add a single record.
+     * Add a single record with created_at timestamp.
      */
     public function add(array $data)
     {
+        $data['created_at'] = now();
         return DB::table($this->table)->insertGetId($data);
     }
 
     /**
-     * Add multiple records in batch.
+     * Add multiple records in batch with created_at timestamp.
      */
     public function add_batch(array $data)
     {
+        $timestamp = now();
+        foreach ($data as &$record) {
+            $record['created_at'] = $timestamp;
+        }
         return DB::table($this->table)->insert($data);
     }
 
     /**
-     * Update record(s) with conditions.
+     * Update record(s) with conditions and updated_at timestamp.
      */
     public function update_record(array $conditions, array $data)
     {
+        $data['updated_at'] = now();
         $query = DB::table($this->table);
         $query = $this->applyConditions($query, $conditions);
         return $query->update($data);
@@ -102,7 +108,6 @@ class BaseModel extends Model
     {
         foreach ($conditions as $key => $condition) {
             if (is_array($condition)) {
-                // Handling operators like where, orWhere, whereNot, whereIn, etc.
                 switch (strtolower($condition[0])) {
                     case 'or':
                         $query->orWhere($condition[1], $condition[2], $condition[3]);

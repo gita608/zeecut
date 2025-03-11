@@ -9,6 +9,8 @@ class DashboardController extends Controller
     public function index()
     {
         $data['students_count'] = User::where('role_id', 2)->count();
+        // session()->flash('message_success', 'Welcome');
+
 
         $data['page_title'] = 'Dashboard';
         $data['page_name']  = 'admin.dashboard.index'; 

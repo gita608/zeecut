@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Auth;
 class AuthController extends Controller
 {
 
-    public function register() 
+    public function register()
     {
         if (Auth::check() && Auth::user()->role == 1) {
             return redirect()->route('admin.dashboard');
@@ -20,7 +20,7 @@ class AuthController extends Controller
     }
 
 
-    public function login() 
+    public function login()
     {
         if (Auth::check() && Auth::user()->role == 1) {
             return redirect()->route('admin.dashboard');
@@ -30,18 +30,20 @@ class AuthController extends Controller
 
     public function verify(Request $request)
     {
-        // $loginCredentials = $request->only('username', 'password');
         $user = User::where('email', $request->email)->first();
-        if ($user && Hash::check($request->password, hashedValue: $user->password)) {
-            // dd($user);
+
+        if ($user && Hash::check($request->password, $user->password)) {
             Auth::login($user);
-            if(Auth::user()->role_id == '1'){
-                return redirect()->route('admin.dashboard');
+
+            if (Auth::user()->role_id == '1') {
+                return redirect()->route('admin.dashboard')->with('message_success', 'Welcome, ' . Auth::user()->name . '!');
             }
         }
-        return back()->with('error', 'Invalid login credentials...');
+
+        return back()->with('error', 'Invalid login credentials for ' . $request->email);
     }
-    
+
+
     public function logout()
     {
         Auth::logout();

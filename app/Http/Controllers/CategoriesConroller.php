@@ -27,7 +27,6 @@ class CategoriesConroller extends Controller
 
     public function submit(Request $request)
     {
-        // DB::enableQueryLog();
 
         // Validate the form data
         $request->validate([
@@ -58,9 +57,6 @@ class CategoriesConroller extends Controller
         $data['edit_data'] = Category::findOrFail($id);
         return view('admin.category.ajax_edit', $data);
     }
-
-
-    
 
     public function update(Request $request,$id)
     {

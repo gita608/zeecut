@@ -15,6 +15,13 @@
 <script src="{{asset('assets/vendors/datatables.net-bs5/dataTables.bootstrap5.js')}}"></script>
 <script src="{{asset('assets/js/data-table.js')}}"></script> --}}
 
+<!-- SweetAlert2 CSS (Optional) -->
+
+<!-- SweetAlert2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+
 <!-- DataTables JS -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
@@ -28,6 +35,24 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
 <script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.html5.min.js"></script>
 <script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.print.min.js"></script>
+
+
+
+
+
+<script>
+    function call_ajax_view(url, update_element){
+        $.ajax({
+            url: url,
+            success: function(response) {
+                $(update_element).html(response);
+            },
+            error: function(xhr, status, error) {
+                console.error("AJAX Error: " + status + "\nError: " + error);
+            }
+        });
+    }
+</script>
 
 <script>
     $(document).ready(function () {
