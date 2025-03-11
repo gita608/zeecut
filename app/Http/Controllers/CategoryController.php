@@ -50,9 +50,14 @@ class CategoryController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
         ]);
-
+        if ($request->hasFile('icon')) {
+            $file = $request->file('icon');
+            // Call the uploadFile function
+            $filePath = $this->uploadFile($file, 'uploads/category', 'public');
+        }
         $data = [
             'name' => $request->name,
+            'icon' => $filePath ?? '',
             'description' => $request->description,
         ];
 
@@ -94,8 +99,15 @@ class CategoryController extends Controller
             'description' => 'nullable|string',
         ]);
 
+        if ($request->hasFile('icon')) {
+            $file = $request->file('icon');
+            // Call the uploadFile function
+            $filePath = $this->uploadFile($file, 'uploads/category', 'public');
+        }
+
         $data = [
             'name' => $request->name,
+            'icon' => $filePath ?? '',
             'description' => $request->description,
         ];
 
@@ -120,5 +132,19 @@ class CategoryController extends Controller
         }
 
         return redirect()->route('category.index')->with('error', 'Failed to delete category.');
+    }
+
+    public function uploadFile($file, $folder = 'uploads', $disk = 'public')
+    {
+        // Check if the file is valid
+        if ($file->isValid()) {
+            $originalName = $file->getClientOriginalName();
+            $mimeType = $file->getMimeType();
+            $extension = $file->getClientOriginalExtension();
+            $filename = uniqid() . '.' . $extension;
+            $filePath = $file->storeAs($folder, $filename, $disk);
+            return $filePath;  // Return the file path
+        }
+        return null;  // Return null if the file is not valid
     }
 }

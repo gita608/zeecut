@@ -103,5 +103,5 @@ class CategoriesConroller extends Controller
         }
         return null;  // Return null if the file is not valid
     }
-
+ 
 }
