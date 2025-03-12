@@ -58,18 +58,19 @@ class ProductContoller extends Controller
         ]);
 
         $filePath = uploadFile($request->file('thumbnail'), 'product-images');
-        // dd($filePath);
 
+        $data = [
 
-        // Insert data into database
-        Product::create([
             'category_id' => $request->category,
             'name' => $request->title,
             'description' => $request->description,
             'price' => $request->price,
             'discount_price' => $request->discount_price,
             'thumbnail' => $filePath,
-        ]);
+        ];
+
+        // Insert data into database
+        Product::create($data);
 
         return redirect()->route('product.index')->with('message_success', 'Product added successfully!');
     }
@@ -83,30 +84,43 @@ class ProductContoller extends Controller
 
     public function update(Request $request, $id)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'phone' => 'required|digits_between:10,15',
-            'email' => 'required|email|unique:users,email,' . $id,
-        ]);
+        // $request->validate([
+        //     'category' => 'required|exists:categories,id',
+        //     'title' => 'required|string|max:255',
+        //     'description' => 'required|string',
+        //     'price' => 'required|numeric|min:0',
+        //     'discount_price' => 'nullable|numeric|min:0',
+        //     'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', // Image validation
+        // ]);
+        if ($request->hasFile('thumbnail')) {
+            $filePath = uploadFile($request->file('thumbnail'), 'product-images');
+            $data['thumbnail'] = $filePath;
+        } else {
+            Log::error('No file uploaded in request');
+        }
 
-        $user = User::findOrFail($id);
-        $user->update([
-            'name' => $request->name,
-            'phone' => $request->phone,
-            'email' => $request->email,
-        ]);
+        $data = [
+            'category_id' => $request->category,
+            'name' => $request->title,
+            'description' => $request->description,
+            'price' => $request->price,
+            'discount_price' => $request->discount_price,
+        ];
 
-        return redirect()->route('user.index')->with('message_success', 'User updated successfully!');
+        $user = Product::findOrFail($id);
+        $user->update($data);
+
+        return redirect()->route('product.index')->with('message_success', 'Product updated successfully!');
     }
 
     public function delete($id)
     {
-        $user = User::findOrFail($id);
+        $user = Product::findOrFail($id);
 
         if ($user->delete()) {
-            return redirect()->route('user.index')->with('message_success', 'User deleted successfully!');
+            return redirect()->route('product.index')->with('message_success', 'Product deleted successfully!');
         } else {
-            return redirect()->route('user.index')->with('message_danger', 'Failed to delete user.');
+            return redirect()->route('product.index')->with('message_danger', 'Failed to delete user.');
         }
     }
 
