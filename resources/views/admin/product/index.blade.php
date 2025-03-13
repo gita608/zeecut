@@ -1,3 +1,4 @@
+ 
 <div class="page-content">
     <div class="row">
         <div class="col-md-12 grid-margin stretch-card">
@@ -22,6 +23,7 @@
                                     <th>Category</th>
                                     <th>Price</th>
                                     <th>Discount Price</th>
+                                    <th>Status</th>
                                     <th>Created on</th>
                                     <th>Action</th>
                                 </tr>
@@ -36,8 +38,11 @@
                                     </td>
                                     <td>{{ $item->name }}</td>
                                     <td>{{ $item->category_name ?? '' }}</td>
-                                    <td>{{ $item->price }}</td>
-                                    <td>{{ $item->discount_price }}</td>
+                                    <td>{{ round($item->price) }} ₹</td>
+                                    <td>{{ round($item->discount_price) }} ₹</td>
+                                    <td>
+                                        <input type="checkbox" class="toggle-status" value="1" onchange="get_ajax_status(this.value,{{$item->id}})" {{ $item->status ? 'checked' : '' }}>
+                                    </td>                                    
                                     <td>{{ $item->created_at ? date('d-m-Y', strtotime($item->created_at )) : '' }}</td>
                                     <td>
                                         <div class="btn-group" role="group">
@@ -64,3 +69,60 @@
         </div>
     </div>
 </div>
+
+<script>
+    function get_ajax_status(status,product_id){
+        $.ajax({
+            url: "{{ route('product.toggleStatus') }}",
+            type: "POST",
+            data: {
+                _token: "{{ csrf_token() }}",
+                product_id: product_id,
+                status: status
+            },
+            success: function(response) {
+                console.log(response.message);
+            },
+            error: function(xhr) {
+                alert('Something went wrong!');
+            }
+        });
+    }
+</script>
+
+
+<style>
+    .toggle-status {
+    position: relative;
+    width: 50px;
+    height: 25px;
+    -webkit-appearance: none;
+    background: #ccc;
+    outline: none;
+    border-radius: 50px;
+    box-shadow: inset 0 0 5px rgba(0,0,0,.2);
+    transition: .4s;
+    cursor: pointer;
+}
+
+.toggle-status:checked {
+    background: #4cd964; /* iPhone Green */
+}
+
+.toggle-status:before {
+    content: "";
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    top: 1.5px;
+    left: 2px;
+    background: #fff;
+    transition: .4s;
+}
+
+.toggle-status:checked:before {
+    left: 26px;
+}
+
+</style>

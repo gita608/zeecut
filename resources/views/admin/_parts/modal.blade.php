@@ -67,7 +67,7 @@
     function show_small_modal(url, header)
     {
         // SHOWING AJAX PRELOADER IMAGE
-        $('#small-modal-content').html('<div style="padding:40px; text-align:center;"><img src="https://i.stack.imgur.com/FhHRx.gif"></div>');
+        $('#small-modal-content').html('<div style="padding:40px; text-align:center;"><img src="{{asset('assets/Animation - 1741827546536.gif')}}"></div>');
         $('#small-modal-title').html('Loading...');
         // LOADING THE AJAX MODAL
         $('#small_modal').modal({

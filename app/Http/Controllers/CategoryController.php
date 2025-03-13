@@ -59,6 +59,7 @@ class CategoryController extends Controller
             'name' => $request->name,
             'icon' => $filePath ?? '',
             'description' => $request->description,
+            'created_at' => date('Y-m-d H:i:s')
         ];
 
         $this->category->add($data);
@@ -109,6 +110,7 @@ class CategoryController extends Controller
             'name' => $request->name,
             'icon' => $filePath ?? '',
             'description' => $request->description,
+            'updated_at' => date('Y-m-d H:i:s')
         ];
 
         $updated = $this->category->update_record(['id' => $id], $data);
