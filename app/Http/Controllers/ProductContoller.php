@@ -91,7 +91,7 @@ class ProductContoller extends Controller
             'price' => 'required|numeric|min:0',
             'discount_price' => 'nullable|numeric|min:0',
         ]);
-        
+
         if ($request->hasFile('thumbnail')) {
             $filePath = uploadFile($request->file('thumbnail'), 'product-images');
             $data['thumbnail'] = $filePath;
@@ -125,6 +125,18 @@ class ProductContoller extends Controller
     }
 
 
+    public function toggleStatus(Request $request)
+    {
+        // Log::error('post_data: ',$_POST);
+
+        $product = Product::find($request->product_id);
+         if ($product) {
+            $product->status = $product->status == 1 ? 0 : 1; // Toggle status
+            $product->save();
+            return response()->json(['message' => 'Status updated successfully!']);
+        }
+        return response()->json(['message' => 'User not found!'], 404);
+    }
 
 
 

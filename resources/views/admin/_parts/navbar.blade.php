@@ -47,7 +47,7 @@
         </div>
       </li>
 
-      
+
       @if(Route::has('category.index'))
       <li class="nav-item">
         <a href="{{ route('category.index') }}" class="nav-link">
@@ -56,7 +56,7 @@
         </a>
       </li>
       @endif
-      
+
       @if(Route::has('product.index'))
       <li class="nav-item">
         <a href="{{ route('product.index') }}" class="nav-link">
@@ -65,7 +65,7 @@
         </a>
       </li>
       @endif
-      
+
       @if(Route::has('user.index'))
       <li class="nav-item">
         <a href="{{ route('user.index') }}" class="nav-link">
@@ -74,9 +74,30 @@
         </a>
       </li>
       @endif
-      
-      
-      
+
+      <li class="nav-item">
+        <a href="" class="nav-link">
+          <i class="link-icon" data-feather="shopping-cart"></i>
+          <span class="link-title">Orders</span> <!-- Order + Tracking -->
+        </a>
+      </li>
+
+      <li class="nav-item">
+        <a href="" class="nav-link">
+          <i class="link-icon" data-feather="credit-card"></i>
+          <span class="link-title">Payment</span>
+        </a>
+      </li>
+
+      <li class="nav-item">
+        <a href="" class="nav-link">
+          <i class="link-icon" data-feather="archive"></i>
+          <span class="link-title">Stock</span>
+        </a>
+      </li>
+
+
+
     </ul>
   </div>
 </nav>
