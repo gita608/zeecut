@@ -19,7 +19,6 @@ Route::middleware(RoleMiddleware::class)->group(function () {
     //dashboard
     Route::get('/admin-dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
 
-
     //User
     Route::get('/user', [UserController::class, 'index'])->name('user.index');
     Route::get('/user-add', [UserController::class, 'ajax_add'])->name('user.add');
@@ -27,7 +26,6 @@ Route::middleware(RoleMiddleware::class)->group(function () {
     Route::get('/user-edit/{id}', [UserController::class, 'ajax_edit'])->name('user.edit');
     Route::post('/user-update/{id}', [UserController::class, 'update'])->name('user.update');
     Route::get('/user-delete/{id}', [UserController::class, 'delete'])->name('user.delete');
-
 
     // Category Routes
     Route::get('/category', [CategoryController::class, 'index'])->name('category.index');
