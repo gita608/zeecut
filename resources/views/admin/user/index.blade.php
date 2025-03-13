@@ -35,14 +35,14 @@
                                     <td>{{ $item->created_at ? date('d-m-Y', strtotime($item->created_at )) : '' }}</td>
                                     <td>
                                         <div class="btn-group" role="group">
-                                            <a href="javascript:void(0);" class="btn btn-sm btn-warning"
-                                                onclick="show_small_modal('{{ route('user.edit',$item->id) }}', 'Edit {{ $page_title ?? '' }}')">
-                                                <i class="fas fa-edit"></i> Edit
+                                            <a href="javascript:void(0);" class="btn btn-sm btn-outline-warning"
+                                                onclick="show_small_modal('{{ route('user.edit',$item->id) }}', 'Edit {{ $page_title ?? '' }}')" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit">
+                                                <i class="fas fa-edit"></i>  
                                             </a>
 
-                                            <a class="btn btn-sm btn-danger" href="javascript:void(0);"
-                                                onclick="delete_modal('{{ route('user.delete',$item->id) }}')">
-                                                <i class="fas fa-trash"></i> Delete
+                                            <a class="btn btn-sm btn-outline-danger" href="javascript:void(0);"
+                                                onclick="delete_modal('{{ route('user.delete',$item->id) }}')" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete">
+                                                <i class="fas fa-trash"></i>  
                                             </a>
 
                                         </div>

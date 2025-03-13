@@ -2,9 +2,9 @@
 <nav class="sidebar">
   <div class="sidebar-header">
     @if(Route::has('admin.dashboard'))
-      <a href="{{ route('admin.dashboard') }}" class="sidebar-brand">
-        {{ env('APP_NAME') }}
-      </a>
+    <a href="{{ route('admin.dashboard') }}" class="sidebar-brand">
+      {{ env('APP_NAME') }}
+    </a>
     @endif
     <div class="sidebar-toggler not-active">
       <span></span>
@@ -17,12 +17,12 @@
       <li class="nav-item nav-category">Menu</li>
 
       @if(Route::has('admin.dashboard'))
-        <li class="nav-item">
-          <a href="{{ route('admin.dashboard') }}" class="nav-link">
-            <i class="link-icon" data-feather="box"></i>
-            <span class="link-title">Dashboard</span>
-          </a>
-        </li>
+      <li class="nav-item">
+        <a href="{{ route('admin.dashboard') }}" class="nav-link">
+          <i class="link-icon" data-feather="box"></i>
+          <span class="link-title">Dashboard</span>
+        </a>
+      </li>
       @endif
 
       <li class="nav-item d-none">
@@ -47,21 +47,57 @@
         </div>
       </li>
 
+
+      @if(Route::has('category.index'))
+      <li class="nav-item">
+        <a href="{{ route('category.index') }}" class="nav-link">
+          <i class="link-icon" data-feather="grid"></i> {{-- Category Icon --}}
+          <span class="link-title">Category</span>
+        </a>
+      </li>
+      @endif
+
+      @if(Route::has('product.index'))
+      <li class="nav-item">
+        <a href="{{ route('product.index') }}" class="nav-link">
+          <i class="link-icon" data-feather="box"></i> {{-- Product Icon --}}
+          <span class="link-title">Product</span>
+        </a>
+      </li>
+      @endif
+
       @if(Route::has('user.index'))
-        <li class="nav-item">
-          <a href="{{ route('user.index') }}" class="nav-link">
-            <i class="link-icon" data-feather="users"></i>
-            <span class="link-title">Users</span>
-          </a>
-        </li>
+      <li class="nav-item">
+        <a href="{{ route('user.index') }}" class="nav-link">
+          <i class="link-icon" data-feather="users"></i>
+          <span class="link-title">Users</span>
+        </a>
+      </li>
       @endif
 
       <li class="nav-item">
-        <a href="#" class="nav-link">
-          <i class="link-icon" data-feather="calendar"></i>
-          <span class="link-title">Calendar</span>
+        <a href="" class="nav-link">
+          <i class="link-icon" data-feather="shopping-cart"></i>
+          <span class="link-title">Orders</span> <!-- Order + Tracking -->
         </a>
       </li>
+
+      <li class="nav-item">
+        <a href="" class="nav-link">
+          <i class="link-icon" data-feather="credit-card"></i>
+          <span class="link-title">Payment</span>
+        </a>
+      </li>
+
+      <li class="nav-item">
+        <a href="" class="nav-link">
+          <i class="link-icon" data-feather="archive"></i>
+          <span class="link-title">Stock</span>
+        </a>
+      </li>
+
+
+
     </ul>
   </div>
 </nav>
