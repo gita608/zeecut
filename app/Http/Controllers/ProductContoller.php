@@ -30,7 +30,7 @@ class ProductContoller extends Controller
             order_by: ['products.id' => 'DESC'] // Order by product ID in descending order
         );
 
-        // dd($data['list_items']);
+        $data['categories'] = Category::get(); // Fetch categories
         $data['page_title'] = 'Product';
         $data['page_name'] = 'admin.product.index';
 

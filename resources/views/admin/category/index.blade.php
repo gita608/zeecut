@@ -1,20 +1,20 @@
 <div class="page-content">
     <div class="row">
-        <div class="col-md-12 grid-margin stretch-card">
+        <div class="col-md-12">
             <div class="card">
                 <div class="card-body">
 
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h6 class="card-title">{{ $page_title ?? '' }}</h6>
+                        <h5 class="card-title mb-0">{{ $page_title ?? 'Categories' }}</h5>
                         <a href="javascript:void(0);" class="btn btn-primary btn-sm"
-                            onclick="show_small_modal('{{ route('category.add') }}', 'Add {{ $page_title ?? '' }}')">
-                            <i class="fas fa-plus"></i> Add {{ $page_title ?? '' }}
+                            onclick="show_small_modal('{{ route('category.add') }}', 'Add {{ $page_title ?? 'Category' }}')">
+                            <i class="fas fa-plus"></i> Add {{ $page_title ?? 'Category' }}
                         </a>
                     </div>
 
                     <div class="table-responsive">
-                        <table id="table1" class="table table-striped">
-                            <thead>
+                        <table id="table1" class="table table-bordered table-striped">
+                            <thead class="bg-light">
                                 <tr>
                                     <th>#</th>
                                     <th>Name</th>
@@ -24,33 +24,37 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @if(isset($list_items))
-                                @foreach ($list_items as $key => $item)
+                                @forelse ($list_items as $key => $item)
                                 <tr>
-                                    <td>{{ ++$key }}</td>
+                                    <td>{{ $loop->iteration }}</td>
                                     <td>{{ $item->name }}</td>
-                                    <td>{{ $item->description }}</td>
-                                    <td>{{ $item->created_at ? date('d-m-Y', strtotime($item->created_at )) : '' }}</td>
+                                    <td>{{ $item->description ?? '—' }}</td>
+                                    <td>{{ $item->created_at ? date('d-m-Y', strtotime($item->created_at)) : '—' }}</td>
                                     <td>
                                         <div class="btn-group" role="group">
-                                            <a href="javascript:void(0);" class="btn btn-sm btn-warning"
-                                                onclick="show_small_modal('{{ route('category.edit',$item->id) }}', 'Edit {{ $page_title ?? '' }}')">
-                                                <i class="fas fa-edit"></i> Edit
-                                            </a>
+                                            <button class="btn btn-sm btn-outline-warning"
+                                                onclick="show_small_modal('{{ route('category.edit', $item->id) }}', 'Edit {{ $page_title ?? 'Category' }}')"
+                                                data-bs-toggle="tooltip" title="Edit">
+                                                <i class="fas fa-pen"></i>
+                                            </button>
 
-                                            <a class="btn btn-sm btn-danger" href="javascript:void(0);"
-                                                onclick="delete_modal('{{ route('category.delete',$item->id) }}')">
-                                                <i class="fas fa-trash"></i> Delete
-                                            </a>
-
+                                            <button class="btn btn-sm btn-outline-danger"
+                                                onclick="delete_modal('{{ route('category.delete', $item->id) }}')"
+                                                data-bs-toggle="tooltip" title="Delete">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
                                         </div>
                                     </td>
                                 </tr>
-                                @endforeach
-                                @endif
+                                @empty
+                                <tr>
+                                    <td colspan="5" class="text-center">No records found.</td>
+                                </tr>
+                                @endforelse
                             </tbody>
                         </table>
                     </div>
+
                 </div>
             </div>
         </div>
