@@ -3,7 +3,7 @@
         <div class="card-body d-flex justify-content-between align-items-center">
             <h5 class="card-title m-0">{{ $page_title ?? '' }}</h5>
             <a href="javascript:void(0);" class="btn btn-primary btn-sm"
-                onclick="show_small_modal('{{ route('product.add') }}', 'Add {{ $page_title ?? '' }}')">
+                onclick="show_ajax_modal('{{ route('product.add') }}', 'Add {{ $page_title ?? '' }}')">
                 <i class="fas fa-plus"></i> Add {{ $page_title ?? '' }}
             </a>
         </div>
@@ -31,10 +31,7 @@
                 </div>
             </form>
         </div>
-    </div>
-
-    <!-- Product Table -->
-    <div class="card shadow-sm mt-3">
+   
         <div class="card-body">
             <div class="table-responsive">
                 <table id="table1" class="table table-striped table-hover">
@@ -55,7 +52,7 @@
                         @foreach ($list_items as $key => $item)
                         <tr>
                             <td>{{ ++$key }}</td>
-                            <td><img src="{{ asset($item->thumbnail) }}" alt="" class="img-thumbnail" width="80"></td>
+                            <td><img src="{{ asset($item->thumbnail) }}" alt="" class="img-thumbnail" width="150"></td>
                             <td>{{ $item->name }}</td>
                             <td>{{ $item->category_name ?? '' }}</td>
                             <td>{{ format_price($item->price) }}</td>
@@ -66,12 +63,12 @@
                             <td>{{ $item->created_at ? date('d-m-Y', strtotime($item->created_at)) : '' }}</td>
                             <td>
                                 <div class="btn-group">
-                                    <a href="javascript:void(0);" class="btn btn-warning btn-sm"
-                                        onclick="show_small_modal('{{ route('product.edit',$item->id) }}', 'Edit {{ $page_title ?? '' }}')"
+                                    <a href="javascript:void(0);" class="btn btn-outline-warning btn-sm"
+                                        onclick="show_full_modal('{{ route('product.edit',$item->id) }}', 'Edit {{ $page_title ?? '' }}')"
                                         title="Edit">
                                         <i class="fas fa-edit"></i>
                                     </a>
-                                    <a href="javascript:void(0);" class="btn btn-danger btn-sm"
+                                    <a href="javascript:void(0);" class="btn btn-outline-danger btn-sm"
                                         onclick="delete_modal('{{ route('product.delete',$item->id) }}')" title="Delete">
                                         <i class="fas fa-trash-alt"></i>
                                     </a>

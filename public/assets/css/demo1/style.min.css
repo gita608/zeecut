@@ -20666,9 +20666,17 @@ div.tox .btn-icon-text.btn-lg.tox-button .btn-icon-prepend {
     white-space: nowrap;
 }
 .table td img {
-    width: 36px;
-    height: 36px;
+    width: 120px;
+    height: 80px;
+    /* border-radius: 100%; */
+}
+.table td .img-circle {
+    width: 80px;
+    height: 80px;
     border-radius: 100%;
+    border: 1px solid var(--bs-border-color);
+    padding: 0.25rem;
+    background-color: #f9fafb;
 }
 .timeline {
     border-left: 3px solid #6571ff;

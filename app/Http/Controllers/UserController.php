@@ -15,14 +15,21 @@ class UserController extends Controller
         $this->userModel = $userModel;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $data['list_items'] = $this->userModel->getData(['role_id' => 2]);
+        $query = User::where('role_id', 2);
+    
+        if ($request->from_date && $request->to_date) {
+            $query->whereBetween('created_at', [$request->from_date, $request->to_date]);
+        }
+    
+        $data['list_items'] = $query->get();
         $data['page_title'] = 'Users';
         $data['page_name'] = 'admin.user.index';
-
+    
         return view('admin.main', $data);
     }
+    
 
     public function ajax_add()
     {

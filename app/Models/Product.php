@@ -24,4 +24,9 @@ class Product extends BaseModel
         return $this->belongsTo(Category::class, 'category_id', 'id');
     }
 
+    public function collections()
+    {
+        return $this->hasMany(ProductCollection::class, 'product_id');
+    }
+
 }

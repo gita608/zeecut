@@ -197,30 +197,42 @@
     }
 
     function delete_modal(
-        delete_url,
-        message = 'Are you Sure ?',
-        message_description = 'Are you Sure You want to Delete this?',
-        button_text = 'Yes, Delete It!'
-    ) {
-        Swal.fire({
-            html: '<div class="mt-3">' +
-                '<lord-icon src="https://cdn.lordicon.com/gsqxdxog.json" trigger="loop" colors="primary:#f7b84b,secondary:#f06548" style="width:100px;height:100px"></lord-icon>' +
-                '<div class="mt-4 pt-2 fs-15 mx-5">' +
-                '<h4>' + message + '</h4>' +
-                '<p class="text-muted mx-4 mb-0"> ' + message_description + '</p>' +
-                '</div>' +
-                '</div>',
-            showCancelButton: true,
-            confirmButtonClass: 'btn btn-primary w-xs me-2 mb-1',
-            confirmButtonText: button_text,
-            cancelButtonClass: 'btn btn-danger w-xs mb-1',
-            buttonsStyling: false,
-            showCloseButton: true,
-            preConfirm: () => {
-                window.location.href = delete_url;
-            }
-        })
-    }
+    delete_url,
+    message = 'Are you Sure?',
+    message_description = 'Are you sure you want to delete this item? This action cannot be undone.',
+    button_text = 'Yes, Delete It!'
+) {
+    Swal.fire({
+        html: `
+            <div class="mt-3">
+                <lord-icon 
+                    src="https://cdn.lordicon.com/gsqxdxog.json" 
+                    trigger="loop" 
+                    colors="primary:#e74c3c,secondary:#c0392b" 
+                    style="width:120px;height:120px">
+                </lord-icon>
+                <div class="mt-4 pt-2 fs-16 mx-5">
+                    <h4 class="text-dark">${message}</h4>
+                    <p class="text-muted mx-4 mb-0">${message_description}</p>
+                </div>
+            </div>
+        `,
+        showCancelButton: true,
+        confirmButtonText: button_text,
+        cancelButtonText: 'Cancel',
+        customClass: {
+            confirmButton: 'btn btn-danger w-xs me-2 mb-1',
+            cancelButton: 'btn btn-secondary w-xs mb-1',
+        },
+        buttonsStyling: false,
+        reverseButtons: true,
+        showCloseButton: true,
+        focusConfirm: false,
+        preConfirm: () => {
+            window.location.href = delete_url;
+        }
+    });
+}
     
     
     function approve_modal(
