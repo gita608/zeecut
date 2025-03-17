@@ -28,21 +28,30 @@ class ProductContoller extends Controller
             $where[] = ['products.category_id', '=', $request->category_id];
         }
 
-        $data['list_items'] = $this->product->getJoin(
+        $list_items = $this->product->getJoin(
             joins: [
-                ['categories', 'products.category_id', 'categories.id']
+                ['categories', 'products.category_id', 'categories.id'],
             ],
             where: $where,
             select: ['products.*', 'categories.name as category_name'],
             order_by: ['products.id' => 'DESC']
         );
 
+        foreach ($list_items as $key => $list_item) {
+            $list_items[$key]['collection_items'] = ProductCollection::where(['product_id' => $list_item['id']])->get();
+        }
+
+        $data['list_items'] = $list_items;
+
+        // Log::info('Product List Data', ['list_items' => $data['list_items']]);
         $data['categories'] = Category::all();
         $data['page_title'] = 'Product';
         $data['page_name'] = 'admin.product.index';
 
         return view('admin.main', $data);
     }
+
+
 
 
     public function ajax_add()
@@ -93,44 +102,66 @@ class ProductContoller extends Controller
 
     public function ajax_edit($id)
     {
+        $data['collections'] = ProductCollection::where(['product_id' => $id])->get();
         $data['edit_data'] = Product::findOrFail($id);
         $data['categories'] = Category::get(); // Fetch categories
         return view('admin.product.edit', $data);
     }
 
     public function update(Request $request, $id)
-    {
-        Log::error($_POST);
+{
 
-        $request->validate([
-            'category' => 'required|exists:categories,id',
-            'title' => 'required|string|max:255',
-            'description' => 'required|string',
-            'price' => 'required|numeric|min:0',
-            'discount_price' => 'nullable|numeric|min:0',
-            'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048' // Add this validation for file
-        ]);
+    Log::info('Product List Data', $_POST);
 
-        $data = [
-            'category_id' => $request->category,
-            'name' => $request->title,
-            'description' => $request->description,
-            'price' => $request->price,
-            'discount_price' => $request->discount_price,
-        ];
+    // $request->validate([
+    //     'category' => 'required|exists:categories,id',
+    //     'title' => 'required|string|max:255',
+    //     'description' => 'required|string',
+    //     'price' => 'required|numeric|min:0',
+    //     'discount_price' => 'nullable|numeric|min:0',
+    //     'no_of_collection' => 'numeric',
+    //     'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+    //     'collection_title.*' => 'required|string|max:255', // Validate collection title
+    //     'collection_price.*' => 'required|numeric|min:0',  // Validate collection price
+    // ]);
 
-        if ($request->hasFile('thumbnail')) {
-            $filePath = uploadFile($request->file('thumbnail'), 'product-images');
-            $data['thumbnail'] = $filePath;
-        } else {
-            Log::error('No file uploaded in request');
-        }
+    // Log::info('Product List Data2', $_POST);
 
-        $product = Product::findOrFail($id);
-        $product->update($data);
+    $data = [
+        'category_id' => $request->category,
+        'name' => $request->title,
+        'description' => $request->description,
+        'price' => $request->price,
+        'discount_price' => $request->discount_price,
+        'no_of_collection' => $request->no_of_collection,
+    ];
 
-        return redirect()->route('product.index')->with('message_success', 'Product updated successfully!');
+
+    // Handle Thumbnail Upload
+    if ($request->hasFile('thumbnail')) {
+        $filePath = uploadFile($request->file('thumbnail'), 'product-images');
+        $data['thumbnail'] = $filePath;
     }
+
+    // Update Product Data
+    $product = Product::findOrFail($id);
+    $product->update($data);
+
+    // Handle Collection Data
+    if ($request->has('collection_title') && $request->has('collection_price')) {
+        $product->collections()->delete(); // Delete previous collection data
+
+        foreach ($request->collection_title as $key => $title) {
+            $product->collections()->create([
+                'title' => $title,
+                'price' => $request->collection_price[$key] ?? 0,
+            ]);
+        }
+    }
+
+    return redirect()->route('product.index')->with('message_success', 'Product updated successfully!');
+}
+
 
 
     public function delete($id)

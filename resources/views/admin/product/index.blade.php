@@ -44,6 +44,7 @@
                             <th>Price</th>
                             <th>Discount Price</th>
                             <th>Status</th>
+                            <th>Collections</th>
                             <th>Created on</th>
                             <th>Action</th>
                         </tr>
@@ -60,11 +61,20 @@
                             <td>
                                 <input type="checkbox" class="toggle-status" onchange="get_ajax_status(this.checked, {{$item->id}})" {{ $item->status ? 'checked' : '' }}>
                             </td>
+                            <td>
+                                <ul>
+                                    @foreach ( $item['collection_items'] as $items )
+                                    
+                                        <li><?=strtoupper($items['title'])?></li>
+
+                                    @endforeach
+                                </ul>
+                            </td>
                             <td>{{ $item->created_at ? date('d-m-Y', strtotime($item->created_at)) : '' }}</td>
                             <td>
                                 <div class="btn-group">
                                     <a href="javascript:void(0);" class="btn btn-outline-warning btn-sm"
-                                        onclick="show_full_modal('{{ route('product.edit',$item->id) }}', 'Edit {{ $page_title ?? '' }}')"
+                                        onclick="show_ajax_modal('{{ route('product.edit',$item->id) }}', 'Edit {{ $page_title ?? '' }}')"
                                         title="Edit">
                                         <i class="fas fa-edit"></i>
                                     </a>
