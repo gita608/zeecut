@@ -7,6 +7,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\UserController;
 use App\Http\Middleware\RoleMiddleware;
 use App\Http\Controllers\ProductContoller;
+use App\Http\Controllers\OfferController;
 
 
 Route::get('/', [AuthController::class, 'login'])->name('login');
@@ -33,7 +34,7 @@ Route::middleware(RoleMiddleware::class)->group(function () {
     Route::get('/category-edit/{id}', [CategoryController::class, 'ajax_edit'])->name('category.edit');
     Route::post('/category-submit', [CategoryController::class, 'submit'])->name('category.submit');
     Route::put('/category-update/{id}', [CategoryController::class, 'update'])->name('category.update');
-    Route::delete('/category-delete/{id}', [CategoryController::class, 'delete'])->name('category.delete');
+    Route::get('/category-delete/{id}', [CategoryController::class, 'delete'])->name('category.delete');
 
     // Product
     Route::get('/product', [ProductContoller::class, 'index'])->name('product.index');
@@ -44,7 +45,13 @@ Route::middleware(RoleMiddleware::class)->group(function () {
     Route::get('/product-delete/{id}', [ProductContoller::class, 'delete'])->name('product.delete');
     Route::post('/product/toggle-status', [ProductContoller::class, 'toggleStatus'])->name('product.toggleStatus');
 
-
+    // Offers
+    Route::get('/offer', [OfferController::class, 'index'])->name('offer.index');
+    Route::get('/offer-add', [OfferController::class, 'ajax_add'])->name('offer.add');
+    Route::get('/offer-edit/{id}', [OfferController::class, 'ajax_edit'])->name(name: 'offer.edit');
+    Route::post('/offer-submit', [OfferController::class, 'submit'])->name('offer.submit');
+    Route::put('/offer-update/{id}', [OfferController::class, 'update'])->name('offer.update');
+    Route::get('/offer-delete/{id}', [OfferController::class, 'delete'])->name('offer.delete');
 
 });
 

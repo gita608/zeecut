@@ -2,9 +2,13 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-
-class Order extends Model
+class Order extends BaseModel
 {
-    //
+    protected $table = 'orders';
+
+    protected $fillable = [
+        'user_id',
+        'total_amount',
+        'status',
+    ];
 }
