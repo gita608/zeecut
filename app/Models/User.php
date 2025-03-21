@@ -4,13 +4,11 @@ namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable;
-    protected $table = 'users';
+    use Notifiable, HasApiTokens;
 
     protected $fillable = [
         'name',
@@ -19,4 +17,22 @@ class User extends Authenticatable
         'role',
         'password',
     ];
+
+    public function userdata()
+    {
+        return [
+            'id' => $this->id,
+            'name' => $this->name,
+            'email' => $this->email,
+            'phone' => $this->phone,
+            'role_id' => $this->role_id,
+            'created_at' => $this->created_at->format('Y-m-d H:i:s'),
+            'token' => $this->generateToken(),
+        ];
+    }
+
+    private function generateToken()
+    {
+        return $this->createToken('authToken')->plainTextToken;
+    }
 }
