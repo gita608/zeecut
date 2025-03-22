@@ -111,7 +111,7 @@ class ProductContoller extends Controller
     public function update(Request $request, $id)
 {
 
-    Log::info('Product List Data', $_POST);
+    // Log::info('Product List Data', $_POST);
 
     // $request->validate([
     //     'category' => 'required|exists:categories,id',

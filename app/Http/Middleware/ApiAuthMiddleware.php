@@ -18,7 +18,6 @@ class ApiAuthMiddleware
                 'message' => 'Unauthorized',
             ], 401);
         }
-
         return $next($request);
     }
 }

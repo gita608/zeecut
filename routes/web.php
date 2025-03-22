@@ -8,7 +8,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Middleware\RoleMiddleware;
 use App\Http\Controllers\ProductContoller;
 use App\Http\Controllers\OfferController;
-
+use App\Http\Controllers\PincodeAccesController;
 
 Route::get('/', [AuthController::class, 'login'])->name('login');
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
@@ -52,6 +52,15 @@ Route::middleware(RoleMiddleware::class)->group(function () {
     Route::post('/offer-submit', [OfferController::class, 'submit'])->name('offer.submit');
     Route::put('/offer-update/{id}', [OfferController::class, 'update'])->name('offer.update');
     Route::get('/offer-delete/{id}', [OfferController::class, 'delete'])->name('offer.delete');
+
+     // Pincode Routes
+     Route::get('/pincode', [PincodeAccesController::class, 'index'])->name('pincode.index');
+     Route::get('/pincode-add', [PincodeAccesController::class, 'ajax_add'])->name('pincode.add');
+     Route::get('/pincode-edit/{id}', [PincodeAccesController::class, 'ajax_edit'])->name('pincode.edit');
+     Route::post('/pincode-submit', [PincodeAccesController::class, 'submit'])->name('pincode.submit');
+     Route::put('/pincode-update/{id}', [PincodeAccesController::class, 'update'])->name('pincode.update');
+     Route::get('/pincode-delete/{id}', [PincodeAccesController::class, 'delete'])->name('pincode.delete');
+
 
 });
 

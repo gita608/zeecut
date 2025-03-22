@@ -96,7 +96,14 @@
         </a>
       </li>
 
-
+      @if(Route::has('pincode.index'))
+        <li class="nav-item">
+          <a href="{{ route('pincode.index') }}" class="nav-link">
+            <i class="link-icon" data-feather="map-pin"></i>
+            <span class="link-title">Pincode</span>
+          </a>
+        </li>
+      @endif
 
     </ul>
   </div>
