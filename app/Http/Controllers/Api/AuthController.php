@@ -68,4 +68,8 @@ class AuthController extends ApiBaseController
 
         return response()->json(['message' => 'Logged out successfully']);
     }
+
+    public function test(){
+        return response()->json(['message' => 'Logged out successfully']);   
+    }
 }

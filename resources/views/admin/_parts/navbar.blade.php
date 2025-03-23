@@ -96,13 +96,23 @@
         </a>
       </li>
 
+      @if(Route::has('offer.index'))
+      <li class="nav-item">
+        <a href="{{ route('offer.index') }}" class="nav-link">
+          <i class="link-icon" data-feather="tag"></i>
+          <span class="link-title">Offers</span>
+        </a>
+      </li>
+      @endif
+
+
       @if(Route::has('pincode.index'))
-        <li class="nav-item">
-          <a href="{{ route('pincode.index') }}" class="nav-link">
-            <i class="link-icon" data-feather="map-pin"></i>
-            <span class="link-title">Pincode</span>
-          </a>
-        </li>
+      <li class="nav-item">
+        <a href="{{ route('pincode.index') }}" class="nav-link">
+          <i class="link-icon" data-feather="map-pin"></i>
+          <span class="link-title">Pincode</span>
+        </a>
+      </li>
       @endif
 
     </ul>

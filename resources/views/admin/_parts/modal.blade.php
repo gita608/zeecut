@@ -203,35 +203,30 @@
     button_text = 'Yes, Delete It!'
 ) {
     Swal.fire({
-        html: `
-            <div class="mt-3">
-                <lord-icon 
-                    src="https://cdn.lordicon.com/gsqxdxog.json" 
-                    trigger="loop" 
-                    colors="primary:#e74c3c,secondary:#c0392b" 
-                    style="width:120px;height:120px">
-                </lord-icon>
-                <div class="mt-4 pt-2 fs-16 mx-5">
-                    <h4 class="text-dark">${message}</h4>
-                    <p class="text-muted mx-4 mb-0">${message_description}</p>
-                </div>
-            </div>
-        `,
-        showCancelButton: true,
-        confirmButtonText: button_text,
-        cancelButtonText: 'Cancel',
-        customClass: {
-            confirmButton: 'btn btn-danger w-xs me-2 mb-1',
-            cancelButton: 'btn btn-secondary w-xs mb-1',
-        },
-        buttonsStyling: false,
-        reverseButtons: true,
-        showCloseButton: true,
-        focusConfirm: false,
-        preConfirm: () => {
-            window.location.href = delete_url;
-        }
-    });
+    html: `
+        <div class="text-center">
+            <!-- GIF Animation -->
+            <img src="https://i.gifer.com/7efs.gif" alt="Deleting Animation" class="img-fluid mb-4" style="width: 150px; height: 150px;">            
+            <!-- Message -->
+            <h4 class="text-dark mb-3">${message}</h4>
+            <p class="text-muted mb-4">${message_description}</p>
+        </div>
+    `,
+    showCancelButton: true,
+    confirmButtonText: button_text,
+    cancelButtonText: 'Cancel',
+    customClass: {
+        confirmButton: 'btn btn-danger w-xs me-2 m-1',
+        cancelButton: 'btn btn-secondary w-xs m-1',
+    },
+    buttonsStyling: false,
+    reverseButtons: true,
+    showCloseButton: true,
+    focusConfirm: false,
+    preConfirm: () => {
+        window.location.href = delete_url;
+    }
+});
 }
     
     

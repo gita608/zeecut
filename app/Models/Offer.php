@@ -12,4 +12,8 @@ class Offer extends BaseModel
         'start_date',
         'end_date',
     ];
+
+    public function product(){
+        return $this->belongsTo(Product::class, 'product_id', 'id');
+    }
 }

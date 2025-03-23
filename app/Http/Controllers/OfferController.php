@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Offer;
 use App\Models\Product;
+use Illuminate\Support\Facades\Log;
 
 class OfferController extends Controller
 {
@@ -63,39 +64,40 @@ class OfferController extends Controller
         return redirect(route('offer.index'))->with('message_success', 'Created Successfully!');
     }
 
-    public function edit($id)
+    public function ajax_edit($id)
     {
 
+        $data['products'] = Product::get();
         $data['edit_data'] = Offer::findOrFail($id);
-        return view('admin.offer.ajax_edit', $data);
+        return view('admin.offer.edit', $data);
     }
 
-    public function update(Request $request,$id)
+    public function update(Request $request, $id)
     {
-        // DB::enableQueryLog();
 
-        // Validate the form data
         $request->validate([
-            'title' => 'required|string|max:255',
-            'thumbnail' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'product_id' => 'required|exists:products,id',
+            'discount_percentage' => 'required|numeric|min:1|max:100',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after:start_date',
         ]);
 
-        // Handle the file upload
-        if ($request->hasFile('thumbnail')) {
-            $file = $request->file('thumbnail');
-            // Call the uploadFile function
-            $filePath = $this->uploadFile($file, 'uploads', 'public');
-        }
+        $data = [
 
-        // Create the offer entry with title and file path
-        $data['title'] = $request->title;
-        $data['thumbnail'] = $filePath ?? '' ;
-        $offer = Offer::findOrFail($id);    
+            'product_id' => $request->product_id,
+            'name' => $request->title,
+            'discount_percentage' => $request->discount_percentage,
+            'start_date' => $request->start_date,
+            'end_date' => $request->end_date,
+        ];
+
+        $offer = Offer::findOrFail($id);
         $offer->update($data);
-        return redirect(route('categories.index'))->with('message_success', 'Updated Successfully!');
+        return redirect(route('offer.index'))->with('message_success', 'Updated Successfully!');
     }
 
-    public function delete($id){
+    public function delete($id)
+    {
         $offer = Offer::findOrFail($id);
         $offer->delete();
         return redirect(route('offer.index'))->with('message_success', 'Deleted Successfully!');
