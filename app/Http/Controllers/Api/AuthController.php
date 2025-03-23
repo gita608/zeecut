@@ -53,13 +53,9 @@ class AuthController extends ApiBaseController
             return $this->sendErrorResponse('Invalid credentials', 401);
         }
 
-        // ✅ Generate API Token
-        $token = $user->createToken('authToken')->plainTextToken;
-
         return $this->sendSuccessResponse([
             'user' => $user->userdata(),
-            'token' => $token,
-        ], 'Login successful');
+         ], 'Login successful');
     }
 
     // ✅ Check Pincode Access
@@ -76,7 +72,7 @@ class AuthController extends ApiBaseController
         if ($response) {
             return $this->sendSuccessResponse([], 'Delivery is available for the entered pincode.');
         } else {
-            return $this->sendErrorResponse('Delivery not available for the entered pincode.', 404);
+            return $this->sendErrorResponse('Delivery not available for the entered pincode.', 200);
         }
     }
 
