@@ -72,7 +72,7 @@ class AuthController extends ApiBaseController
         if ($response) {
             return $this->sendSuccessResponse([], 'Delivery is available for the entered pincode.');
         } else {
-            return $this->sendErrorResponse('Delivery not available for the entered pincode.', 200);
+            return $this->sendErrorResponse('Delivery not available for the entered pincode.', 404);
         }
     }
 
