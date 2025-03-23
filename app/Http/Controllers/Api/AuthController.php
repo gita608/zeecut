@@ -50,7 +50,7 @@ class AuthController extends ApiBaseController
         $user = User::where('phone', $validatedData['phone'])->first();
 
         if (!$user || !Hash::check($validatedData['password'], $user->password)) {
-            return $this->sendErrorResponse('Invalid credentials', 401);
+            return $this->sendErrorResponse('Invalid credentials', 403);
         }
 
         // ✅ Generate API Token
@@ -73,13 +73,14 @@ class AuthController extends ApiBaseController
         $pincodeAccess = new PincodeAccess();
         $response = $pincodeAccess->getData(['pincode' => $pincode])->first();
 
-        if ($response) {
-            return $this->sendSuccessResponse([], 'Delivery is available for the entered pincode.');
-        } else {
-            return $this->sendErrorResponse('Delivery not available for the entered pincode.', 404);
+        if (!$response) {
+            return $this->sendErrorResponse('Delivery not available for the entered pincode.', 200);
         }
+
+        return $this->sendSuccessResponse([], 'Delivery is available for the entered pincode.');
     }
 
+    // ✅ App Version Info
     public function app_version()
     {
         $data = [
