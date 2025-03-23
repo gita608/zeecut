@@ -4,6 +4,7 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
 use App\Http\Middleware\ApiAuthMiddleware;
+use App\Http\Middleware\ForceJsonResponse; // Import the middleware
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -13,9 +14,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // ✅ Apply Sanctum only to API routes, not globally
+        // ✅ Apply Sanctum only to API routes
         $middleware->group('api', [
             EnsureFrontendRequestsAreStateful::class,
+            ForceJsonResponse::class, // Add this middleware
         ]);
 
         // ✅ Register custom API middleware
@@ -26,3 +28,4 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withExceptions(function (Exceptions $exceptions) {
         //
     })->create();
+
