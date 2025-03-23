@@ -13,15 +13,6 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-<<<<<<< HEAD
-        // ✅ Apply Sanctum only to API routes
-        $middleware->group('api', [
-            EnsureFrontendRequestsAreStateful::class,
-            ForceJsonResponse::class, // Add this middleware
-        ]);
-
-=======
->>>>>>> rabil
         // ✅ Register custom API middleware
         $middleware->alias([
             'api.auth' => ApiAuthMiddleware::class,

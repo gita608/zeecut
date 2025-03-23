@@ -17,9 +17,3 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/categories', [CategoriesController::class, 'index']);
     Route::get('/user', [AuthController::class, 'user']);
 });
-
-<<<<<<< HEAD
- 
-=======
- 
->>>>>>> rabil
