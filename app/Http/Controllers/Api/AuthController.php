@@ -2,74 +2,95 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use App\Models\PincodeAccess;
 
 class AuthController extends ApiBaseController
 {
     public function __construct(Request $request)
     {
         parent::__construct($request);
-        }
+    }
 
     // ✅ Register User
     public function register(Request $request)
     {
-        $request->validate([
+        $validatedData = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users',
+            'email' => 'required|email|unique:users,email',
+            'phone' => 'required|regex:/^[0-9]{10,15}$/|unique:users,phone',
             'password' => 'required|string|min:6',
+            'place' => 'required|string|max:255',
         ]);
 
         $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
+            'name' => $validatedData['name'],
+            'email' => $validatedData['email'],
+            'phone' => $validatedData['phone'],
+            'role_id' => 2, // Assuming default user role
+            'place' => $validatedData['place'],
+            'password' => Hash::make($validatedData['password']),
         ]);
 
-        $token = $user->createToken('authToken')->plainTextToken;
-
-        return response()->json(['user' => $user, 'token' => $token], 201);
+        return $this->sendSuccessResponse([], 'User registered successfully', 201);
     }
 
+    // ✅ Login User
     public function login(Request $request)
     {
-        $request->validate([
-            'phone' => ['required', 'regex:/^\+?[0-9]{10,15}$/'], // Accepts international format and 10-15 digits
+        $validatedData = $request->validate([
+            'phone' => 'required|regex:/^\+?[0-9]{10,15}$/',
             'password' => 'required|string',
         ]);
 
-        $user = User::where('phone', $request->phone)->first();
+        $user = User::where('phone', $validatedData['phone'])->first();
 
-        if (!$user || !Hash::check($request->password, $user->password)) {
-            return response()->json(['status' => 0, 'message' => 'Invalid credentials', 'data' => []], 201);
+        if (!$user || !Hash::check($validatedData['password'], $user->password)) {
+            return $this->sendErrorResponse('Invalid credentials', 403);
         }
 
-        return response()->json([
-            'status' => 1,
-            'message' => 'Login Successful',
-            'data' => $user->userdata()
-        ], 200);
+        return $this->sendSuccessResponse([
+            'user' => $user->userdata(),
+        ], 'Login successful');
     }
 
-
-    public function user(Request $request)
+    // ✅ Check Pincode Access
+    public function pincode_access(Request $request)
     {
-        return response()->json(['user' => $request->user()]);
+        $validatedData = $request->validate([
+            'pincode' => 'required|regex:/^[0-9]{6,}$/',
+        ]);
+
+        $pincodeAccess = PincodeAccess::where('pincode', $validatedData['pincode'])->first();
+
+        if (!$pincodeAccess) {
+            return $this->sendErrorResponse('Delivery not available for the entered pincode.', 200);
+        }
+
+        return $this->sendSuccessResponse([], 'Delivery is available for the entered pincode.');
     }
 
-    // ✅ Logout User (Invalidate Token)
+    // ✅ App Version Info
+    public function app_version()
+    {
+        return $this->sendSuccessResponse([
+            'android_version' => '1.0.0',
+            'ios_version' => '1.0.0',
+            'force_android_version' => '1.0.0',
+            'force_ios_version' => '1.0.0',
+        ]);
+    }
+
+    // ✅ Logout User
     public function logout(Request $request)
     {
-        $request->user()->tokens()->delete();
-
-        return response()->json(['message' => 'Logged out successfully']);
-    }
-
-    public function test(){
-        return response()->json(['message' => 'Logged out successfully']);   
+        if ($this->checkAuthToken()) {
+            $request->user()->tokens()->delete();
+            return $this->sendSuccessResponse([], 'Logged out successfully');
+        }
+        return $this->sendErrorResponse('Unauthorized', 401);
     }
 }
