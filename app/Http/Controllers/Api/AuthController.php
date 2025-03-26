@@ -52,8 +52,14 @@ class AuthController extends ApiBaseController
             return $this->sendErrorResponse('Invalid credentials', 403);
         }
 
+        // Generate the token using the user instance
+        $token = $user->generateToken();
+
+        $user_data = $user->userdata();
+        $user_data['token'] = $token; // Assign the token to user data
+
         return $this->sendSuccessResponse([
-            'user' => $user->userdata(),
+            'user' => $user_data,
         ], 'Login successful');
     }
 

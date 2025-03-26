@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Log;
 
 class ProductContoller extends Controller
 {
-    protected $userModel;
+    protected $product;
 
     public function __construct()
     {

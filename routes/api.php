@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CategoriesController;
+use App\Http\Controllers\Api\ProductController;
+use App\Http\Controllers\Api\HomeController;
 use GuzzleHttp\Psr7\Request;
 
 // Public Routes (No Authentication Required)
@@ -14,7 +16,9 @@ Route::get('/pincode_access', [AuthController::class, 'pincode_access']);
 // Routes with Sanctum Middleware
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
+    Route::get('/home', [HomeController::class, 'index']);
     Route::get('/categories', [CategoriesController::class, 'index']);
+    Route::get('/products', [ProductController::class, 'index']);
     Route::get('/user', [AuthController::class, 'user']);
 });
 

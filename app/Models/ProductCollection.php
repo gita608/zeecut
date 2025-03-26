@@ -2,12 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 
-class ProductCollection extends Model
+class ProductCollection extends BaseModel
 {
-    use HasFactory;
+    protected $table = 'product_collections';
 
     protected $fillable = [
         'product_id',
@@ -15,8 +13,5 @@ class ProductCollection extends Model
         'price',
     ];
 
-    public function product()
-    {
-        return $this->belongsTo(Product::class, 'product_id');
-    }
+
 }
