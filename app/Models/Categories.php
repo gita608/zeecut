@@ -9,5 +9,7 @@ class Categories extends BaseModel
     protected $fillable = [
         'name',
         'description',
+        'icon',
+        'has_collection'
     ];
 }

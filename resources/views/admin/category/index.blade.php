@@ -17,6 +17,7 @@
                             <thead class="bg-light">
                                 <tr>
                                     <th>#</th>
+                                    <th>Thumbnail</th>
                                     <th>Name</th>
                                     <th>Description</th>
                                     <th>Created on</th>
@@ -27,6 +28,7 @@
                                 @forelse ($list_items as $key => $item)
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
+                                    <td><img src="{{ asset($item->icon) }}" alt="" class="img-thumbnail" width="150"></td>
                                     <td>{{ $item->name }}</td>
                                     <td>{{ $item->description ?? '—' }}</td>
                                     <td>{{ $item->created_at ? date('d-m-Y', strtotime($item->created_at)) : '—' }}</td>
