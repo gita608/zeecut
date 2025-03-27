@@ -19,6 +19,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/home', [HomeController::class, 'index']);
     Route::get('/categories', [CategoriesController::class, 'index']);
     Route::get('/products', [ProductController::class, 'index']);
+    Route::get('/product-details', [ProductController::class, 'details']);
 });
 
  

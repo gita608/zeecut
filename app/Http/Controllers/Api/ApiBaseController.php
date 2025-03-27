@@ -53,13 +53,12 @@ class ApiBaseController extends Controller
         ], $statusCode);
     }
 
-    protected function sendSuccessResponse($data, string $message = 'Success', int $statusCode = 200): JsonResponse
+    protected function sendSuccessResponse($data, string $message = 'Success', int $statusCode = 200,$status = true): JsonResponse
     {
         return response()->json([
-            'status' => true,
+            'status' => $status,
             'message' => $message,
-            'data' => is_array($data) ? $data : $data->toArray() // Auto-convert collections
+            'data' => $data
         ], $statusCode);
     }
-
 }

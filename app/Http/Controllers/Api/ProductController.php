@@ -28,11 +28,22 @@ class ProductController extends ApiBaseController
 
         foreach($data as &$val){
             $val->thumbnail = $val->thumbnail ? asset($val->thumbnail) : '';
-            $val->collections = $this->product_collection->getData(['product_id' => $val->id])->toArray();
         }
         
         return $this->sendSuccessResponse($data, 'Success');
     }
 
+    public function details(Request $request)
+    {
+        $product_id = $request->product_id;
+        $conditions['id'] = $product_id;
+
+        $data = $this->product->getData($conditions)->first();
+
+        $data->thumbnail = $data->thumbnail ? asset($data->thumbnail) : '';
+        $data->collections = $this->product_collection->getData(['product_id' => $product_id]);
+
+        return $this->sendSuccessResponse($data, 'Success');
+    }
 
 }
