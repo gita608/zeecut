@@ -49,22 +49,22 @@ class CategoryController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
+            'icon' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048', // Optional validation
         ]);
-
-        $filePath = uploadFile($request->file('icon'), 'category-images');
-        
+    
+        // Check if file is uploaded before calling uploadFile()
+        $filePath = $request->hasFile('icon') ? uploadFile($request->file('icon'), 'category-images') : null;
+    
         $data = [
             'name' => $request->name,
-            'icon' => $filePath ?? '',
-            'has_collection' => $request->has_collection,
+            'icon' => $filePath, // Store as NULL if no file is uploaded
+            'has_collection' => $request->has_collection ?? 0,
             'description' => $request->description,
-            'created_at' => date('Y-m-d H:i:s')
+            'created_at' => now() // Laravel's helper for current timestamp
         ];
-
-
-
+    
         $this->category->add($data);
-
+    
         return redirect()->route('category.index')->with('message_success', 'Category added successfully!');
     }
 
@@ -127,7 +127,7 @@ class CategoryController extends Controller
     /**
      * Remove the specified category from storage.
      */
-    public function destroy($id)
+    public function delete($id)
     {
         $deleted = $this->category->delete_record(['id' => $id]);
 
