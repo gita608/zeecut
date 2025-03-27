@@ -16,7 +16,6 @@ class ProductController extends ApiBaseController
         parent::__construct($request);
         $this->product = new Product();
         $this->product_collection = new ProductCollection();
-        
     }
     
     public function index(Request $request)

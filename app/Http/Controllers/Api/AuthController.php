@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Models\PincodeAccess;
+use Illuminate\Support\Facades\Validator;
 
 class AuthController extends ApiBaseController
 {
@@ -15,59 +16,73 @@ class AuthController extends ApiBaseController
         parent::__construct($request);
     }
 
-    // ✅ Register User
     public function register(Request $request)
     {
-        $validatedData = $request->validate([
+        $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
+            'email' => 'required|email',
             'phone' => 'required|regex:/^[0-9]{10,15}$/|unique:users,phone',
             'password' => 'required|string|min:6',
             'place' => 'required|string|max:255',
         ]);
-
+    
+        if ($validator->fails()) {
+            return $this->sendErrorResponse($validator->errors()->first(), 403);
+        }
+    
         $user = User::create([
-            'name' => $validatedData['name'],
-            'email' => $validatedData['email'],
-            'phone' => $validatedData['phone'],
-            'role_id' => 2, // Assuming default user role
-            'place' => $validatedData['place'],
-            'password' => Hash::make($validatedData['password']),
+            'name' => $request->name,
+            'email' => $request->email,
+            'phone' => $request->phone,
+            'role_id' => 2,
+            'place' => $request->place,
+            'password' => Hash::make($request->password),
         ]);
+        
+        // Generate the token using the user instance
+        $token = $user->generateToken();
 
-        return $this->sendSuccessResponse([], 'User registered successfully', 201);
+        $user_data = $user->userdata();
+        $user_data['token'] = $token; // Assign the token to user data
+    
+       return $this->sendSuccessResponse([
+            'user' => $user_data,
+        ], 'Login successful');
     }
 
-   // ✅ Login User
-   public function login(Request $request)
-   {
-       $validatedData = $request->validate([
-           'phone' => 'required|regex:/^\+?[0-9]{10,15}$/',
-           'password' => 'required|string',
-       ]);
 
-       $user = User::where('phone', $validatedData['phone'])->first();
-       
-       if(!$user){
-           return $this->sendSuccessResponse(['user' => []], 'No  User Found !!',200,false);
-       }
-       
-       if (!Hash::check($validatedData['password'], $user->password)) {
-           return $this->sendErrorResponse('Invalid credentials', 403);
-       }
+
+    // ✅ Login User
+    public function login(Request $request)
+    {
+        $validatedData = $request->validate([
+            'phone' => 'required|regex:/^\+?[0-9]{10,15}$/',
+            'password' => 'required|string',
+        ]);
+
+        $user = User::where('phone', $validatedData['phone'])->first();
+        
+        if(!$user){
+            return $this->sendSuccessResponse(['user' => []], 'No  User Found !!',200,false);
+        }
+        
+        if (!Hash::check($validatedData['password'], $user->password)) {
+            return $this->sendErrorResponse('Invalid credentials', 403);
+        }
+        
+        
        
 
-       // Generate the token using the user instance
-       $token = $user->generateToken();
+        // Generate the token using the user instance
+        $token = $user->generateToken();
 
-       $user_data = $user->userdata();
-       $user_data['token'] = $token; // Assign the token to user data
+        $user_data = $user->userdata();
+        $user_data['token'] = $token; // Assign the token to user data
 
-       return $this->sendSuccessResponse([
-           'user' => $user_data,
-       ], 'Login successful');
-       
-    }
+        return $this->sendSuccessResponse([
+            'user' => $user_data,
+        ], 'Login successful');
+    }
 
     // ✅ Check Pincode Access
     public function pincode_access(Request $request)
@@ -103,6 +118,6 @@ class AuthController extends ApiBaseController
             $request->user()->tokens()->delete();
             return $this->sendSuccessResponse([], 'Logged out successfully');
         }
-        return $this->sendErrorResponse('Unauthorized', 401);
+        return $this->sendErrorResponse('Unauthorized',401);
     }
 }

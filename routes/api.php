@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CategoriesController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\HomeController;
+use App\Http\Controllers\Api\CartController;
 use GuzzleHttp\Psr7\Request;
 
 // Public Routes (No Authentication Required)
@@ -20,6 +21,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/categories', [CategoriesController::class, 'index']);
     Route::get('/products', [ProductController::class, 'index']);
     Route::get('/product-details', [ProductController::class, 'details']);
+    Route::get('/cart', [CartController::class, 'index']);
 });
 
  
