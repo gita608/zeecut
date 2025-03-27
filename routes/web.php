@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BannerContoller;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\UserController;
@@ -60,6 +61,14 @@ Route::middleware(RoleMiddleware::class)->group(function () {
      Route::post('/pincode-submit', [PincodeAccesController::class, 'submit'])->name('pincode.submit');
      Route::put('/pincode-update/{id}', [PincodeAccesController::class, 'update'])->name('pincode.update');
      Route::get('/pincode-delete/{id}', [PincodeAccesController::class, 'delete'])->name('pincode.delete');
+
+     // Banner Routes
+     Route::get('/banner', [BannerContoller::class, 'index'])->name('banner.index');
+     Route::get('/banner-add', [BannerContoller::class, 'add'])->name('banner.add');
+     Route::get('/banner-edit/{id}', [BannerContoller::class, 'ajax_edit'])->name('banner.edit');
+     Route::post('/banner-submit', [BannerContoller::class, 'submit'])->name('banner.submit');
+     Route::put('/banner-update/{id}', [BannerContoller::class, 'update'])->name('banner.update');
+     Route::get('/banner-delete/{id}', [BannerContoller::class, 'delete'])->name('banner.delete');
 
 
 });

@@ -48,6 +48,15 @@
       </li>
 
 
+      @if(Route::has('banner.index'))
+      <li class="nav-item">
+        <a href="{{ route('banner.index') }}" class="nav-link">
+          <i class="link-icon" data-feather="image"></i> {{-- Banner Icon --}}
+          <span class="link-title">Banner</span>
+        </a>
+      </li>
+      @endif
+
       @if(Route::has('category.index'))
       <li class="nav-item">
         <a href="{{ route('category.index') }}" class="nav-link">
