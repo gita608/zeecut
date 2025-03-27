@@ -38,30 +38,36 @@ class AuthController extends ApiBaseController
         return $this->sendSuccessResponse([], 'User registered successfully', 201);
     }
 
-    // ✅ Login User
-    public function login(Request $request)
-    {
-        $validatedData = $request->validate([
-            'phone' => 'required|regex:/^\+?[0-9]{10,15}$/',
-            'password' => 'required|string',
-        ]);
+   // ✅ Login User
+   public function login(Request $request)
+   {
+       $validatedData = $request->validate([
+           'phone' => 'required|regex:/^\+?[0-9]{10,15}$/',
+           'password' => 'required|string',
+       ]);
 
-        $user = User::where('phone', $validatedData['phone'])->first();
+       $user = User::where('phone', $validatedData['phone'])->first();
+       
+       if(!$user){
+           return $this->sendSuccessResponse(['user' => []], 'No  User Found !!',200,false);
+       }
+       
+       if (!Hash::check($validatedData['password'], $user->password)) {
+           return $this->sendErrorResponse('Invalid credentials', 403);
+       }
+       
 
-        if (!$user || !Hash::check($validatedData['password'], $user->password)) {
-            return $this->sendErrorResponse('Invalid credentials', 403);
-        }
+       // Generate the token using the user instance
+       $token = $user->generateToken();
 
-        // Generate the token using the user instance
-        $token = $user->generateToken();
+       $user_data = $user->userdata();
+       $user_data['token'] = $token; // Assign the token to user data
 
-        $user_data = $user->userdata();
-        $user_data['token'] = $token; // Assign the token to user data
-
-        return $this->sendSuccessResponse([
-            'user' => $user_data,
-        ], 'Login successful');
-    }
+       return $this->sendSuccessResponse([
+           'user' => $user_data,
+       ], 'Login successful');
+       
+    }
 
     // ✅ Check Pincode Access
     public function pincode_access(Request $request)
