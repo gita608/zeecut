@@ -66,8 +66,7 @@ class AuthController extends ApiBaseController
        return $this->sendSuccessResponse([
            'user' => $user_data,
        ], 'Login successful');
-       
-    }
+    }
 
     // ✅ Check Pincode Access
     public function pincode_access(Request $request)

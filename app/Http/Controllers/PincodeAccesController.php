@@ -30,7 +30,7 @@ class PincodeAccesController extends Controller
         $request->validate([
 
             'name' => 'required|string',
-            'pincode' => 'required|numeric|unique:pincode_access,pincode|max:6|min:1'
+            'pincode' => 'required|numeric|unique:pincode_access,pincode|min:1'
         ]);
 
 
@@ -59,7 +59,7 @@ class PincodeAccesController extends Controller
         $data = $request->validate([
 
             'name' => 'required|string',
-            'pincode' => 'required|numeric'
+            'pincode' => 'required|numeric|unique:pincode_access,pincode|min:1'
         ]);
 
 
@@ -74,7 +74,7 @@ class PincodeAccesController extends Controller
         $user = PincodeAccess::findOrFail($id);
 
         if ($user->delete()) {
-            return redirect()->route('pincode.index')->with('message_success', 'Product deleted successfully!');
+            return redirect()->route('pincode.index')->with('message_success', 'Pincode deleted successfully!');
         } else {
             return redirect()->route('pincode.index')->with('message_danger', 'Failed to delete user.');
         }
