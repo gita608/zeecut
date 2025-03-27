@@ -50,17 +50,18 @@ class CategoryController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
         ]);
-        if ($request->hasFile('icon')) {
-            $file = $request->file('icon');
-            // Call the uploadFile function
-            $filePath = $this->uploadFile($file, 'uploads/category', 'public');
-        }
+
+        $filePath = uploadFile($request->file('icon'), 'category-images');
+        
         $data = [
             'name' => $request->name,
             'icon' => $filePath ?? '',
+            'has_collection' => $request->has_collection,
             'description' => $request->description,
             'created_at' => date('Y-m-d H:i:s')
         ];
+
+
 
         $this->category->add($data);
 
@@ -100,15 +101,16 @@ class CategoryController extends Controller
             'description' => 'nullable|string',
         ]);
 
-        if ($request->hasFile('icon')) {
-            $file = $request->file('icon');
-            // Call the uploadFile function
-            $filePath = $this->uploadFile($file, 'uploads/category', 'public');
+        if(!empty($request->icon)){
+            $filePath = uploadFile($request->file('icon'), 'category-images');
         }
+
+        // dd($request);
 
         $data = [
             'name' => $request->name,
             'icon' => $filePath ?? '',
+            'has_collection' => $request->has_collection ?? 0,
             'description' => $request->description,
             'updated_at' => date('Y-m-d H:i:s')
         ];

@@ -45,6 +45,7 @@ Route::middleware(RoleMiddleware::class)->group(function () {
     Route::post('/product-update/{id}', [ProductContoller::class, 'update'])->name('product.update');
     Route::get('/product-delete/{id}', [ProductContoller::class, 'delete'])->name('product.delete');
     Route::post('/product/toggle-status', [ProductContoller::class, 'toggleStatus'])->name('product.toggleStatus');
+    Route::get('/product/get_has_collection', [ProductContoller::class, 'get_has_collection'])->name('product.get_has_collection');
 
     // Offers
     Route::get('/offer', [OfferController::class, 'index'])->name('offer.index');

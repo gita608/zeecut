@@ -6,7 +6,7 @@
             <div class="col-md-12">
                 <div class="mb-3">
                     <label class="form-label" for="category">Category <span class="text-danger">*</span></label>
-                    <select class="form-control" name="category" id="category">
+                    <select class="form-control" name="category" id="category" onchange="get_category_id(this.value)">
                         <option value="">Choose Category</option>
                         @foreach($categories as $category)
                         <option value="{{ $category->id }}">{{ $category->name }}</option>
@@ -52,7 +52,7 @@
                 </div>
             </div>
 
-            <div class="col-md-12">
+            <div class="col-md-12" id="collection_div">
                 <div class="mb-3">
                     <label class="form-label" for="inputCount">Number of Collections</label>
                     <input type="number" id="inputCount" name="no_of_collection" class="form-control"
@@ -69,7 +69,34 @@
     </form>
 </div>
 
+
 <script>
+    // Set CSRF token globally for AJAX requests
+    function get_category_id(category_id) {
+        $.ajax({
+            url: @json(route('product.get_has_collection')), // Fix route usage  
+            type: "GET",
+            data: { category_id: category_id },
+            success: function (response) {
+                console.log(response); // Debugging
+                if (response.status === "success" && response.category) {  
+                    if (response.category.has_collection == 0) {
+                        $('#collection_div').hide();
+                    } else {
+                        $('#collection_div').show();
+                    }
+                } else {
+                    console.log("Category not found or invalid response");
+                }
+            },
+            error: function (xhr) {
+                console.log(xhr.responseText); // Log the actual error message
+            }
+        });
+    }
+
+
+
     document.getElementById('generateInputs').addEventListener('click', function() {
         const inputCount = parseInt(document.getElementById('inputCount').value);
         const dynamicInputsContainer = document.getElementById('dynamicInputs');

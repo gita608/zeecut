@@ -1,15 +1,16 @@
 <div class="container p-2">
     <form action="{{route('product.update', $edit_data->id)}}" method="post" enctype="multipart/form-data">
         @csrf
-         
+
         <div class="row">
             <div class="col-md-12">
                 <div class="mb-3">
                     <label class="form-label" for="category">Category <span class="text-danger">*</span></label>
-                    <select class="form-control" name="category" id="category">
+                    <select class="form-control" name="category" id="category" onchange="get_category_id(this.value)">
                         <option value="">Choose Category</option>
                         @foreach($categories as $category)
-                            <option value="{{ $category->id }}" {{$edit_data->category_id == $category->id ? 'selected' : '' }} >{{ $category->name }}</option>
+                        <option value="{{ $category->id }}" {{$edit_data->category_id == $category->id ? 'selected' : ''
+                            }} >{{ $category->name }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -18,28 +19,32 @@
             <div class="col-md-12">
                 <div class="mb-3">
                     <label class="form-label">Title <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" name="title" value="{{$edit_data->name}}" placeholder="Enter Title" required>
+                    <input type="text" class="form-control" name="title" value="{{$edit_data->name}}"
+                        placeholder="Enter Title" required>
                 </div>
             </div>
 
             <div class="col-md-12">
                 <div class="mb-3">
                     <label class="form-label">Description <span class="text-danger">*</span></label>
-                    <textarea class="form-control" name="description" id="description">{{$edit_data->description}}</textarea>
+                    <textarea class="form-control" name="description"
+                        id="description">{{$edit_data->description}}</textarea>
                 </div>
             </div>
 
             <div class="col-md-12">
                 <div class="mb-3">
                     <label class="form-label">Price <span class="text-danger">*</span></label>
-                    <input type="number" name="price" class="form-control" value="{{$edit_data->price}}" placeholder="Enter price" required>
+                    <input type="number" name="price" class="form-control" value="{{$edit_data->price}}"
+                        placeholder="Enter price" required>
                 </div>
             </div>
 
             <div class="col-md-12">
                 <div class="mb-3">
                     <label class="form-label">Discount Price </label>
-                    <input type="number" name="discount_price" value="{{$edit_data->discount_price}}" class="form-control" placeholder="Enter Discount price">
+                    <input type="number" name="discount_price" value="{{$edit_data->discount_price}}"
+                        class="form-control" placeholder="Enter Discount price">
                 </div>
             </div>
 
@@ -47,28 +52,34 @@
                 <div class="mb-3">
                     <label class="form-label">Thumbnail</label>
                     <input type="file" name="thumbnail" class="form-control">
-                    <img src="{{ asset('uploads/' . $edit_data->thumbnail) }}" alt="Thumbnail" class="mt-2" width="100px">
+                    <img src="{{ asset('uploads/' . $edit_data->thumbnail) }}" alt="Thumbnail" class="mt-2"
+                        width="100px">
                 </div>
             </div>
 
-            <!-- Dynamic Input Section for Collections -->
-            <div class="col-md-12">
-                <label class="form-label">Number of Collections</label>
-                <input type="number" id="inputCount" name="no_of_collection" value="" class="form-control mb-3" placeholder="Enter number of collections">
-                <button type="button" class="btn btn-primary mb-3" id="generateInputs">Generate</button>
-            </div>
+            <div class="" id="collection_div">
+                <!-- Dynamic Input Section for Collections -->
+                <div class="col-md-12">
+                    <label class="form-label">Number of Collections</label>
+                    <input type="number" id="inputCount" name="no_of_collection" value="" class="form-control mb-3"
+                        placeholder="Enter number of collections">
+                    <button type="button" class="btn btn-primary mb-3" id="generateInputs">Generate</button>
+                </div>
 
-            <div class="col-md-12" id="dynamicInputs">
-                @if($collections)
+                <div class="col-md-12" id="dynamicInputs">
+                    @if($collections)
                     @foreach($collections as $index => $collection)
                     <div class="d-flex align-items-center mb-3 p-2 bg-light rounded shadow-sm" data-index="{{$index + 1}}">
-                        <input type="text" class="form-control me-3" name="collection_title[]" value="{{$collection->title}}" placeholder="Collection Title">
-                        <input type="number" class="form-control me-3" name="collection_price[]" value="{{$collection->price}}" placeholder="Collection Price">
+                        <input type="text" class="form-control me-3" name="collection_title[]"
+                            value="{{$collection->title}}" placeholder="Collection Title">
+                        <input type="number" class="form-control me-3" name="collection_price[]"
+                            value="{{$collection->price}}" placeholder="Collection Price">
                         <button type="button" class="btn btn-danger btn-sm remove-row"><i class="fas fa-trash"></i></button>
                     </div>
                     @endforeach
-                @endif
-            </div>
+                    @endif
+                </div>
+            </div>        
 
         </div>
 
@@ -77,6 +88,35 @@
 </div>
 
 <script>
+
+    $(document).ready(function () {
+        const category_id = $('#category').val();
+        get_category_id(category_id);
+    });
+
+    function get_category_id(category_id) {
+        $.ajax({
+            url: @json(route('product.get_has_collection')), // Fix route usage  
+            type: "GET",
+            data: { category_id: category_id },
+            success: function (response) {
+                console.log(response); // Debugging
+                if (response.status === "success" && response.category) {  
+                    if (response.category.has_collection == 0) {
+                        $('#collection_div').hide();
+                    } else {
+                        $('#collection_div').show();
+                    }
+                } else {
+                    console.log("Category not found or invalid response");
+                }
+            },
+            error: function (xhr) {
+                console.log(xhr.responseText); 
+            }
+        });
+    }
+
     document.getElementById('generateInputs').addEventListener('click', function() {
         const inputCount = parseInt(document.getElementById('inputCount').value);
         const dynamicInputsContainer = document.getElementById('dynamicInputs');

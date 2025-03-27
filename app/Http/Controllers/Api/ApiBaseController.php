@@ -44,12 +44,12 @@ class ApiBaseController extends Controller
         return true;
     }
 
-    protected function sendErrorResponse(string $message, int $statusCode = 400): JsonResponse
+    protected function sendErrorResponse(string $message, int $statusCode = 400, array $data = []): JsonResponse
     {
         return response()->json([
             'status' => false,
             'message' => $message,
-            'data' => []
+            'data' => $data
         ], $statusCode);
     }
 

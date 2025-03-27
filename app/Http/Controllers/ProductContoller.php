@@ -52,11 +52,9 @@ class ProductContoller extends Controller
     }
 
 
-
-
     public function ajax_add()
     {
-        $categories = Category::get(); // Fetch categories
+        $categories = Category::get();
         return view('admin.product.add', compact('categories')); // Pass to view
     }
 
@@ -109,58 +107,58 @@ class ProductContoller extends Controller
     }
 
     public function update(Request $request, $id)
-{
+    {
 
-    // Log::info('Product List Data', $_POST);
+        // Log::info('Product List Data', $_POST);
 
-    // $request->validate([
-    //     'category' => 'required|exists:categories,id',
-    //     'title' => 'required|string|max:255',
-    //     'description' => 'required|string',
-    //     'price' => 'required|numeric|min:0',
-    //     'discount_price' => 'nullable|numeric|min:0',
-    //     'no_of_collection' => 'numeric',
-    //     'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-    //     'collection_title.*' => 'required|string|max:255', // Validate collection title
-    //     'collection_price.*' => 'required|numeric|min:0',  // Validate collection price
-    // ]);
+        // $request->validate([
+        //     'category' => 'required|exists:categories,id',
+        //     'title' => 'required|string|max:255',
+        //     'description' => 'required|string',
+        //     'price' => 'required|numeric|min:0',
+        //     'discount_price' => 'nullable|numeric|min:0',
+        //     'no_of_collection' => 'numeric',
+        //     'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        //     'collection_title.*' => 'required|string|max:255', // Validate collection title
+        //     'collection_price.*' => 'required|numeric|min:0',  // Validate collection price
+        // ]);
 
-    // Log::info('Product List Data2', $_POST);
+        // Log::info('Product List Data2', $_POST);
 
-    $data = [
-        'category_id' => $request->category,
-        'name' => $request->title,
-        'description' => $request->description,
-        'price' => $request->price,
-        'discount_price' => $request->discount_price,
-        'no_of_collection' => $request->no_of_collection,
-    ];
+        $data = [
+            'category_id' => $request->category,
+            'name' => $request->title,
+            'description' => $request->description,
+            'price' => $request->price,
+            'discount_price' => $request->discount_price,
+            'no_of_collection' => $request->no_of_collection,
+        ];
 
 
-    // Handle Thumbnail Upload
-    if ($request->hasFile('thumbnail')) {
-        $filePath = uploadFile($request->file('thumbnail'), 'product-images');
-        $data['thumbnail'] = $filePath;
-    }
-
-    // Update Product Data
-    $product = Product::findOrFail($id);
-    $product->update($data);
-
-    // Handle Collection Data
-    if ($request->has('collection_title') && $request->has('collection_price')) {
-        $product->collections()->delete(); // Delete previous collection data
-
-        foreach ($request->collection_title as $key => $title) {
-            $product->collections()->create([
-                'title' => $title,
-                'price' => $request->collection_price[$key] ?? 0,
-            ]);
+        // Handle Thumbnail Upload
+        if ($request->hasFile('thumbnail')) {
+            $filePath = uploadFile($request->file('thumbnail'), 'product-images');
+            $data['thumbnail'] = $filePath;
         }
-    }
 
-    return redirect()->route('product.index')->with('message_success', 'Product updated successfully!');
-}
+        // Update Product Data
+        $product = Product::findOrFail($id);
+        $product->update($data);
+
+        // Handle Collection Data
+        if ($request->has('collection_title') && $request->has('collection_price')) {
+            $product->collections()->delete(); // Delete previous collection data
+
+            foreach ($request->collection_title as $key => $title) {
+                $product->collections()->create([
+                    'title' => $title,
+                    'price' => $request->collection_price[$key] ?? 0,
+                ]);
+            }
+        }
+
+        return redirect()->route('product.index')->with('message_success', 'Product updated successfully!');
+    }
 
 
 
@@ -189,7 +187,18 @@ class ProductContoller extends Controller
         return response()->json(['message' => 'User not found!'], 404);
     }
 
+    public function get_has_collection(Request $request)
+    {
+        
+        $category = Category::find($request->category_id);
+        // Log::info($category); // Check what data is coming
 
+        if (!$category) {
+            return response()->json(['status' => 'error', 'message' => 'Category not found'], 404);
+        }
+
+        return response()->json(['status' => 'success', 'category' => $category]);
+    }
 
 
 }
