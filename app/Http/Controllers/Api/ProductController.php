@@ -26,7 +26,7 @@ class ProductController extends ApiBaseController
         $data = $this->product->getData($conditions);
 
         foreach($data as &$val){
-            $val->thumbnail = $val->thumbnail ? asset($val->thumbnail) : '';
+            $val->thumbnail = $val->thumbnail ? asset('storage/' . $val->thumbnail) : '';
         }
         
         return $this->sendSuccessResponse($data, 'Success');
@@ -39,7 +39,7 @@ class ProductController extends ApiBaseController
 
         $data = $this->product->getData($conditions)->first();
 
-        $data->thumbnail = $data->thumbnail ? asset($data->thumbnail) : '';
+        $data->thumbnail = $data->thumbnail ? asset('storage/' . $data->thumbnail) : '';
         $data->collections = $this->product_collection->getData(['product_id' => $product_id]);
 
         return $this->sendSuccessResponse($data, 'Success');

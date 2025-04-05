@@ -26,12 +26,12 @@ class HomeController extends ApiBaseController
         $user = User::where('id', $this->userId)->first();
         $categories = $this->category->getData();
         foreach($categories as &$category){
-            $category->icon = $category->icon ? asset($category->icon) : '';
+            $category->icon = $category->icon ? asset('storage/' . $category->icon) : '';
         }
         $banners = $this->banners->getData();
 
         foreach($banners as &$banner){
-            $banner->image = $banner->image ? asset($banner->image) : '';
+            $banner->image = $banner->image ? asset('storage/' . $banner->image) : '';
         }
 
         $data = [

@@ -19,6 +19,9 @@ class CategoriesController extends ApiBaseController
     public function index(Request $request)
     {
         $data = $this->category->getData();
+        foreach ($data as &$val){
+            $val->icon = $val->icon ? asset('storage/' . $val->icon) : '';
+        }
         return $this->sendSuccessResponse($data, 'Success');
     }
 

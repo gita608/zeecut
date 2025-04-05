@@ -6,6 +6,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Validator;
 
 class ApiBaseController extends Controller
 {
@@ -43,6 +44,18 @@ class ApiBaseController extends Controller
         }
         return true;
     }
+
+    protected function validateRequest(Request $request, array $rules)
+    {
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            return $this->sendErrorResponse($validator->errors()->first(), 403);
+        }
+
+        return null;
+    }
+
 
     protected function sendErrorResponse(string $message, int $statusCode = 400, array $data = []): JsonResponse
     {

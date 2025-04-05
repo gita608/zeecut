@@ -53,7 +53,7 @@
                         @foreach ($list_items as $key => $item)
                         <tr>
                             <td>{{ ++$key }}</td>
-                            <td><img src="{{ asset($item->thumbnail) }}" alt="" class="img-thumbnail" width="150"></td>
+                            <td><img src="{{ asset('storage/' . $item->thumbnail) }}" alt="" class="img-thumbnail" width="150"></td>
                             <td>{{ $item->name }}</td>
                             <td>{{ $item->category_name ?? '' }}</td>
                             <td>{{ format_price($item->price) }}</td>

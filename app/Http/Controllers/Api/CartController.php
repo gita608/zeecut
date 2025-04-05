@@ -1,4 +1,4 @@
-ea<?php
+<?php
 
 namespace App\Http\Controllers\Api;
 
@@ -41,7 +41,7 @@ class CartController extends ApiBaseController
         $cart = $this->cart->getJoin($joins, $where, $select);
 
         foreach($cart as &$val){
-            $val['product_thumbnail'] = $val['product_thumbnail'] ? asset($val['product_thumbnail']) : '';
+            $val['product_thumbnail'] = $val['product_thumbnail'] ? asset('storage/' . $val['product_thumbnail']) : '';
         }
 
         $data = [
@@ -55,5 +55,19 @@ class CartController extends ApiBaseController
 
         return $this->sendSuccessResponse($data, 'Success');
     }
+
+    public function add_cart(Request $request)
+    {
+        $validationResponse = $this->validateRequest($request, [
+            'name' => 'required|string|max:255',
+        ]);
+
+        if ($validationResponse) {
+            return $validationResponse;
+        }
+
+        return $this->sendSuccessResponse([], 'successful');
+    }
+
 
 }

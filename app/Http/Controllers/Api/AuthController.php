@@ -50,8 +50,6 @@ class AuthController extends ApiBaseController
         ], 'Login successful');
     }
 
-
-
     // ✅ Login User
     public function login(Request $request)
     {
