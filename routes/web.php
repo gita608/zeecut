@@ -42,10 +42,13 @@ Route::middleware(RoleMiddleware::class)->group(function () {
     Route::get('/product-add', [ProductContoller::class, 'ajax_add'])->name('product.add');
     Route::post('/product-submit', [ProductContoller::class, 'submit'])->name('product.submit');
     Route::get('/product-edit/{id}', [ProductContoller::class, 'ajax_edit'])->name('product.edit');
+    Route::get('/product-view_images/{id}', [ProductContoller::class, 'view_images'])->name('product.view_images');
     Route::post('/product-update/{id}', [ProductContoller::class, 'update'])->name('product.update');
     Route::get('/product-delete/{id}', [ProductContoller::class, 'delete'])->name('product.delete');
     Route::post('/product/toggle-status', [ProductContoller::class, 'toggleStatus'])->name('product.toggleStatus');
     Route::get('/product/get_has_collection', [ProductContoller::class, 'get_has_collection'])->name('product.get_has_collection');
+    Route::post('/product/upload_image', [ProductContoller::class, 'upload_image'])->name('product.upload_image');
+    Route::delete('/product/delete_image/{id}', [ProductContoller::class, 'delete_image'])->name('product.delete_image');
 
     // Offers
     Route::get('/offer', [OfferController::class, 'index'])->name('offer.index');

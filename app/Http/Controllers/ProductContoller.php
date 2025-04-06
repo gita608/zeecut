@@ -125,6 +125,13 @@ class ProductContoller extends Controller
         return view('admin.product.edit', $data);
     }
 
+    public function view_images($id)
+    {
+        $data['edit_data'] = Product_images::where('product_id', $id)->get();
+        Log::info('Product List Data', $data);
+        return view('admin.product.view_images', $data);
+    }
+
     public function update(Request $request, $id)
     {
 
@@ -208,7 +215,7 @@ class ProductContoller extends Controller
 
     public function get_has_collection(Request $request)
     {
-        
+
         $category = Category::find($request->category_id);
         // Log::info($category); // Check what data is coming
 
@@ -218,6 +225,66 @@ class ProductContoller extends Controller
 
         return response()->json(['status' => 'success', 'category' => $category]);
     }
+
+    public function delete_image($id)
+    {
+        $image = Product_images::find(id: $id);
+
+        if (!$image) {
+            return response()->json(['success' => false, 'message' => 'Image not found.'], 404);
+        }
+
+        // Delete image from storage
+        if ($image->image && Storage::disk('public')->exists($image->image)) {
+            Storage::disk('public')->delete($image->image);
+        }
+
+        // Delete image record from database
+        $image->delete();
+
+        return response()->json(['success' => true, 'message' => 'Image deleted successfully.']);
+    }
+    public function upload_image(Request $request)
+{
+    Log::info('Upload Request: ' . json_encode($request->all()));
+
+    if ($request->hasFile('images')) {
+        $uploadedHTML = '';
+
+        foreach ($request->file('images') as $file) {
+            $filename = time() . rand(100, 999) . '.' . $file->getClientOriginalExtension();
+            $storedPath = $file->storeAs('uploads/products', $filename, 'public');
+
+            // Save to DB
+            $image = new Product_images();
+            $image->product_id = $request->product_id;
+            $image->image = $storedPath;
+            $image->save();
+
+            // Now use real DB ID
+            $uploadedHTML .= '
+                <div class="col-md-3 mb-3" id="img-' . $image->id . '">
+                    <div class="card">
+                        <img src="' . asset("storage/{$storedPath}") . '" height="120" class="card-img-top" alt="Image">
+                        <div class="card-body p-2 text-center">
+                            <button class="btn btn-sm btn-danger delete-image" data-id="' . $image->id . '">Delete</button>
+                        </div>
+                    </div>
+                </div>
+            ';
+        }
+
+        return response()->json([
+            'success' => true,
+            'html' => $uploadedHTML
+        ]);
+    }
+
+    return response()->json(['success' => false, 'message' => 'No files uploaded.']);
+}
+
+
+
 
 
 }
