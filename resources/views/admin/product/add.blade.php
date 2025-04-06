@@ -1,145 +1,181 @@
-<div class="container p-2">
-    <form action="{{route('product.submit')}}" method="post" enctype="multipart/form-data">
+<div class="container p-4">
+    <form action="{{ route('product.submit') }}" method="post" enctype="multipart/form-data">
         @csrf
-        <div class="row">
+        <div class="row g-3">
 
             <div class="col-md-12">
-                <div class="mb-3">
-                    <label class="form-label" for="category">Category <span class="text-danger">*</span></label>
-                    <select class="form-control" name="category" id="category" onchange="get_category_id(this.value)">
-                        <option value="">Choose Category</option>
-                        @foreach($categories as $category)
+                <label class="form-label">Category <span class="text-danger">*</span></label>
+                <select class="form-select" name="category" id="category" onchange="get_category_id(this.value)" required>
+                    <option value="">Choose Category</option>
+                    @foreach($categories as $category)
                         <option value="{{ $category->id }}">{{ $category->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
+                    @endforeach
+                </select>
             </div>
 
             <div class="col-md-12">
-                <div class="mb-3">
-                    <label class="form-label" for="name">Title <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" id="name" name="title" placeholder="Enter Title" required>
-                </div>
+                <label class="form-label">Title <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" name="title" placeholder="Enter Title" required>
             </div>
 
             <div class="col-md-12">
-                <div class="mb-3">
-                    <label class="form-label" for="description">Description <span class="text-danger">*</span></label>
-                    <textarea class="form-control" name="description" id="description"></textarea>
-                </div>
+                <label class="form-label">Description <span class="text-danger">*</span></label>
+                <textarea class="form-control" name="description" rows="4" placeholder="Enter product description" required></textarea>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">Price/kg <span class="text-danger">*</span></label>
+                <input type="number" name="price" class="form-control" placeholder="Enter Price Per Kg" required>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">Discount Price</label>
+                <input type="number" name="discount_price" class="form-control" placeholder="Enter Discount Price">
             </div>
 
             <div class="col-md-12">
-                <div class="mb-3">
-                    <label class="form-label" for="price">Price/kg <span class="text-danger">*</span></label>
-                    <input type="number" name="price" class="form-control" id="price" placeholder="Enter Price Per Kg"
-                        required>
-                </div>
+                <label class="form-label">Thumbnail <span class="text-danger">*</span></label>
+                <input type="file" name="thumbnail" class="form-control" required>
             </div>
 
-            <div class="col-md-12">
-                <div class="mb-3">
-                    <label class="form-label" for="discount_price">Discount Price </label>
-                    <input type="number" name="discount_price" class="form-control" id="discount_price"
-                        placeholder="Enter Discount Price">
+            {{-- Collection Fields --}}
+            <div class="col-md-12" id="collection_div" style="display: none;">
+                <label class="form-label">Number of Collections</label>
+                <div class="d-flex mb-2">
+                    <input type="number" id="inputCount" name="no_of_collection" class="form-control me-2"
+                        placeholder="Enter number of collections">
+                    <button type="button" class="btn btn-outline-primary" id="generateInputs">Generate</button>
                 </div>
+                <div id="dynamicInputs"></div>
             </div>
 
-            <div class="col-md-12">
-                <div class="mb-3">
-                    <label class="form-label" for="thumbnail">Thumbnail <span class="text-danger">*</span></label>
-                    <input type="file" name="thumbnail" class="form-control" id="thumbnail" required>
-                </div>
+            {{-- Image Upload Fields --}}
+            <div class="col-md-12 mt-4">
+                <label class="form-label">Additional Images</label>
+                <button type="button" class="btn btn-outline-secondary btn-sm mb-2" id="addImage">Add Image Field</button>
+                <div id="imageInputs"></div>
             </div>
 
-            <div class="col-md-12" id="collection_div">
-                <div class="mb-3">
-                    <label class="form-label" for="inputCount">Number of Collections</label>
-                    <input type="number" id="inputCount" name="no_of_collection" class="form-control"
-                        placeholder="Enter number of collections to generate for this product">
-                </div>
-                <button type="button" class="btn btn-primary mb-3" id="generateInputs">Generate</button>
+            <div class="col-md-12 text-end">
+                <button type="submit" class="btn btn-success">Submit Product</button>
             </div>
-
-            <div class="col-md-12" id="dynamicInputs"></div>
-
         </div>
-
-        <button type="submit" class="btn btn-success float-end">Submit</button>
     </form>
 </div>
 
+<style>
+    .is-invalid {
+        border: 1px solid red !important;
+    }
+</style>
 
 <script>
-    // Set CSRF token globally for AJAX requests
+    // AJAX: Show/hide collection section
     function get_category_id(category_id) {
         $.ajax({
-            url: @json(route('product.get_has_collection')), // Fix route usage  
+            url: @json(route('product.get_has_collection')),
             type: "GET",
-            data: { category_id: category_id },
+            data: { category_id },
             success: function (response) {
-                console.log(response); // Debugging
-                if (response.status === "success" && response.category) {  
-                    if (response.category.has_collection == 0) {
-                        $('#collection_div').hide();
-                    } else {
-                        $('#collection_div').show();
-                    }
-                } else {
-                    console.log("Category not found or invalid response");
+                if (response.status === "success" && response.category) {
+                    $('#collection_div').toggle(response.category.has_collection == 1);
                 }
             },
             error: function (xhr) {
-                console.log(xhr.responseText); // Log the actual error message
+                console.error(xhr.responseText);
             }
         });
     }
 
+    // Generate Collection Fields
+    document.getElementById('generateInputs').addEventListener('click', function () {
+        const count = parseInt(document.getElementById('inputCount').value);
+        const container = document.getElementById('dynamicInputs');
+        container.innerHTML = '';
 
+        if (!isNaN(count) && count > 0) {
+            for (let i = 1; i <= count; i++) {
+                const row = document.createElement('div');
+                row.className = 'card p-3 mb-2 shadow-sm';
+                row.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-center">
+                        <strong>Collection ${i}</strong>
+                        <button type="button" class="btn-close btn-sm remove-btn" aria-label="Remove"></button>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-md-6">
+                            <input type="text" name="collection_title[]" class="form-control" placeholder="Title">
+                        </div>
+                        <div class="col-md-6">
+                            <input type="number" name="collection_price[]" class="form-control" placeholder="Price">
+                        </div>
+                    </div>
+                `;
+                container.appendChild(row);
 
-    document.getElementById('generateInputs').addEventListener('click', function() {
-        const inputCount = parseInt(document.getElementById('inputCount').value);
-        const dynamicInputsContainer = document.getElementById('dynamicInputs');
-        dynamicInputsContainer.innerHTML = ''; // Clear previous inputs
-
-        if (!isNaN(inputCount) && inputCount > 0) {
-            for (let i = 1; i <= inputCount; i++) {
-                const rowDiv = document.createElement('div');
-                rowDiv.className = 'd-flex align-items-center mb-3 p-2 bg-light rounded shadow-sm';
-                rowDiv.setAttribute('data-index', i);
-
-                const index = document.createElement('div');
-                index.className = 'fw-bold me-3';
-                index.innerText = `${i}.`;
-
-                const titleInput = document.createElement('input');
-                titleInput.type = 'text';
-                titleInput.className = 'form-control me-3';
-                titleInput.name = `collection_title[]`;
-                titleInput.placeholder = `Collection ${i} Title`;
-
-                const priceInput = document.createElement('input');
-                priceInput.type = 'number';
-                priceInput.className = 'form-control me-3';
-                priceInput.name = `collection_price[]`;
-                priceInput.placeholder = `Collection ${i} Price`;
-
-                const removeBtn = document.createElement('button');
-                removeBtn.className = 'btn btn-danger btn-sm';
-                removeBtn.innerHTML = '<i class="fas fa-trash"></i>';
-                removeBtn.type = 'button';
-
-                removeBtn.addEventListener('click', function() {
-                    rowDiv.remove();
-                });
-
-                rowDiv.appendChild(index);
-                rowDiv.appendChild(titleInput);
-                rowDiv.appendChild(priceInput);
-                rowDiv.appendChild(removeBtn);
-
-                dynamicInputsContainer.appendChild(rowDiv);
+                row.querySelector('.remove-btn').addEventListener('click', () => row.remove());
             }
+        }
+    });
+
+    // Add Image Fields
+    document.getElementById('addImage').addEventListener('click', function () {
+        const imageInputs = document.getElementById('imageInputs');
+        const imageGroup = document.createElement('div');
+        imageGroup.className = 'd-flex align-items-center mb-2';
+
+        imageGroup.innerHTML = `
+            <input type="file" name="extra_images[]" class="form-control me-2">
+            <button type="button" class="btn btn-danger btn-sm remove-image"><i class="fas fa-trash-alt"></i></button>
+        `;
+
+        imageGroup.querySelector('.remove-image').addEventListener('click', () => {
+            imageGroup.remove();
+        });
+
+        imageInputs.appendChild(imageGroup);
+    });
+
+    // Custom validation on submit
+    document.querySelector('form').addEventListener('submit', function (e) {
+        let hasError = false;
+
+        // Validate collections if visible
+        const collectionDiv = document.getElementById('collection_div');
+        if (collectionDiv && collectionDiv.style.display !== 'none') {
+            const titles = document.getElementsByName('collection_title[]');
+            const prices = document.getElementsByName('collection_price[]');
+
+            for (let i = 0; i < titles.length; i++) {
+                if (titles[i].value.trim() === '') {
+                    titles[i].classList.add('is-invalid');
+                    hasError = true;
+                } else {
+                    titles[i].classList.remove('is-invalid');
+                }
+
+                if (prices[i].value.trim() === '') {
+                    prices[i].classList.add('is-invalid');
+                    hasError = true;
+                } else {
+                    prices[i].classList.remove('is-invalid');
+                }
+            }
+        }
+
+        // Validate extra image fields
+        const extraImages = document.getElementsByName('extra_images[]');
+        for (let i = 0; i < extraImages.length; i++) {
+            if (extraImages[i].value === '') {
+                extraImages[i].classList.add('is-invalid');
+                hasError = true;
+            } else {
+                extraImages[i].classList.remove('is-invalid');
+            }
+        }
+
+        if (hasError) {
+            e.preventDefault();
         }
     });
 </script>

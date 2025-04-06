@@ -55,21 +55,21 @@ Route::middleware(RoleMiddleware::class)->group(function () {
     Route::put('/offer-update/{id}', [OfferController::class, 'update'])->name('offer.update');
     Route::get('/offer-delete/{id}', [OfferController::class, 'delete'])->name('offer.delete');
 
-     // Pincode Routes
-     Route::get('/pincode', [PincodeAccesController::class, 'index'])->name('pincode.index');
-     Route::get('/pincode-add', [PincodeAccesController::class, 'ajax_add'])->name('pincode.add');
-     Route::get('/pincode-edit/{id}', [PincodeAccesController::class, 'ajax_edit'])->name('pincode.edit');
-     Route::post('/pincode-submit', [PincodeAccesController::class, 'submit'])->name('pincode.submit');
-     Route::put('/pincode-update/{id}', [PincodeAccesController::class, 'update'])->name('pincode.update');
-     Route::get('/pincode-delete/{id}', [PincodeAccesController::class, 'delete'])->name('pincode.delete');
+    // Pincode Routes
+    Route::get('/pincode', [PincodeAccesController::class, 'index'])->name('pincode.index');
+    Route::get('/pincode-add', [PincodeAccesController::class, 'ajax_add'])->name('pincode.add');
+    Route::get('/pincode-edit/{id}', [PincodeAccesController::class, 'ajax_edit'])->name('pincode.edit');
+    Route::post('/pincode-submit', [PincodeAccesController::class, 'submit'])->name('pincode.submit');
+    Route::put('/pincode-update/{id}', [PincodeAccesController::class, 'update'])->name('pincode.update');
+    Route::get('/pincode-delete/{id}', [PincodeAccesController::class, 'delete'])->name('pincode.delete');
 
-     // Banner Routes
-     Route::get('/banner', [BannerContoller::class, 'index'])->name('banner.index');
-     Route::get('/banner-add', [BannerContoller::class, 'add'])->name('banner.add');
-     Route::get('/banner-edit/{id}', [BannerContoller::class, 'ajax_edit'])->name('banner.edit');
-     Route::post('/banner-submit', [BannerContoller::class, 'submit'])->name('banner.submit');
-     Route::put('/banner-update/{id}', [BannerContoller::class, 'update'])->name('banner.update');
-     Route::get('/banner-delete/{id}', [BannerContoller::class, 'delete'])->name('banner.delete');
+    // Banner Routes
+    Route::get('/banner', [BannerContoller::class, 'index'])->name('banner.index');
+    Route::get('/banner-add', [BannerContoller::class, 'add'])->name('banner.add');
+    Route::get('/banner-edit/{id}', [BannerContoller::class, 'ajax_edit'])->name('banner.edit');
+    Route::post('/banner-submit', [BannerContoller::class, 'submit'])->name('banner.submit');
+    Route::put('/banner-update/{id}', [BannerContoller::class, 'update'])->name('banner.update');
+    Route::get('/banner-delete/{id}', [BannerContoller::class, 'delete'])->name('banner.delete');
 
 
 });

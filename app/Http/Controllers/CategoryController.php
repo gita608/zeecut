@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Categories;
 
+
 class CategoryController extends Controller
 {
     protected $category;
@@ -49,7 +50,7 @@ class CategoryController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'icon' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048', // Optional validation
+            'icon' => 'nullable|image|max:2048', // max in KB (2048 = 2MB)
         ]);
     
         // Check if file is uploaded before calling uploadFile()
@@ -99,6 +100,7 @@ class CategoryController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
+            'icon' => 'nullable|image|max:2048', // max in KB (2048 = 2MB)
         ]);
 
         if(!empty($request->icon)){
@@ -138,17 +140,87 @@ class CategoryController extends Controller
         return redirect()->route('category.index')->with('error', 'Failed to delete category.');
     }
 
-    public function uploadFile($file, $folder = 'uploads', $disk = 'public')
+    public function uploadFile($file, $baseFolder = 'uploads', $disk = 'public')
     {
-        // Check if the file is valid
         if ($file->isValid()) {
-            $originalName = $file->getClientOriginalName();
-            $mimeType = $file->getMimeType();
-            $extension = $file->getClientOriginalExtension();
+            $extension = strtolower($file->getClientOriginalExtension());
             $filename = uniqid() . '.' . $extension;
-            $filePath = $file->storeAs($folder, $filename, $disk);
-            return $filePath;  // Return the file path
+            $dateFolder = date('Y') . '/' . date('m');
+            $folder = $baseFolder . '/' . $dateFolder;
+            $path = $folder . '/' . $filename;
+
+            // Create directory if not exists
+            $fullPath = storage_path("app/{$disk}/{$folder}");
+            if (!file_exists($fullPath)) {
+                mkdir($fullPath, 0755, true);
+            }
+
+            // Supported image extensions
+            $imageExtensions = ['jpg', 'jpeg', 'png', 'webp'];
+            
+            if (in_array($extension, $imageExtensions)) {
+                $sourcePath = $file->getRealPath();
+                list($width, $height) = getimagesize($sourcePath);
+
+                // Set new width (max 1200px), auto height (keep ratio)
+                $newWidth = 1200;
+                if ($width <= $newWidth) {
+                    // No resize needed, just move original file
+                    $file->move($fullPath, $filename);
+                    return "{$folder}/{$filename}";
+                }
+
+                $newHeight = intval(($newWidth / $width) * $height);
+
+                // Create image resource based on file type
+                switch ($extension) {
+                    case 'jpg':
+                    case 'jpeg':
+                        $srcImage = imagecreatefromjpeg($sourcePath);
+                        break;
+                    case 'png':
+                        $srcImage = imagecreatefrompng($sourcePath);
+                        break;
+                    case 'webp':
+                        $srcImage = imagecreatefromwebp($sourcePath);
+                        break;
+                    default:
+                        return null;
+                }
+
+                // Resize
+                $dstImage = imagecreatetruecolor($newWidth, $newHeight);
+                imagecopyresampled($dstImage, $srcImage, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
+
+                $savePath = "{$fullPath}/{$filename}";
+
+                // Save compressed image
+                switch ($extension) {
+                    case 'jpg':
+                    case 'jpeg':
+                        imagejpeg($dstImage, $savePath, 75); // 75% quality
+                        break;
+                    case 'png':
+                        imagepng($dstImage, $savePath, 6); // Compression 0-9 (6 is balanced)
+                        break;
+                    case 'webp':
+                        imagewebp($dstImage, $savePath, 75);
+                        break;
+                }
+
+                // Free memory
+                imagedestroy($srcImage);
+                imagedestroy($dstImage);
+
+                return "{$folder}/{$filename}";
+            } else {
+                // Non-image files
+                $file->storeAs($folder, $filename, $disk);
+                return "{$folder}/{$filename}";
+            }
         }
-        return null;  // Return null if the file is not valid
+
+        return null;
     }
+
 }

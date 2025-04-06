@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Category;
 use App\Models\ProductCollection;
+use App\Models\Product_images;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
@@ -69,8 +70,10 @@ class ProductContoller extends Controller
             'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
             'collection_title.*' => 'nullable|string',
             'collection_price.*' => 'nullable|numeric|min:0',
+            'extra_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
+        // Upload thumbnail
         $filePath = uploadFile($request->file('thumbnail'), 'product-images');
 
         // Store Product
@@ -82,16 +85,32 @@ class ProductContoller extends Controller
             'discount_price' => $request->discount_price,
             'thumbnail' => $filePath,
             'no_of_collection' => $request->no_of_collection,
-
         ]);
 
         // Store Product Collections
-        foreach ($request->collection_title as $index => $title) {
-            ProductCollection::create([
-                'product_id' => $product->id,
-                'title' => $title,
-                'price' => $request->collection_price[$index] ?? 0,
-            ]);
+        if ($request->has('collection_title')) {
+            foreach ($request->collection_title as $index => $title) {
+                if ($title) {
+                    ProductCollection::create([
+                        'product_id' => $product->id,
+                        'title' => $title,
+                        'price' => $request->collection_price[$index] ?? 0,
+                    ]);
+                }
+            }
+        }
+
+        // Store Additional Product Images
+        if ($request->hasFile('extra_images')) {
+            foreach ($request->file('extra_images') as $image) {
+                if ($image->isValid()) {
+                    $imagePath = uploadFile($image, 'product-images');
+                    Product_images::create([
+                        'product_id' => $product->id,
+                        'image' => $imagePath,
+                    ]);
+                }
+            }
         }
 
         return redirect()->route('product.index')->with('message_success', 'Product and collections added successfully!');
