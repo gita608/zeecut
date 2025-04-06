@@ -29,7 +29,7 @@
                                     <td>{{ $loop->iteration }}</td>
                                     <td>{{ $item->title }}</td>
                                     <td>
-                                        <img src="{{$item->image}}" alt="">
+                                        <img src="{{asset('storage/' . $item->image)}}" alt="">
                                     </td>
                                     <td>{{ $item->created_at ? date('d-m-Y', strtotime($item->created_at)) : '—' }}</td>
                                     <td>

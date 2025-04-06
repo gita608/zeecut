@@ -28,7 +28,7 @@
                                 @forelse ($list_items as $key => $item)
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
-                                    <td><img src="{{ asset($item->icon) }}" alt="" class="img-thumbnail" width="150"></td>
+                                    <td><img src="{{ asset('storage/' . $item->icon) }}" alt="" class="img-thumbnail" width="150"></td>
                                     <td>{{ $item->name }}</td>
                                     <td>{{ $item->description ?? '—' }}</td>
                                     <td>{{ $item->created_at ? date('d-m-Y', strtotime($item->created_at)) : '—' }}</td>
