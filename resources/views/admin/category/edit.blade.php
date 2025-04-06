@@ -53,7 +53,7 @@
                     </div>
                     <label for="image" class="form-label fw-bold">Update Image</label>
                     <input class="form-control" type="file" id="image" name="icon" accept="image/*">
-                    <div class="form-text">Leave blank to keep current image</div>
+                    <small id="imageMessage" class="form-text text-muted">Max size: 2MB</small>
                 </div>
 
             </div>
@@ -93,4 +93,19 @@
       }, false)
     })
 })()
+document.getElementById('image').addEventListener('change', function () {
+    const file = this.files[0];
+    const messageEl = document.getElementById('imageMessage');
+
+    if (file && file.size > 2 * 1024 * 1024) {
+        messageEl.textContent = "Image size should not exceed 2MB.";
+        messageEl.classList.remove("text-muted");
+        messageEl.classList.add("text-danger");
+        this.value = ""; // clear input
+    } else {
+        messageEl.textContent = "Max size: 2MB";
+        messageEl.classList.remove("text-danger");
+        messageEl.classList.add("text-muted");
+    }
+});
 </script>

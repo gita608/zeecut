@@ -19,7 +19,7 @@
                                     <th>#</th>
                                     <th>Name</th>
                                     <th>Image</th>
-                                    <th>Thumbnail</th>
+                                    <th>Created on</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
