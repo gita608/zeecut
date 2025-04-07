@@ -38,7 +38,7 @@
                     <thead class="bg-light">
                         <tr>
                             <th>#</th>
-                            <th>Thumbnail</th>
+                            <th>Primary Image</th>
                             <th>Title</th>
                             <th>Category</th>
                             <th>Price</th>

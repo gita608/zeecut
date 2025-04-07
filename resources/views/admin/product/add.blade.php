@@ -34,16 +34,16 @@
             </div>
 
             <div class="col-md-12">
-                <label class="form-label">Thumbnail <span class="text-danger">*</span></label>
+                <label class="form-label">Primary Image <span class="text-danger">*</span></label>
                 <input type="file" name="thumbnail" class="form-control" required>
+                <small class="form-text text-muted">Max upload size: 2MB</small>
             </div>
 
             {{-- Collection Fields --}}
             <div class="col-md-12" id="collection_div" style="display: none;">
                 <label class="form-label">Number of Collections</label>
                 <div class="d-flex mb-2">
-                    <input type="number" id="inputCount" name="no_of_collection" class="form-control me-2"
-                        placeholder="Enter number of collections">
+                    <input type="number" id="inputCount" name="no_of_collection" class="form-control me-2" placeholder="Enter number of collections">
                     <button type="button" class="btn btn-outline-primary" id="generateInputs">Generate</button>
                 </div>
                 <div id="dynamicInputs"></div>
@@ -54,6 +54,7 @@
                 <label class="form-label">Additional Images</label>
                 <button type="button" class="btn btn-outline-secondary btn-sm mb-2" id="addImage">Add Image Field</button>
                 <div id="imageInputs"></div>
+                <small class="form-text text-muted">Each image max size: 2MB</small>
             </div>
 
             <div class="col-md-12 text-end">
@@ -70,6 +71,8 @@
 </style>
 
 <script>
+    const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
+
     // AJAX: Show/hide collection section
     function get_category_id(category_id) {
         $.ajax({
@@ -136,11 +139,36 @@
         imageInputs.appendChild(imageGroup);
     });
 
-    // Custom validation on submit
+    // File size validation
+    function validateFileSize(input, message = 'Image size should not exceed 2MB.') {
+        const file = input.files[0];
+        if (file && file.size > MAX_FILE_SIZE) {
+            input.classList.add('is-invalid');
+            input.value = '';
+            return false;
+        } else {
+            input.classList.remove('is-invalid');
+            return true;
+        }
+    }
+
+    // Validate thumbnail on change
+    document.querySelector('input[name="thumbnail"]').addEventListener('change', function () {
+        validateFileSize(this);
+    });
+
+    // Validate each dynamically added image on change
+    document.addEventListener('change', function (e) {
+        if (e.target && e.target.name === 'extra_images[]') {
+            validateFileSize(e.target);
+        }
+    });
+
+    // Full validation before submit
     document.querySelector('form').addEventListener('submit', function (e) {
         let hasError = false;
 
-        // Validate collections if visible
+        // Validate collections
         const collectionDiv = document.getElementById('collection_div');
         if (collectionDiv && collectionDiv.style.display !== 'none') {
             const titles = document.getElementsByName('collection_title[]');
@@ -163,14 +191,16 @@
             }
         }
 
-        // Validate extra image fields
+        // Validate file sizes
+        const thumbnail = document.querySelector('input[name="thumbnail"]');
+        if (thumbnail && !validateFileSize(thumbnail)) {
+            hasError = true;
+        }
+
         const extraImages = document.getElementsByName('extra_images[]');
         for (let i = 0; i < extraImages.length; i++) {
-            if (extraImages[i].value === '') {
-                extraImages[i].classList.add('is-invalid');
+            if (!validateFileSize(extraImages[i])) {
                 hasError = true;
-            } else {
-                extraImages[i].classList.remove('is-invalid');
             }
         }
 
