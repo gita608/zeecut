@@ -71,7 +71,7 @@
                                 </ul>
                             </td>
                             <td>{{ $item->created_at ? date('d-m-Y', strtotime($item->created_at)) : '' }}</td>
-                            <td>
+                            <td class="text-center">
                                 <div class="btn-group">
                                     <a href="javascript:void(0);" class="btn btn-outline-warning btn-sm"
                                         onclick="show_ajax_modal('{{ route('product.edit',$item->id) }}', 'Edit {{ $page_title ?? '' }}')"
@@ -82,7 +82,10 @@
                                         onclick="delete_modal('{{ route('product.delete',$item->id) }}')" title="Delete">
                                         <i class="fas fa-trash-alt"></i>
                                     </a>
-                                </div>
+                                </div><hr>
+                                <a href="javascript:void(0);" class="btn btn-outline-primary w-75"
+                                 onclick="show_ajax_modal('{{ route('product.view_images',$item->id) }}', 'Images {{ $page_title ?? '' }}')"
+                                >View Images</a>
                             </td>
                         </tr>
                         @endforeach
