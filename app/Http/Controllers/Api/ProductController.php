@@ -66,8 +66,9 @@ class ProductController extends ApiBaseController
             $images->prepend($thumbObj);
         }
 
-        $data->images = $images->values(); // reset keys
+        $data->images = $images->values();
         $data->thumbnail = $thumbnail;
+        $data->enter_quantity_limit = 0.5;
         $data->collections = $this->product_collection->getData(['product_id' => $product_id]);
 
         return $this->sendSuccessResponse($data, 'Success');
