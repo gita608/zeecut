@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\CategoriesController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\HomeController;
 use App\Http\Controllers\Api\CartController;
+use App\Http\Controllers\Api\ProfileController;
 use GuzzleHttp\Psr7\Request;
 
 // Public Routes (No Authentication Required)
@@ -18,6 +19,9 @@ Route::get('/pincode_access', [AuthController::class, 'pincode_access']);
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/home', [HomeController::class, 'index']);
+    Route::get('/profile', [ProfileController::class, 'index']);
+    Route::post('/update_profile', [ProfileController::class, 'update_profile']);
+    Route::post('/update_address', [ProfileController::class, 'update_address']);
     Route::get('/categories', [CategoriesController::class, 'index']);
     Route::get('/products', [ProductController::class, 'index']);
     Route::get('/product-details', [ProductController::class, 'details']);
