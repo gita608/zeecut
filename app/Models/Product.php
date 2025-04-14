@@ -17,7 +17,8 @@ class Product extends BaseModel
         'price',
         'discount_price',
         'thumbnail',
-        'no_of_collection'
+        'no_of_collection',
+        'unit'
     ];
 
     public function category()
@@ -29,5 +30,11 @@ class Product extends BaseModel
     {
         return $this->hasMany(ProductCollection::class, 'product_id');
     }
+
+    public function stock()
+    {
+        return $this->hasOne(Stock::class, 'product_id', 'id');
+    }
+
 
 }

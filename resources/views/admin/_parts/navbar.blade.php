@@ -98,12 +98,14 @@
         </a>
       </li>
 
+      @if(Route::has('offer.index'))
       <li class="nav-item">
-        <a href="" class="nav-link">
+        <a href="{{route('stock.index')}}" class="nav-link">
           <i class="link-icon" data-feather="archive"></i>
           <span class="link-title">Stock</span>
         </a>
       </li>
+      @endif
 
       @if(Route::has('offer.index'))
       <li class="nav-item">

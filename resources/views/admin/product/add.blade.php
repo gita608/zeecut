@@ -24,11 +24,21 @@
             </div>
 
             <div class="col-md-6">
-                <label class="form-label">Price/kg <span class="text-danger">*</span></label>
-                <input type="number" name="price" class="form-control" placeholder="Enter Price Per Kg" required>
+                <label class="form-label">Unit<span class="text-danger">*</span></label>
+                <select name="unit" class="form-control" onchange="get_price_label(this.value)" required>
+                    <option value="">Choose Unit</option>
+                    <option value="1" selected>Kg</option>
+                    <option value="2">Liter</option>
+                    <option value="3">Quantity</option>
+                </select>
             </div>
 
             <div class="col-md-6">
+                <label class="form-label" id="price_label" > <span class="text-danger">*</span></label>
+                <input type="number" name="price" class="form-control"  required>
+            </div>
+
+            <div class="col-md-12">
                 <label class="form-label">Discount Price</label>
                 <input type="number" name="discount_price" class="form-control" placeholder="Enter Discount Price">
             </div>
@@ -69,6 +79,24 @@
         border: 1px solid red !important;
     }
 </style>
+
+<script>
+    function get_price_label(value){
+        if(value == 1){
+            $('#price_label').html('Per Kg');
+        } else if(value == 2){
+            $('#price_label').html('Per Liter');
+        } else {
+            $('#price_label').html('Per Quantity');
+        }
+    }
+
+    // Optional: Set default on page load
+    $(document).ready(function(){
+        get_price_label(1); // or default value
+    });
+</script>
+
 
 <script>
     const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
