@@ -54,6 +54,7 @@ class CartController extends ApiBaseController
             'delivery_charge' => 50,
             'total_payable' => 200,
             'enter_quantity_limit' => 0.5,
+            'product_count' => Cart::where(['user_id' => $this->userId,'purchase_status' => 0])->count(),
         ];
 
         return $this->sendSuccessResponse($data, 'Success');
