@@ -10,6 +10,7 @@ use App\Http\Middleware\RoleMiddleware;
 use App\Http\Controllers\ProductContoller;
 use App\Http\Controllers\OfferController;
 use App\Http\Controllers\PincodeAccesController;
+use App\Http\Controllers\StockController;
 
 Route::get('/', [AuthController::class, 'login'])->name('login');
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
@@ -74,6 +75,8 @@ Route::middleware(RoleMiddleware::class)->group(function () {
     Route::put('/banner-update/{id}', [BannerContoller::class, 'update'])->name('banner.update');
     Route::get('/banner-delete/{id}', [BannerContoller::class, 'delete'])->name('banner.delete');
 
+    //Stocks Route
+    Route::get('/stock',[StockController::class,'index'])->name('stock.index');
 
 });
 

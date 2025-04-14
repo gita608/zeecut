@@ -85,6 +85,7 @@ class ProductContoller extends Controller
             'discount_price' => $request->discount_price,
             'thumbnail' => $filePath,
             'no_of_collection' => $request->no_of_collection,
+            'unit' => $request->unit,
         ]);
 
         // Store Product Collections
@@ -158,6 +159,7 @@ class ProductContoller extends Controller
             'price' => $request->price,
             'discount_price' => $request->discount_price,
             'no_of_collection' => $request->no_of_collection,
+            'unit' => $request->unit,
         ];
 
 
