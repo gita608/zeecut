@@ -12,7 +12,6 @@ use App\Http\Controllers\OfferController;
 use App\Http\Controllers\PincodeAccesController;
 
 Route::get('/', [AuthController::class, 'login'])->name('login');
-Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::post('/verify', [AuthController::class, 'verify'])->name('verify');
 Route::get('/register', [AuthController::class, 'register'])->name('register');
 
@@ -20,6 +19,8 @@ Route::get('/register', [AuthController::class, 'register'])->name('register');
 Route::middleware(RoleMiddleware::class)->group(function () {
     //dashboard
     Route::get('/admin-dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
+
+    Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 
     //User
     Route::get('/user', [UserController::class, 'index'])->name('user.index');
@@ -73,7 +74,4 @@ Route::middleware(RoleMiddleware::class)->group(function () {
     Route::post('/banner-submit', [BannerContoller::class, 'submit'])->name('banner.submit');
     Route::put('/banner-update/{id}', [BannerContoller::class, 'update'])->name('banner.update');
     Route::get('/banner-delete/{id}', [BannerContoller::class, 'delete'])->name('banner.delete');
-
-
 });
-

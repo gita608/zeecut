@@ -51,11 +51,13 @@ class HomeController extends ApiBaseController
         
         foreach($offer_products as &$product){
             $product->thumbnail = $product->thumbnail ? asset('storage/' . $product->thumbnail) : '';
+            $unit_text = $product->unit == 1 ? ' Kg' : ($product->unit == 2 ? ' L' : ' Q');
+            $product->unit_text = 1 . $unit_text;
         }
 
         $cartItems = $this->cart->getData(
             ['user_id' => $this->userId, 'purchase_status' => 0],
-            ['id'] // or any column, since we just want the count
+            ['id']
         );
         
         $cartCount = count($cartItems);
