@@ -74,12 +74,7 @@ Route::middleware(RoleMiddleware::class)->group(function () {
     Route::get('/banner-edit/{id}', [BannerContoller::class, 'ajax_edit'])->name('banner.edit');
     Route::post('/banner-submit', [BannerContoller::class, 'submit'])->name('banner.submit');
     Route::put('/banner-update/{id}', [BannerContoller::class, 'update'])->name('banner.update');
-    Route::get('/banner-delete/{id}', [BannerContoller::class, 'delete'])->name('banner.delete');
-<<<<<<< HEAD
-=======
-
-    //Stocks Route
+    Route::get('/banner-delete/{id}', [BannerContoller::class, 'delete'])->name('banner.delete'); 
     Route::get('/stock',[StockController::class,'index'])->name('stock.index');
 
->>>>>>> 98db1a8a7a984678d0a919c01ee9ab1890219be0
-});
+ });

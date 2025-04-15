@@ -54,7 +54,7 @@ class CartController extends ApiBaseController
             'delivery_charge' => 50,
             'total_payable' => 200,
             'enter_quantity_limit' => 0.5,
-            'product_count' => Cart::where(['user_id' => $this->userId,'purchase_status' => 0])->count(),
+            'product_count' => Cart::where(['user_id' => $this->userId, 'purchase_status' => 0])->count(),
         ];
 
         return $this->sendSuccessResponse($data, 'Success');
@@ -108,53 +108,120 @@ class CartController extends ApiBaseController
         return $this->sendSuccessResponse([], 'Cart updated successfully!');
     }
 
+    // public function remove_cart(Request $request)
+    // {
+    //     $validationResponse = $this->validateRequest($request, [
+    //         'cart_id' => 'required|integer',
+    //         'quantity' => 'required|numeric',
+    //     ]);
+
+    //     if ($validationResponse) {
+    //         return $validationResponse;
+    //     }
+
+    //     // Get the cart item by ID and ensure it belongs to the logged-in user
+    //     $cart_item = $this->cart->getData([
+    //         'id' => $request->cart_id,
+    //         'user_id' => $this->userId
+    //     ])->first();
+
+    //     if (!$cart_item) {
+    //         return $this->sendSuccessResponse([], 'No cart item found, nothing to remove.');
+    //     }
+
+    //     $current_quantity = $cart_item->quantity;
+    //     $remove_quantity = $request->quantity;
+
+    //     if ($remove_quantity >= $current_quantity) {
+    //         // Remove the cart item entirely
+    //         $this->cart->delete_record(['id' => $cart_item->id]);
+    //     } else {
+    //         // Fetch product price details
+    //         $product_details = $this->product->getData(['id' => $cart_item->product_id], ['price', 'discount_price'])->first();
+    //         $price = $product_details->price;
+    //         $discount_price = $product_details->discount_price;
+
+    //         // Calculate new quantity and amounts
+    //         $updated_quantity = $current_quantity - $remove_quantity;
+    //         $amount = $price * $updated_quantity;
+    //         $discount_amount = $discount_price * $updated_quantity;
+
+    //         $updateData = [
+    //             'quantity' => $updated_quantity,
+    //             'amount' => $amount,
+    //             'discount_amount' => $discount_amount,
+    //         ];
+
+    //         $this->cart->update_record(['id' => $cart_item->id], $updateData);
+    //     }
+
+    //     return $this->sendSuccessResponse([], 'Cart updated successfully!');
+    // }
+
     public function remove_cart(Request $request)
     {
         $validationResponse = $this->validateRequest($request, [
-            'cart_id' => 'required|integer',
-            'quantity' => 'required|numeric',
+            'product_id' => 'required|integer',
+            'collection_id' => 'required|integer',
+            'quantity' => 'sometimes|numeric|min:1', // now optional
         ]);
 
         if ($validationResponse) {
             return $validationResponse;
         }
 
-        // Get the cart item by ID and ensure it belongs to the logged-in user
-        $cart_item = $this->cart->getData([
-            'id' => $request->cart_id,
-            'user_id' => $this->userId
+        $cart_item = Cart::where([
+            'user_id' => $this->userId,
+            'product_id' => $request->product_id,
+            'collection_id' => $request->collection_id
         ])->first();
 
         if (!$cart_item) {
-            return $this->sendSuccessResponse([], 'No cart item found, nothing to remove.');
+            return $this->sendSuccessResponse([], 'No Item Found!');
         }
 
-        $current_quantity = $cart_item->quantity;
+        // If no quantity is provided, remove completely
+        if (!$request->has('quantity') || $request->quantity <= 0) {
+            $cart_item->delete();
+            return $this->sendSuccessResponse([], 'Item removed from cart.');
+        }
+
         $remove_quantity = $request->quantity;
+        $current_quantity = $cart_item->quantity;
+        $updated_quantity = $current_quantity - $remove_quantity;
 
-        if ($remove_quantity >= $current_quantity) {
-            // Remove the cart item entirely
-            $this->cart->delete_record(['id' => $cart_item->id]);
-        } else {
-            // Fetch product price details
-            $product_details = $this->product->getData(['id' => $cart_item->product_id], ['price', 'discount_price'])->first();
-            $price = $product_details->price;
-            $discount_price = $product_details->discount_price;
-
-            // Calculate new quantity and amounts
-            $updated_quantity = $current_quantity - $remove_quantity;
-            $amount = $price * $updated_quantity;
-            $discount_amount = $discount_price * $updated_quantity;
-
-            $updateData = [
-                'quantity' => $updated_quantity,
-                'amount' => $amount,
-                'discount_amount' => $discount_amount,
-            ];
-
-            $this->cart->update_record(['id' => $cart_item->id], $updateData);
+        if ($updated_quantity <= 0) {
+            $cart_item->delete();
+            return $this->sendSuccessResponse([], 'Item removed from cart.');
         }
 
-        return $this->sendSuccessResponse([], 'Cart updated successfully!');
+        // Get product pricing
+        $product_details = $this->product->getData(
+            ['id' => $cart_item->product_id],
+            ['price', 'discount_price']
+        )->first();
+
+        $price = $product_details->price ?? 0;
+        $discount_price = $product_details->discount_price ?? 0;
+
+        // ✅ Now assuming discount_price is final unit price (already discounted)
+        $amount = $price * $updated_quantity;
+        $discount_amount = $discount_price * $updated_quantity;
+
+        $updateData = [
+            'quantity' => $updated_quantity,
+            'amount' => $amount,
+            'discount_amount' => $discount_amount,
+        ];
+
+        $this->cart->update_record(['id' => $cart_item->id], $updateData);
+
+        // Re-fetch updated cart item to return correct info
+        $updated_cart_item = Cart::find($cart_item->id);
+
+        return $this->sendSuccessResponse($updated_cart_item, 'Cart updated successfully!');
     }
+
+
+
 }
