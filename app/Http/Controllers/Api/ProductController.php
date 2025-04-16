@@ -7,18 +7,21 @@ use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\ProductCollection;
 use App\Models\Product_images;
+use App\Models\Cart;
 
 class ProductController extends ApiBaseController
 {
     protected $product;
     protected $product_collection;
     protected $product_images;
+    protected $cart;
     public function __construct(Request $request)
     {
         parent::__construct($request);
         $this->product = new Product();
         $this->product_collection = new ProductCollection();
         $this->product_images = new Product_images();
+        $this->cart = new Cart();
     }
     
     public function index(Request $request)
@@ -30,6 +33,8 @@ class ProductController extends ApiBaseController
 
         foreach($data as &$val){
             $val->thumbnail = $val->thumbnail ? asset('storage/' . $val->thumbnail) : '';
+            $unit_text = $val->unit == 1 ? ' Kg' : ($val->unit == 2 ? ' L' : ' Q');
+            $val->unit_text = 1 . $unit_text;
         }
         
         return $this->sendSuccessResponse($data, 'Success');
@@ -47,6 +52,12 @@ class ProductController extends ApiBaseController
 
         // Fetch product images
         $images = $this->product_images->getData(['product_id' => $product_id]);
+        $unit_text = $data->unit == 1 ? ' Kg' : ($data->unit == 2 ? ' L' : ' Q');
+        $data->unit_text = 1 . $unit_text;
+        $cart_data = $this->cart->getData(['collection_id' => 0, 'product_id' => $product_id, 'user_id' => $this->userId, 'purchase_status' => 0])->first();
+        $data->cart_quantity = $cart_data->quantity ?? 0;
+        $data->cart_amount = $cart_data->amount ?? 0;
+        $data->cart_discount = $cart_data->discount_amount ?? 0;
 
         // Convert all image URLs to full path
         $images = $images->map(function ($img) {
@@ -66,9 +77,26 @@ class ProductController extends ApiBaseController
             $images->prepend($thumbObj);
         }
 
-        $data->images = $images->values(); // reset keys
+        $data->images = $images->values();
         $data->thumbnail = $thumbnail;
+        $data->enter_quantity_limit = 0.5;
         $data->collections = $this->product_collection->getData(['product_id' => $product_id]);
+
+        foreach($data->collections as &$collection){
+            $cart_data_collection = $this->cart->getData(['collection_id' => $collection->id, 'product_id' => $product_id, 'user_id' => $this->userId, 'purchase_status' => 0])->first();
+            $collection->cart_quantity = $cart_data_collection->quantity ?? 0;
+            $collection->cart_amount = $cart_data_collection->amount ?? 0;
+            $collection->cart_discount = $cart_data_collection->discount_amount ?? 0;
+        }
+
+        $data->has_collection = !empty($data->collections) ? 1 : 0;
+        $cartData = $this->cart->getData(['user_id' => $this->userId, 'purchase_status' => 0])->first();
+
+        $data->cart = [
+            'quantity' => $cartData->cart_quantity ?? 0,
+            'amount' => $cartData->cart_amount ?? 0,
+            'discount' => $cartData->cart_discount ?? 0,
+        ];
 
         return $this->sendSuccessResponse($data, 'Success');
     }

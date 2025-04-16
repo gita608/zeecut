@@ -34,13 +34,24 @@
                 </div>
             </div>
 
+            <div class="col-md-6">
+                <label class="form-label">Unit<span class="text-danger">*</span></label>
+                <select name="unit" class="form-control" onchange="get_price_label(this.value)">
+                    <option value="">Choose Unit</option>
+                    <option value="1" {{ $edit_data->unit == 1 ? 'selected' : '' }}>Kg</option>
+                    <option value="2" {{ $edit_data->unit == 2 ? 'selected' : '' }}>Liter</option>
+                    <option value="3" {{ $edit_data->unit == 3 ? 'selected' : '' }}>Quantity</option>
+                </select>
+            </div>
+
             <!-- Price -->
-            <div class="col-md-12">
+            <div class="col-md-6">
                 <div class="mb-3">
-                    <label class="form-label">Price <span class="text-danger">*</span></label>
+                    <label class="form-label" id="price_label"> <span class="text-danger">*</span></label>
                     <input type="number" name="price" class="form-control" value="{{ $edit_data->price }}" placeholder="Enter price" required>
                 </div>
             </div>
+
 
             <!-- Discount Price -->
             <div class="col-md-12">
@@ -85,6 +96,23 @@
         <button type="submit" class="btn btn-success float-end">Submit</button>
     </form>
 </div>
+
+<script>
+    function get_price_label(value){
+        if(value == 1){
+            $('#price_label').html('Per Kg');
+        } else if(value == 2){
+            $('#price_label').html('Per Liter');
+        } else {
+            $('#price_label').html('Per Quantity');
+        }
+    }
+
+    // Optional: Set default on page load
+    $(document).ready(function(){
+        get_price_label({{ $collection->unit }}); // or default value
+    });
+</script>
 
 <script>
     // AJAX Category Check

@@ -17,6 +17,8 @@ class User extends Authenticatable
         'role_id',
         'place',
         'password',
+        'address',
+        'pincode',
     ];
 
     public function userdata()
@@ -27,6 +29,8 @@ class User extends Authenticatable
             'email' => $this->email,
             'phone' => $this->phone,
             'role_id' => $this->role_id,
+            'address' => $this->address,
+            'pincode' => $this->pincode,
             'created_at' => $this->created_at->format('Y-m-d H:i:s'),
         ];
     }

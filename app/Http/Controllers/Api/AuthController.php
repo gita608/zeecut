@@ -68,9 +68,6 @@ class AuthController extends ApiBaseController
             return $this->sendErrorResponse('Invalid credentials', 403);
         }
         
-        
-       
-
         // Generate the token using the user instance
         $token = $user->generateToken();
 
