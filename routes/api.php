@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\CategoriesController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\HomeController;
 use App\Http\Controllers\Api\CartController;
+use App\Http\Controllers\api\OrderController;
 use App\Http\Controllers\Api\ProfileController;
 use GuzzleHttp\Psr7\Request;
 
@@ -28,6 +29,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/cart', [CartController::class, 'index']);
     Route::post('/add-to-cart', [CartController::class, 'add_cart']);
     Route::post('/remove-from-cart', [CartController::class, 'remove_cart']);
+    Route::post('/order', [OrderController::class, 'index']);
+    Route::get('/order-list', [OrderController::class, 'get_order_list']);
+
 });
 
  
