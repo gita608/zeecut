@@ -14,12 +14,4 @@ class Cart extends BaseModel
         'amount',
         'discount_amount',
     ];
-
-
-    // Cart.php
-    public function product()
-    {
-        return $this->belongsTo(Product::class, 'product_id', 'id');
-    }
-
 }

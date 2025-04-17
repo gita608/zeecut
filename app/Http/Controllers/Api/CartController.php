@@ -8,6 +8,7 @@ use App\Models\Cart;
 use App\Models\Product;
 use App\Models\User;
 use App\Models\OrderItem;
+use App\Models\ProductCollection;
 use Illuminate\Support\Facades\DB;
 
 class CartController extends ApiBaseController
@@ -32,6 +33,7 @@ class CartController extends ApiBaseController
 
         $where = [
             ['cart.user_id', '=', $this->userId],
+            ['cart.purchase_status', '=', 0],
             ['products.status', '=', 1],
         ];
 
@@ -45,18 +47,27 @@ class CartController extends ApiBaseController
         ];
 
         $cart = $this->cart->getJoin($joins, $where, $select);
+        $total_amount = 0;
+        $total_discount_amount = 0;
 
         foreach ($cart as &$val) {
+            $total_amount += $val->amount;
+            $total_discount_amount += $val->discount_amount;
             $val['product_thumbnail'] = $val['product_thumbnail'] ? asset('storage/' . $val['product_thumbnail']) : '';
+            $val['is_out_of_stock'] = 0;
         }
+
+        $discounted_amount = $total_amount - $total_discount_amount;
+        $delivery_charge = 0;
+        $total_payable = $total_amount - $total_discount_amount + $delivery_charge;
 
         $data = [
             'cart_items' => $cart,
-            'total_amount' => 200,
-            'total_discount' => 50,
-            'discounted_amount' => 150,
-            'delivery_charge' => 50,
-            'total_payable' => 200,
+            'total_amount' => $total_amount,
+            'total_discount' => $total_discount_amount,
+            'discounted_amount' => $discounted_amount,
+            'delivery_charge' => $delivery_charge,
+            'total_payable' => $total_payable,
             'enter_quantity_limit' => 0.5,
             'product_count' => Cart::where(['user_id' => $this->userId, 'purchase_status' => 0])->count(),
         ];
@@ -167,7 +178,7 @@ class CartController extends ApiBaseController
         $validationResponse = $this->validateRequest($request, [
             'product_id' => 'required|integer',
             'collection_id' => 'required|integer',
-            'quantity' => 'sometimes|numeric|min:1', // now optional
+            'quantity' => 'sometimes|numeric', // now optional
         ]);
 
         if ($validationResponse) {
@@ -230,13 +241,13 @@ class CartController extends ApiBaseController
     public function checkout(Request $request){
         $user = User::where('id', $this->userId)->first();
 
-        $cartIds = json_decode($request->cart_ids, true);
-        if (empty($cartIds)) {
-            return $this->sendSuccessResponse([], 'Cart Id Required');
-        }
+        // $cartIds = json_decode($request->cart_ids, true);
+        // if (empty($cartIds)) {
+        //     return $this->sendSuccessResponse([], 'Cart Id Required');
+        // }
 
 
-        $cart_data = Cart::whereIn('id',$cartIds)->get();
+        $cart_data = Cart::where('user_id',$this->userId)->where('purchase_status', 0)->get();
 
         $total_amount = 0;
         $total_discount_amount = 0;
@@ -244,14 +255,14 @@ class CartController extends ApiBaseController
         foreach ($cart_data as $key => $item) {
             $total_amount += $item->amount;
             $total_discount_amount += $item->discount_amount;
+            $cart_data[$key]->product = Product::where('id',$item['product_id'])->first()->name;
+            $cart_data[$key]->collection = ProductCollection::where('id',$item['collection_id'])->first()->title;
 
             $items = OrderItem::where('order_id', $item->id)
                 ->join('products', 'order_items.product_id', '=', 'products.id')  // Join products table
                 ->select('order_items.*', 'products.name as product_name', 'products.price as product_price')  // Select necessary columns
                 ->get();
-
             $cart_data[$key]->order_items = $items;
-
         }
 
         $user_data = $user->userdata();
@@ -264,7 +275,6 @@ class CartController extends ApiBaseController
             'total_payable' => $total_payable
         ];
         $data = [
-
             'user_address' => $user_data['address']. ', '. $user_data['pincode'],
             'cart_data' => $cart_data,
             'summary' => $summary
