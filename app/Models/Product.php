@@ -36,5 +36,7 @@ class Product extends BaseModel
         return $this->hasOne(Stock::class, 'product_id', 'id');
     }
 
+    
+
 
 }
