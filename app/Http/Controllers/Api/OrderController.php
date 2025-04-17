@@ -3,15 +3,11 @@
 namespace App\Http\Controllers\api;
 
 use Illuminate\Http\Request;
-use App\Models\Categories;
-use App\Models\User;
-use App\Models\Banners;
-use App\Models\Product;
-use App\Models\Product_images;
 use App\Models\Cart;
 use App\Models\Order;
 use App\Models\OrderItem;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 class OrderController extends ApiBaseController
 {
@@ -26,8 +22,8 @@ class OrderController extends ApiBaseController
 
     public function index(Request $request)
     {
-        
-        $cartIds = json_decode($request->cart_ids,true); // Expecting an array of cart IDs
+
+        $cartIds = json_decode($request->cart_ids, true); // Expecting an array of cart IDs
 
         if (empty($cartIds)) {
             return $this->sendErrorResponse('No cart items selected.');
@@ -75,23 +71,39 @@ class OrderController extends ApiBaseController
         return $this->sendSuccessResponse([], 'Order placed successfully');
     }
 
-    public function get_order_list(Request $request){
+    public function get_order_list(Request $request)
+    {
 
 
         $datas = Order::where(['user_id' => $this->userId, 'status' => 'pending'])->get();
 
-        foreach($datas as $key => $data){
+        foreach ($datas as $key => $data) {
 
             $items = OrderItem::where('order_id', $data->id)
-            ->join('products', 'order_items.product_id', '=', 'products.id')  // Join products table
-            ->select('order_items.*', 'products.name as product_name', 'products.price as product_price')  // Select necessary columns
-            ->get();
+                ->join('products', 'order_items.product_id', '=', 'products.id')  // Join products table
+                ->select('order_items.*', 'products.name as product_name', 'products.price as product_price')  // Select necessary columns
+                ->get();
 
             $datas[$key]->order_items = $items;
 
         }
 
         return $this->sendSuccessResponse($datas, 'success');
+
+    }
+
+    public function order_details(Request $request)
+    {
+
+        $validator = Validator::make($request->all(), [
+            'order_id' => 'required|integer',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->sendErrorResponse($validator->errors()->first(), 403);
+        }
+
+        return $this->sendSuccessResponse([], 'success');
 
     }
 

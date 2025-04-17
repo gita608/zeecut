@@ -6,17 +6,21 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Cart;
 use App\Models\Product;
+use App\Models\User;
+use App\Models\OrderItem;
 use Illuminate\Support\Facades\DB;
 
 class CartController extends ApiBaseController
 {
     protected $cart;
     protected $product;
+    protected $user;
     public function __construct(Request $request)
     {
         parent::__construct($request);
         $this->cart = new Cart();
         $this->product = new Product();
+        $this->user = new User();
     }
 
     public function index(Request $request)
@@ -222,7 +226,52 @@ class CartController extends ApiBaseController
         return $this->sendSuccessResponse($updated_cart_item, 'Cart updated successfully!');
     }
 
-    ///cart ended
+    
+    public function checkout(Request $request){
+        $user = User::where('id', $this->userId)->first();
 
+        $cartIds = json_decode($request->cart_ids, true);
+        if (empty($cartIds)) {
+            return $this->sendSuccessResponse([], 'Cart Id Required');
+        }
+
+
+        $cart_data = Cart::whereIn('id',$cartIds)->get();
+
+        $total_amount = 0;
+        $total_discount_amount = 0;
+
+        foreach ($cart_data as $key => $item) {
+            $total_amount += $item->amount;
+            $total_discount_amount += $item->discount_amount;
+
+            $items = OrderItem::where('order_id', $item->id)
+                ->join('products', 'order_items.product_id', '=', 'products.id')  // Join products table
+                ->select('order_items.*', 'products.name as product_name', 'products.price as product_price')  // Select necessary columns
+                ->get();
+
+            $cart_data[$key]->order_items = $items;
+
+        }
+
+        $user_data = $user->userdata();
+        $delivery_charge = 0;
+        $total_payable = $total_amount - $total_discount_amount + $delivery_charge;
+        $summary = [
+            'total_amount' => $total_amount,
+            'delivery_charge' => $delivery_charge ,
+            'discount_amount' => $total_discount_amount,
+            'total_payable' => $total_payable
+        ];
+        $data = [
+
+            'user_address' => $user_data['address']. ', '. $user_data['pincode'],
+            'cart_data' => $cart_data,
+            'summary' => $summary
+        ];
+
+        return $this->sendSuccessResponse($data, 'successfully!');
+
+    }
 
 }
