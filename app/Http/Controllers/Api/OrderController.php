@@ -3,23 +3,16 @@
 namespace App\Http\Controllers\api;
 
 use Illuminate\Http\Request;
-<<<<<<< HEAD
 use App\Models\Categories;
 use App\Models\User;
 use App\Models\Banners;
 use App\Models\Product;
 use App\Models\Product_images;
-=======
->>>>>>> rabil
 use App\Models\Cart;
 use App\Models\Order;
 use App\Models\OrderItem;
 use Illuminate\Support\Facades\DB;
-<<<<<<< HEAD
-=======
 use Illuminate\Support\Facades\Validator;
->>>>>>> rabil
-
 class OrderController extends ApiBaseController
 {
     protected $order;
@@ -33,13 +26,9 @@ class OrderController extends ApiBaseController
 
     public function index(Request $request)
     {
-<<<<<<< HEAD
-        
+         
         $cartIds = json_decode($request->cart_ids,true); // Expecting an array of cart IDs
-=======
-
-        $cartIds = json_decode($request->cart_ids, true); // Expecting an array of cart IDs
->>>>>>> rabil
+ 
 
         if (empty($cartIds)) {
             return $this->sendErrorResponse('No cart items selected.');
@@ -86,33 +75,21 @@ class OrderController extends ApiBaseController
 
         return $this->sendSuccessResponse([], 'Order placed successfully');
     }
-
-<<<<<<< HEAD
-    public function get_order_list(Request $request){
-=======
+ 
     public function get_order_list(Request $request)
     {
->>>>>>> rabil
-
+ 
 
         $datas = Order::where(['user_id' => $this->userId, 'status' => 'pending'])->get();
 
-<<<<<<< HEAD
-        foreach($datas as $key => $data){
+         foreach($datas as $key => $data){
 
             $items = OrderItem::where('order_id', $data->id)
             ->join('products', 'order_items.product_id', '=', 'products.id')  // Join products table
             ->select('order_items.*', 'products.name as product_name', 'products.price as product_price')  // Select necessary columns
             ->get();
-=======
-        foreach ($datas as $key => $data) {
 
-            $items = OrderItem::where('order_id', $data->id)
-                ->join('products', 'order_items.product_id', '=', 'products.id')  // Join products table
-                ->select('order_items.*', 'products.name as product_name', 'products.price as product_price')  // Select necessary columns
-                ->get();
->>>>>>> rabil
-
+        
             $datas[$key]->order_items = $items;
 
         }
@@ -120,9 +97,7 @@ class OrderController extends ApiBaseController
         return $this->sendSuccessResponse($datas, 'success');
 
     }
-
-<<<<<<< HEAD
-=======
+ 
     public function order_details(Request $request)
     {
 
@@ -138,5 +113,4 @@ class OrderController extends ApiBaseController
 
     }
 
->>>>>>> rabil
-}
+ }
