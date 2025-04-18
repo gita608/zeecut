@@ -74,7 +74,6 @@ class OrderController extends ApiBaseController
     public function get_order_list(Request $request)
     {
 
-
         $datas = Order::where(['user_id' => $this->userId, 'status' => 'pending'])->get();
 
         foreach ($datas as $key => $data) {
