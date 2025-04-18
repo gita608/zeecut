@@ -47,6 +47,8 @@ class ProductController extends ApiBaseController
 
         $data = $this->product->getData($conditions)->first();
 
+        
+
         // Set thumbnail full path
         $thumbnail = $data->thumbnail ? asset('storage/' . $data->thumbnail) : '';
 
@@ -82,6 +84,8 @@ class ProductController extends ApiBaseController
         $data->enter_quantity_limit = 0.5;
         $data->collections = $this->product_collection->getData(['product_id' => $product_id]);
 
+
+
         foreach($data->collections as &$collection){
             $cart_data_collection = $this->cart->getData(['collection_id' => $collection->id, 'product_id' => $product_id, 'user_id' => $this->userId, 'purchase_status' => 0])->first();
             $collection->cart_quantity = $cart_data_collection->quantity ?? 0;
@@ -89,7 +93,8 @@ class ProductController extends ApiBaseController
             $collection->cart_discount = $cart_data_collection->discount_amount ?? 0;
         }
 
-        $data->has_collection = !empty($data->collections) ? 1 : 0;
+        
+        $data->has_collection = $data->collections->isNotEmpty() ? 1 : 0;
         $cartData = $this->cart->getData(['user_id' => $this->userId, 'purchase_status' => 0])->first();
 
         $data->cart = [
