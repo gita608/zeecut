@@ -25,6 +25,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/update_address', [ProfileController::class, 'update_address']);
     Route::get('/categories', [CategoriesController::class, 'index']);
     Route::get('/products', [ProductController::class, 'index']);
+    Route::get('/product_search', [ProductController::class, 'product_search']);
     Route::get('/product-details', [ProductController::class, 'details']);
     Route::get('/cart', [CartController::class, 'index']);
     Route::post('/add-to-cart', [CartController::class, 'add_cart']);

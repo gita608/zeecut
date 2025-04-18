@@ -23,31 +23,35 @@ class ProductController extends ApiBaseController
         $this->product_images = new Product_images();
         $this->cart = new Cart();
     }
-    
+
     public function index(Request $request)
     {
         $category_id = $request->category_id;
+
+        $conditions['status'] = 1;
         $conditions['category_id'] = $category_id;
 
         $data = $this->product->getData($conditions);
 
-        foreach($data as &$val){
+        foreach ($data as &$val) {
             $val->thumbnail = $val->thumbnail ? asset('storage/' . $val->thumbnail) : '';
             $unit_text = $val->unit == 1 ? ' Kg' : ($val->unit == 2 ? ' L' : ' Q');
             $val->unit_text = 1 . $unit_text;
         }
-        
+
         return $this->sendSuccessResponse($data, 'Success');
     }
 
     public function details(Request $request)
     {
         $product_id = $request->product_id;
+
+        $conditions['status'] = 1;
         $conditions['id'] = $product_id;
 
         $data = $this->product->getData($conditions)->first();
 
-        
+
 
         // Set thumbnail full path
         $thumbnail = $data->thumbnail ? asset('storage/' . $data->thumbnail) : '';
@@ -86,14 +90,14 @@ class ProductController extends ApiBaseController
 
 
 
-        foreach($data->collections as &$collection){
+        foreach ($data->collections as &$collection) {
             $cart_data_collection = $this->cart->getData(['collection_id' => $collection->id, 'product_id' => $product_id, 'user_id' => $this->userId, 'purchase_status' => 0])->first();
             $collection->cart_quantity = $cart_data_collection->quantity ?? 0;
             $collection->cart_amount = $cart_data_collection->amount ?? 0;
             $collection->cart_discount = $cart_data_collection->discount_amount ?? 0;
         }
 
-        
+
         $data->has_collection = $data->collections->isNotEmpty() ? 1 : 0;
         $cartData = $this->cart->getData(['user_id' => $this->userId, 'purchase_status' => 0])->first();
 
@@ -102,6 +106,23 @@ class ProductController extends ApiBaseController
             'amount' => $cartData->cart_amount ?? 0,
             'discount' => $cartData->cart_discount ?? 0,
         ];
+
+        return $this->sendSuccessResponse($data, 'Success');
+    }
+
+
+    public function product_search(Request $request)
+    {
+
+        $search = $request->search;
+
+        $data = [];
+        if ($search) {
+            
+            $data = Product::when($search, function ($query, $search) {
+                return $query->where('name', 'like', '%' . $search . '%');
+            })->get();
+        }
 
         return $this->sendSuccessResponse($data, 'Success');
     }
