@@ -11,6 +11,7 @@ use App\Http\Controllers\ProductContoller;
 use App\Http\Controllers\OfferController;
 use App\Http\Controllers\PincodeAccesController;
 use App\Http\Controllers\StockController;
+use App\Http\Controllers\OrderController;
 
 Route::get('/', [AuthController::class, 'login'])->name('login');
 Route::post('/verify', [AuthController::class, 'verify'])->name('verify');
@@ -76,5 +77,8 @@ Route::middleware(RoleMiddleware::class)->group(function () {
     Route::put('/banner-update/{id}', [BannerContoller::class, 'update'])->name('banner.update');
     Route::get('/banner-delete/{id}', [BannerContoller::class, 'delete'])->name('banner.delete'); 
     Route::get('/stock',[StockController::class,'index'])->name('stock.index');
+    
+    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+    Route::post('/updateStatus/{id}', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
 
  });
