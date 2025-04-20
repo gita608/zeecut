@@ -10,6 +10,7 @@ use App\Http\Middleware\RoleMiddleware;
 use App\Http\Controllers\ProductContoller;
 use App\Http\Controllers\OfferController;
 use App\Http\Controllers\PincodeAccesController;
+use App\Http\Controllers\SettingController;
 use App\Http\Controllers\StockController;
 
 Route::get('/', [AuthController::class, 'login'])->name('login');
@@ -79,5 +80,8 @@ Route::middleware(RoleMiddleware::class)->group(function () {
     //stock
     Route::get('/stock',[StockController::class,'index'])->name('stock.index');
     Route::post('/update-quantity', [StockController::class, 'update_quantity'])->name('stocks.update_quantity');
-
+    
+    //settings
+    Route::get('/setting',[SettingController::class,'index'])->name('setting.index');
+    Route::post('/setting-update',[SettingController::class,'update'])->name('setting.update');
  });

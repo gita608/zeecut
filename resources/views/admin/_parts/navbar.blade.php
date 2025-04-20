@@ -126,6 +126,17 @@
       </li>
       @endif
 
+      @if(Route::has('setting.index'))
+      <li class="nav-item">
+        <a href="{{ route('setting.index') }}" class="nav-link">
+          <i class="link-icon" data-feather="settings"></i>
+          <span class="link-title">Settings</span>
+        </a>
+      </li>
+      @endif
+
+
+
     </ul>
   </div>
 </nav>

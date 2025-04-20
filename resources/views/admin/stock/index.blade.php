@@ -107,8 +107,7 @@
 </div>
 
 <script>
-    
-function updateQuantity(productId, action) {
+    function updateQuantity(productId, action) {
     const quantityElement = $(`#quantity-${productId}`);
 
     // Add loading spinner

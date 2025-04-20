@@ -18,7 +18,8 @@ class Product extends BaseModel
         'discount_price',
         'thumbnail',
         'no_of_collection',
-        'unit'
+        'unit',
+        'sale_price'
     ];
 
     public function category()
