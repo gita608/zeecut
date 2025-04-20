@@ -36,9 +36,6 @@ class OrderController extends Controller
             $data['list_items'][$key]->order_items = $items;
         }
 
-        echo '<pre>';
-        print_r($data['list_items']);die();
-
         $data['page_title'] = 'Order';
         $data['page_name']  = 'admin.order.index';
 
