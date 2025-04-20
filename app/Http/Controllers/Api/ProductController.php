@@ -34,9 +34,9 @@ class ProductController extends ApiBaseController
         $data = $this->product->getData($conditions);
 
         foreach ($data as &$val) {
-            $val->thumbnail = $val->thumbnail ? asset('storage/' . $val->thumbnail) : '';
-            $unit_text = $val->unit == 1 ? ' Kg' : ($val->unit == 2 ? ' L' : ' Q');
-            $val->unit_text = 1 . $unit_text;
+            $val->thumbnail     = $val->thumbnail ? asset('storage/' . $val->thumbnail) : '';
+            $unit_text          = $val->unit == 1 ? ' Kg' : ($val->unit == 2 ? ' L' : ' Q');
+            $val->unit_text     = 1 . $unit_text;
         }
 
         return $this->sendSuccessResponse($data, 'Success');
@@ -61,9 +61,10 @@ class ProductController extends ApiBaseController
         $unit_text = $data->unit == 1 ? ' Kg' : ($data->unit == 2 ? ' L' : ' Q');
         $data->unit_text = 1 . $unit_text;
         $cart_data = $this->cart->getData(['collection_id' => 0, 'product_id' => $product_id, 'user_id' => $this->userId, 'purchase_status' => 0])->first();
+
         $data->cart_quantity = $cart_data->quantity ?? 0;
-        $data->cart_amount = $cart_data->amount ?? 0;
-        $data->cart_discount = $cart_data->discount_amount ?? 0;
+        $data->cart_amount = $data->price ?? 0;
+        $data->cart_discount = $data->discount_price ?? 0;
 
         // Convert all image URLs to full path
         $images = $images->map(function ($img) {
@@ -83,11 +84,10 @@ class ProductController extends ApiBaseController
             $images->prepend($thumbObj);
         }
 
-        $data->images = $images->values();
-        $data->thumbnail = $thumbnail;
-        $data->enter_quantity_limit = 0.5;
-        $data->collections = $this->product_collection->getData(['product_id' => $product_id]);
-
+        $data->images               = $images->values();
+        $data->thumbnail            = $thumbnail;
+        $data->collections          = $this->product_collection->getData(['product_id' => $product_id]);
+        $data->has_collection       = $data->collections->isNotEmpty() ? 1 : 0;
 
 
         foreach ($data->collections as &$collection) {
@@ -98,14 +98,25 @@ class ProductController extends ApiBaseController
         }
 
 
-        $data->has_collection = $data->collections->isNotEmpty() ? 1 : 0;
-        $cartData = $this->cart->getData(['user_id' => $this->userId, 'purchase_status' => 0])->first();
+        $cart       = Cart::where(['user_id' => $this->userId, 'purchase_status' => 0]);
+        $productIds = $cart->pluck('product_id')->toArray();
+        $product    = Product::whereIn('id',$productIds)->get();
+ 
+        $total_amount       = $product->sum('price');
+        $total_discount     = $product->sum('discount_price');;
+        $discounted_amount  = $total_amount - $total_discount;
+        $delivery_charge    = get_setting('delivery_charge');
+        $total_payable      = $discounted_amount ;
 
         $data->cart = [
-            'quantity' => $cartData->cart_quantity ?? 0,
-            'amount' => $cartData->cart_amount ?? 0,
-            'discount' => $cartData->cart_discount ?? 0,
+            'total_amount' => $total_amount,
+            'total_discount' => $total_discount,
+            'discounted_amount' => $discounted_amount,
+            'delivery_charge' => $delivery_charge,
+            'total_payable' => $total_payable,
+            'product_count' => $cart->count(),
         ];
+
 
         return $this->sendSuccessResponse($data, 'Success');
     }
@@ -118,7 +129,7 @@ class ProductController extends ApiBaseController
 
         $data = [];
         if ($search) {
-            
+
             $data = Product::when($search, function ($query, $search) {
                 return $query->where('name', 'like', '%' . $search . '%');
             })->get();

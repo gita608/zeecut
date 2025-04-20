@@ -35,7 +35,7 @@
                                             </div>
                                             <div>
                                                 <h6 class="mb-0">{{ $item->name }}</h6>
-                                             </div>
+                                            </div>
                                         </div>
                                     </td>
                                     <td class="text-center">
@@ -107,42 +107,47 @@
 </div>
 
 <script>
-    function updateQuantity(productId, action) {
-    // Add loading state
-    const quantityElement = document.getElementById(`quantity-${productId}`);
-    quantityElement.innerHTML = `<span class="spinner-border spinner-border-sm" role="status"></span>`;
     
-    fetch(`/admin/stocks/update-quantity`, {
-        method: 'POST',
+function updateQuantity(productId, action) {
+    const quantityElement = $(`#quantity-${productId}`);
+
+    // Add loading spinner
+    quantityElement.html(`<span class="spinner-border spinner-border-sm" role="status"></span>`);
+
+    $.ajax({
+        url: @json(route('stocks.update_quantity')), // Use your actual route name here
+        type: 'POST',
+        dataType: 'json',
+        contentType: 'application/json',
         headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
         },
-        body: JSON.stringify({ product_id: productId, action: action }),
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // Update quantity with animation
-            quantityElement.innerHTML = `${data.quantity} in stock`;
-            quantityElement.classList.add('animate__animated', 'animate__bounceIn');
-            
-            // Remove animation class after it completes
-            setTimeout(() => {
-                quantityElement.classList.remove('animate__animated', 'animate__bounceIn');
-            }, 1000);
-            
-            // Show toast notification
-            showToast(`${action === 'increase' ? 'Increased' : 'Decreased'} quantity successfully`, 'success');
-        } else {
-            showToast(data.message || 'Error updating quantity', 'danger');
+        data: JSON.stringify({
+            product_id: productId,
+            action: action
+        }),
+        success: function (data) {
+            if (data.success) {
+                quantityElement.html(`${data.quantity} in stock`);
+                quantityElement.addClass('animate__animated animate__bounceIn');
+
+                setTimeout(() => {
+                    quantityElement.removeClass('animate__animated animate__bounceIn');
+                }, 1000);
+
+                showToast(`${action === 'increase' ? 'Increased' : 'Decreased'} quantity successfully`, 'success');
+            } else {
+                showToast(data.message || 'Error updating quantity', 'danger');
+            }
+        },
+        error: function (xhr) {
+            console.error(xhr.responseText);
+            showToast('Something went wrong!', 'danger');
         }
-    })
-    .catch(error => {
-        showToast('Something went wrong!', 'danger');
-        console.error(error);
     });
 }
+
+
 
 function showToast(message, type) {
     // Implement a toast notification system here

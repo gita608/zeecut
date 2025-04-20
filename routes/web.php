@@ -75,6 +75,9 @@ Route::middleware(RoleMiddleware::class)->group(function () {
     Route::post('/banner-submit', [BannerContoller::class, 'submit'])->name('banner.submit');
     Route::put('/banner-update/{id}', [BannerContoller::class, 'update'])->name('banner.update');
     Route::get('/banner-delete/{id}', [BannerContoller::class, 'delete'])->name('banner.delete'); 
+    
+    //stock
     Route::get('/stock',[StockController::class,'index'])->name('stock.index');
+    Route::post('/update-quantity', [StockController::class, 'update_quantity'])->name('stocks.update_quantity');
 
  });

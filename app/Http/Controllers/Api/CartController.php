@@ -43,6 +43,7 @@ class CartController extends ApiBaseController
             'products.price as product_price',
             'products.discount_price as discount_price',
             'products.thumbnail as product_thumbnail',
+            'products.minimum_limit as enter_quantity_limit',
             DB::raw("IF(cart.collection_id = 0, '', product_collections.title) as collection_name")
         ];
 
@@ -51,15 +52,15 @@ class CartController extends ApiBaseController
         $total_discount_amount = 0;
 
         foreach ($cart as &$val) {
-            $total_amount += $val->amount;
-            $total_discount_amount += $val->discount_amount;
+            $total_amount += $val->product_price;
+            $total_discount_amount += $val->discount_price;
             $val['product_thumbnail'] = $val['product_thumbnail'] ? asset('storage/' . $val['product_thumbnail']) : '';
             $val['is_out_of_stock'] = 0;
         }
 
-        $discounted_amount = $total_amount - $total_discount_amount;
-        $delivery_charge = 0;
-        $total_payable = $total_amount - $total_discount_amount + $delivery_charge;
+        $discounted_amount  = $total_amount - $total_discount_amount;
+        $delivery_charge    = get_setting('delivery_charge');
+        $total_payable      = $total_amount - $total_discount_amount + $delivery_charge;
 
         $data = [
             'cart_items' => $cart,
@@ -68,7 +69,6 @@ class CartController extends ApiBaseController
             'discounted_amount' => $discounted_amount,
             'delivery_charge' => $delivery_charge,
             'total_payable' => $total_payable,
-            'enter_quantity_limit' => 0.5,
             'product_count' => Cart::where(['user_id' => $this->userId, 'purchase_status' => 0])->count(),
         ];
 
@@ -93,19 +93,14 @@ class CartController extends ApiBaseController
             $where['collection_id'] = $request->collection_id;
         }
 
-        $already_exist = $this->cart->getData($where);
-        $product_details = $this->product->getData(['id' => $request->product_id], ['price', 'discount_price'])->first();
-        $price = $product_details->price;
-        $discount_price = $product_details->discount_price;
+        $already_exist      = $this->cart->getData($where);
+        $product_details    = $this->product->getData(['id' => $request->product_id], ['price', 'discount_price'])->first();
+
         if (!$already_exist->isEmpty()) {
             $existing = $already_exist->first();
             $quantity = $existing->quantity + $request->quantity;
-            $amount = $price * $quantity;
-            $discount_amount = $discount_price * $quantity;
             $updateData = [
                 'quantity' => $quantity,
-                'amount' => $amount,
-                'discount_amount' => $discount_amount,
             ];
             $this->cart->update_record(['id' => $existing->id], $updateData);
         } else {
@@ -114,8 +109,6 @@ class CartController extends ApiBaseController
                 'collection_id' => $request->collection_id,
                 'user_id' => $this->userId,
                 'quantity' => $request->quantity,
-                'amount' => $price,
-                'discount_amount' => $discount_price,
             ];
             $this->cart->add($insertData);
         }
@@ -210,23 +203,8 @@ class CartController extends ApiBaseController
             return $this->sendSuccessResponse([], 'Item removed from cart.');
         }
 
-        // Get product pricing
-        $product_details = $this->product->getData(
-            ['id' => $cart_item->product_id],
-            ['price', 'discount_price']
-        )->first();
-
-        $price = $product_details->price ?? 0;
-        $discount_price = $product_details->discount_price ?? 0;
-
-        // ✅ Now assuming discount_price is final unit price (already discounted)
-        $amount = $price * $updated_quantity;
-        $discount_amount = $discount_price * $updated_quantity;
-
         $updateData = [
             'quantity' => $updated_quantity,
-            'amount' => $amount,
-            'discount_amount' => $discount_amount,
         ];
 
         $this->cart->update_record(['id' => $cart_item->id], $updateData);
