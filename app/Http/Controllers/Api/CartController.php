@@ -44,6 +44,7 @@ class CartController extends ApiBaseController
             'products.discount_price as discount_price',
             'products.thumbnail as product_thumbnail',
             'products.minimum_limit as enter_quantity_limit',
+            'products.sale_price',
             'products.unit',
             DB::raw("IF(cart.collection_id = 0, '', product_collections.title) as collection_name")
         ];
