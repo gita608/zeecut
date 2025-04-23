@@ -83,7 +83,7 @@ class ProductContoller extends Controller
             'description' => $request->description,
             'price' => $request->price,
             'discount_price' => $request->discount_price,
-            'sale_price' => $request->price + $request->discount_price ,
+            'sale_price' =>  $request->discount_price,
             'thumbnail' => $filePath,
             'no_of_collection' => $request->no_of_collection,
             'unit' => $request->unit,
@@ -159,7 +159,7 @@ class ProductContoller extends Controller
             'description' => $request->description,
             'price' => $request->price,
             'discount_price' => $request->discount_price,
-            'sale_price' => $request->price - $request->discount_price ,
+            'sale_price' => $request->discount_price ,
             'no_of_collection' => $request->no_of_collection,
             'unit' => $request->unit,
         ];

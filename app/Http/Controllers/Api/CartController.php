@@ -46,6 +46,7 @@ class CartController extends ApiBaseController
             'products.minimum_limit as enter_quantity_limit',
             'products.sale_price',
             'products.unit',
+            'product_collections.price as collections_price',
             DB::raw("IF(cart.collection_id = 0, '', product_collections.title) as collection_name")
         ];
 
@@ -54,11 +55,20 @@ class CartController extends ApiBaseController
         $total_discount_amount = 0;
 
         foreach ($cart as &$val) {
+
+            if($val->collection_id > 0){
+                // $collection_price = ProductCollection::where(['id' => $val->collection_id])->first()->price;
+                $val['sale_price'] = $val->collections_price * $val->quantity;
+            }else{
+                $val['sale_price'] = $val->sale_price * $val->quantity;
+            }
+
             $total_amount += $val->product_price;
             $total_discount_amount += $val->discount_price;
             $val['product_thumbnail'] = $val['product_thumbnail'] ? asset('storage/' . $val['product_thumbnail']) : '';
             $val['is_out_of_stock'] = 0;
             $val['unit'] = ($val->unit == 1) ? 'Kg' : (($val->unit == 2) ? 'L' : 'Qty');
+            
 
         }
 
