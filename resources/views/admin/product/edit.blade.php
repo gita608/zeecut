@@ -108,9 +108,10 @@
         }
     }
 
-    // Optional: Set default on page load
     $(document).ready(function(){
-        get_price_label({{ $collection->unit }}); // or default value
+        @if(!empty($collection))
+            get_price_label("{{ $collection->unit }}");
+        @endif
     });
 </script>
 

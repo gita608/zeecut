@@ -18,7 +18,8 @@
                         <select name="category_id" class="form-select">
                             <option value="">All Categories</option>
                             @foreach ($categories as $category)
-                            <option value="{{ $category->id }}" {{ request('category_id') == $category->id ? 'selected' : '' }}>
+                            <option value="{{ $category->id }}" {{ request('category_id')==$category->id ? 'selected' :
+                                '' }}>
                                 {{ $category->name }}
                             </option>
                             @endforeach
@@ -26,12 +27,13 @@
                     </div>
                     <div class="col-md-4">
                         <button type="submit" class="btn btn-success"><i class="fas fa-filter"></i> Filter</button>
-                        <a href="{{ route('product.index') }}" class="btn btn-secondary"><i class="fas fa-sync-alt"></i> Reset</a>
+                        <a href="{{ route('product.index') }}" class="btn btn-secondary"><i class="fas fa-sync-alt"></i>
+                            Reset</a>
                     </div>
                 </div>
             </form>
         </div>
-   
+
         <div class="card-body">
             <div class="table-responsive">
                 <table id="table1" class="table table-striped table-hover">
@@ -53,23 +55,29 @@
                         @foreach ($list_items as $key => $item)
                         <tr>
                             <td>{{ ++$key }}</td>
-                            <td><img src="{{ asset('storage/' . $item->thumbnail) }}" alt="" class="img-thumbnail" width="150"></td>
+                            <td><img src="{{ asset('storage/' . $item->thumbnail) }}" alt="" class="img-thumbnail"
+                                    width="150"></td>
                             <td>{{ $item->name }}</td>
                             <td>{{ $item->category_name ?? '' }}</td>
                             <td>{{ format_price($item->price) }}</td>
                             <td>{{ format_price($item->discount_price) }}</td>
                             <td>
-                                <input type="checkbox" class="toggle-status" onchange="get_ajax_status(this.checked, {{$item->id}})" {{ $item->status ? 'checked' : '' }}>
+                                <input type="checkbox" class="toggle-status"
+                                    onchange="get_ajax_status(this.checked, {{$item->id}})" {{ $item->status ? 'checked'
+                                : '' }}>
                             </td>
                             <td>
+                                @if (!empty($item['collection_items']))
                                 <ul>
-                                    @foreach ( $item['collection_items'] as $items )
-                                    
-                                        <li><?=strtoupper($items['title'])?></li>
-
+                                    @foreach ($item['collection_items'] as $items)
+                                    <li>{{ strtoupper($items['title']) }}</li>
                                     @endforeach
                                 </ul>
+                                @else
+                                <span class="text-muted">No collection</span>
+                                @endif
                             </td>
+
                             <td>{{ $item->created_at ? date('d-m-Y', strtotime($item->created_at)) : '' }}</td>
                             <td class="text-center">
                                 <div class="btn-group">
@@ -79,13 +87,15 @@
                                         <i class="fas fa-edit"></i>
                                     </a>
                                     <a href="javascript:void(0);" class="btn btn-outline-danger btn-sm"
-                                        onclick="delete_modal('{{ route('product.delete',$item->id) }}')" title="Delete">
+                                        onclick="delete_modal('{{ route('product.delete',$item->id) }}')"
+                                        title="Delete">
                                         <i class="fas fa-trash-alt"></i>
                                     </a>
-                                </div><hr>
+                                </div>
+                                <hr>
                                 <a href="javascript:void(0);" class="btn btn-outline-primary w-75"
-                                 onclick="show_ajax_modal('{{ route('product.view_images',$item->id) }}', 'Images {{ $page_title ?? '' }}')"
-                                >View Images</a>
+                                    onclick="show_ajax_modal('{{ route('product.view_images',$item->id) }}', 'Images {{ $page_title ?? '' }}')">View
+                                    Images</a>
                             </td>
                         </tr>
                         @endforeach
