@@ -61,7 +61,6 @@ class ProductController extends ApiBaseController
         $cart_data = $this->cart->getData(['collection_id' => 0, 'product_id' => $product_id, 'user_id' => $this->userId, 'purchase_status' => 0])->first();
 
         $data->cart_quantity = $cart_data->quantity ?? 0;
-
         $data->cart_amount = $data->cart_quantity > 0 ? $data->price * $data->cart_quantity :  $data->price;
         // $data->cart_discount = $data->discount_price ?? 0;
 
@@ -89,13 +88,13 @@ class ProductController extends ApiBaseController
         $data->has_collection       = $data->collections->isNotEmpty() ? 1 : 0;
 
 
-        // foreach ($data->collections as &$collection) {
+        foreach ($data->collections as &$collection) {
 
-            // $cart_data_collection = $this->cart->getData(['collection_id' => $collection->id, 'product_id' => $product_id, 'user_id' => $this->userId, 'purchase_status' => 0])->first();
-            // $collection->cart_quantity = $cart_data_collection->quantity ?? 0;
-            // $collection->cart_amount = 0;
+            $cart_data_collection = $this->cart->getData(['collection_id' => $collection->id, 'product_id' => $product_id, 'user_id' => $this->userId, 'purchase_status' => 0])->first();
+            $collection->cart_quantity = $cart_data->quantity ?? 0;
+            $collection->cart_amount = $data->cart_quantity > 0 ? $data->price * $data->cart_quantity :  $data->price;
             // $collection->cart_discount = $cart_data_collection->discount_amount ?? 0;
-        // }
+        }
 
 
         $cart       = Cart::where(['user_id' => $this->userId, 'purchase_status' => 0]);
