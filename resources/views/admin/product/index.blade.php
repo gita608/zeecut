@@ -67,14 +67,14 @@
                                 : '' }}>
                             </td>
                             <td>
-                                @if (!empty($item['collection_items']))
+                                @if ($item['has_collection'] == 1)
                                 <ul>
                                     @foreach ($item['collection_items'] as $items)
                                     <li>{{ strtoupper($items['title']) }}</li>
                                     @endforeach
                                 </ul>
                                 @else
-                                <span class="text-muted">No collection</span>
+                                    <span class="text-muted">No collection</span>
                                 @endif
                             </td>
 

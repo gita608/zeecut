@@ -40,7 +40,9 @@ class ProductContoller extends Controller
 
         foreach ($list_items as $key => $list_item) {
             $list_items[$key]['collection_items'] = ProductCollection::where(['product_id' => $list_item['id']])->get();
+            $list_items[$key]['has_collection'] = Category::where(['id' => $list_item['category_id']])->first()->has_collection;
         }
+
 
         $data['list_items'] = $list_items;
 
