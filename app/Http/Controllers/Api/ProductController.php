@@ -91,8 +91,9 @@ class ProductController extends ApiBaseController
         foreach ($data->collections as &$collection) {
 
             $cart_data_collection = $this->cart->getData(['collection_id' => $collection->id, 'product_id' => $product_id, 'user_id' => $this->userId, 'purchase_status' => 0])->first();
-            $collection->cart_quantity = $cart_data->quantity ?? 0;
-            $collection->cart_amount = $data->cart_quantity > 0 ? $data->price * $data->cart_quantity :  $data->price;
+
+            $collection->cart_quantity = $cart_data_collection->quantity ?? 0;
+            $collection->cart_amount = $cart_data_collection->price ?? 0;
             // $collection->cart_discount = $cart_data_collection->discount_amount ?? 0;
         }
 
