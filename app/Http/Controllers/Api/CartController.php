@@ -56,34 +56,29 @@ class CartController extends ApiBaseController
 
         foreach ($cart as &$val) {
 
-            if($val->collection_id > 0){
+            if ($val->collection_id > 0) {
                 // $collection_price = ProductCollection::where(['id' => $val->collection_id])->first()->price;
                 $val['sale_price'] = $val->collections_price * $val->quantity;
-            }else{
+            } else {
                 $val['sale_price'] = $val->sale_price * $val->quantity;
             }
 
             $total_amount += $val->product_price;
             $total_discount_amount += $val->discount_price;
             $val['product_thumbnail'] = $val['product_thumbnail'] ? asset('storage/' . $val['product_thumbnail']) : '';
-            $val['is_out_of_stock'] = 0;
             $val['unit'] = ($val->unit == 1) ? 'Kg' : (($val->unit == 2) ? 'L' : 'Qty');
-            
+
 
         }
 
-        $discounted_amount  = $total_amount - $total_discount_amount;
-        $delivery_charge    = get_setting('delivery_charge');
-        $total_payable      = $total_amount - $total_discount_amount + $delivery_charge;
-
+        $cart_data = $this->cart->get_user_cart_data($this->userId);
         $data = [
             'cart_items' => $cart,
-            'total_amount' => $total_amount,
-            'total_discount' => $total_discount_amount,
-            'discounted_amount' => $discounted_amount,
-            'delivery_charge' => $delivery_charge,
-            'total_payable' => $total_payable,
-            'product_count' => Cart::where(['user_id' => $this->userId, 'purchase_status' => 0])->count(),
+            'min_order_amout' =>get_setting('min_order_amout'),
+            'total_payable' => $cart_data['total_payable'],
+            'total_discount' => $cart_data['total_discount'],
+            'delivery_charge' => $cart_data['delivery_charge'],
+            'product_count' => $cart_data['product_count'],
         ];
 
         return $this->sendSuccessResponse($data, 'Success');
@@ -107,8 +102,8 @@ class CartController extends ApiBaseController
             $where['collection_id'] = $request->collection_id;
         }
 
-        $already_exist      = $this->cart->getData($where);
-        $product_details    = $this->product->getData(['id' => $request->product_id], ['price', 'discount_price'])->first();
+        $already_exist = $this->cart->getData($where);
+        $product_details = $this->product->getData(['id' => $request->product_id], ['price', 'discount_price'])->first();
 
         if (!$already_exist->isEmpty()) {
             $existing = $already_exist->first();
@@ -229,8 +224,9 @@ class CartController extends ApiBaseController
         return $this->sendSuccessResponse($updated_cart_item, 'Cart updated successfully!');
     }
 
-    
-    public function checkout(Request $request){
+
+    public function checkout(Request $request)
+    {
         $user = User::where('id', $this->userId)->first();
 
         // $cartIds = json_decode($request->cart_ids, true);
@@ -239,7 +235,7 @@ class CartController extends ApiBaseController
         // }
 
 
-        $cart_data = Cart::where('user_id',$this->userId)->where('purchase_status', 0)->get();
+        $cart_data = Cart::where('user_id', $this->userId)->where('purchase_status', 0)->get();
 
         $total_amount = 0;
         $total_discount_amount = 0;
@@ -247,8 +243,8 @@ class CartController extends ApiBaseController
         foreach ($cart_data as $key => $item) {
             $total_amount += $item->amount;
             $total_discount_amount += $item->discount_amount;
-            $cart_data[$key]->product = Product::where('id',$item['product_id'])->first()->name;
-            $cart_data[$key]->collection = ProductCollection::where('id',$item['collection_id'])->first()->title;
+            $cart_data[$key]->product = Product::where('id', $item['product_id'])->first()->name;
+            $cart_data[$key]->collection = ProductCollection::where('id', $item['collection_id'])->first()->title ?? '';
 
             $items = OrderItem::where('order_id', $item->id)
                 ->join('products', 'order_items.product_id', '=', 'products.id')  // Join products table
@@ -262,12 +258,12 @@ class CartController extends ApiBaseController
         $total_payable = $total_amount - $total_discount_amount + $delivery_charge;
         $summary = [
             'total_amount' => $total_amount,
-            'delivery_charge' => $delivery_charge ,
+            'delivery_charge' => $delivery_charge,
             'discount_amount' => $total_discount_amount,
             'total_payable' => $total_payable
         ];
         $data = [
-            'user_address' => $user_data['address']. ', '. $user_data['pincode'],
+            'user_address' => $user_data['address'] . ', ' . $user_data['pincode'],
             'cart_data' => $cart_data,
             'summary' => $summary
         ];

@@ -55,9 +55,11 @@ class ProductController extends ApiBaseController
         $thumbnail = $data->thumbnail ? asset('storage/' . $data->thumbnail) : '';
 
         // Fetch product images
-        $images = $this->product_images->getData(['product_id' => $product_id]);
-        $unit_text = $data->unit == 1 ? ' Kg' : ($data->unit == 2 ? ' L' : ' Q');
-        $data->unit_text = 1 . $unit_text;
+        $images             = $this->product_images->getData(['product_id' => $product_id]);
+        $unit_text          = $data->unit == 1 ? ' Kg' : ($data->unit == 2 ? ' L' : ' Q');
+        $data->unit_text    = 1 . $unit_text;
+
+
         $cart_data = $this->cart->getData(['collection_id' => 0, 'product_id' => $product_id, 'user_id' => $this->userId, 'purchase_status' => 0])->first();
 
         $data->cart_quantity = $cart_data->quantity ?? 0;
@@ -94,29 +96,9 @@ class ProductController extends ApiBaseController
 
             $collection->cart_quantity = $cart_data_collection->quantity ?? 0;
             $collection->cart_amount = $cart_data_collection->price ?? 0;
-            // $collection->cart_discount = $cart_data_collection->discount_amount ?? 0;
-        }
+        }       
 
-
-        $cart       = Cart::where(['user_id' => $this->userId, 'purchase_status' => 0]);
-        $productIds = $cart->pluck('product_id')->toArray();
-        $product    = Product::whereIn('id',$productIds)->get();
- 
-        $total_amount       = $product->sum('price');
-        $total_discount     = $product->sum('discount_price');;
-        $discounted_amount  = $total_amount - $total_discount;
-        $delivery_charge    = get_setting('delivery_charge');
-        $total_payable      = $discounted_amount ;
-
-        $data->cart = [
-            'total_amount' => $total_amount,
-            'total_discount' => $total_discount,
-            'discounted_amount' => $discounted_amount,
-            'delivery_charge' => $delivery_charge,
-            'total_payable' => $total_payable,
-            'product_count' => $cart->count(),
-        ];
-
+        $data->cart = $this->cart->get_user_cart_data($this->userId);
 
         return $this->sendSuccessResponse($data, 'Success');
     }
