@@ -5,10 +5,11 @@
 
             <div class="col-md-12">
                 <label class="form-label">Category <span class="text-danger">*</span></label>
-                <select class="form-select" name="category" id="category" onchange="get_category_id(this.value)" required>
+                <select class="form-select" name="category" id="category" onchange="get_category_id(this.value)"
+                    required>
                     <option value="">Choose Category</option>
                     @foreach($categories as $category)
-                        <option value="{{ $category->id }}">{{ $category->name }}</option>
+                    <option value="{{ $category->id }}">{{ $category->name }}</option>
                     @endforeach
                 </select>
             </div>
@@ -20,7 +21,8 @@
 
             <div class="col-md-12">
                 <label class="form-label">Description <span class="text-danger">*</span></label>
-                <textarea class="form-control" name="description" rows="4" placeholder="Enter product description" required></textarea>
+                <textarea class="form-control" name="description" rows="4" placeholder="Enter product description"
+                    required></textarea>
             </div>
 
             <div class="col-md-6">
@@ -34,8 +36,8 @@
             </div>
 
             <div class="col-md-6">
-                <label class="form-label" id="price_label" > <span class="text-danger">*</span></label>
-                <input type="number" name="price" class="form-control"  required>
+                <label class="form-label" id="price_label">Per Kg <span class="text-danger">*</span></label>
+                <input type="number" name="price" class="form-control" required>
             </div>
 
             <div class="col-md-12">
@@ -53,7 +55,8 @@
             <div class="col-md-12" id="collection_div" style="display: none;">
                 <label class="form-label">Number of Collections</label>
                 <div class="d-flex mb-2">
-                    <input type="number" id="inputCount" name="no_of_collection" class="form-control me-2" placeholder="Enter number of collections">
+                    <input type="number" id="inputCount" name="no_of_collection" class="form-control me-2"
+                        placeholder="Enter number of collections">
                     <button type="button" class="btn btn-outline-primary" id="generateInputs">Generate</button>
                 </div>
                 <div id="dynamicInputs"></div>
@@ -62,7 +65,8 @@
             {{-- Image Upload Fields --}}
             <div class="col-md-12 mt-4">
                 <label class="form-label">Additional Images</label>
-                <button type="button" class="btn btn-outline-secondary btn-sm mb-2" id="addImage">Add Image Field</button>
+                <button type="button" class="btn btn-outline-secondary btn-sm mb-2" id="addImage">Add Image
+                    Field</button>
                 <div id="imageInputs"></div>
                 <small class="form-text text-muted">Each image max size: 2MB</small>
             </div>
@@ -83,13 +87,14 @@
 <script>
     function get_price_label(value){
         if(value == 1){
-            $('#price_label').html('Per Kg');
+            $('#price_label').html('Price (Per Kg) <span class="text-danger">*</span>');
         } else if(value == 2){
-            $('#price_label').html('Per Liter');
+            $('#price_label').html('Price (Per Liter) <span class="text-danger">*</span>');
         } else {
-            $('#price_label').html('Per Quantity');
+            $('#price_label').html('Price (Per Quantity) <span class="text-danger">*</span>');
         }
     }
+
 
     // Optional: Set default on page load
     $(document).ready(function(){

@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Models\OrderItem;
 use App\Models\ProductCollection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class CartController extends ApiBaseController
 {
@@ -74,7 +75,7 @@ class CartController extends ApiBaseController
         $cart_data = $this->cart->get_user_cart_data($this->userId);
         $data = [
             'cart_items' => $cart,
-            'min_order_amout' =>get_setting('min_order_amout'),
+            'min_order_amout' => get_setting('min_order_amout'),
             'total_payable' => $cart_data['total_payable'],
             'total_discount' => $cart_data['total_discount'],
             'delivery_charge' => $cart_data['delivery_charge'],
@@ -228,11 +229,7 @@ class CartController extends ApiBaseController
     public function checkout(Request $request)
     {
         $user = User::where('id', $this->userId)->first();
-
-        // $cartIds = json_decode($request->cart_ids, true);
-        // if (empty($cartIds)) {
-        //     return $this->sendSuccessResponse([], 'Cart Id Required');
-        // }
+        $user_data = $user->userdata();
 
 
         $cart_data = Cart::where('user_id', $this->userId)->where('purchase_status', 0)->get();
@@ -241,29 +238,41 @@ class CartController extends ApiBaseController
         $total_discount_amount = 0;
 
         foreach ($cart_data as $key => $item) {
-            $total_amount += $item->amount;
-            $total_discount_amount += $item->discount_amount;
-            $cart_data[$key]->product = Product::where('id', $item['product_id'])->first()->name;
-            $cart_data[$key]->collection = ProductCollection::where('id', $item['collection_id'])->first()->title ?? '';
 
-            $items = OrderItem::where('order_id', $item->id)
-                ->join('products', 'order_items.product_id', '=', 'products.id')  // Join products table
-                ->select('order_items.*', 'products.name as product_name', 'products.price as product_price')  // Select necessary columns
-                ->get();
-            $cart_data[$key]->order_items = $items;
+            $data = $this->product->get_product_details($item->product_id, $item->collection_id);
+
+            if ($data['has_collection'] == 0) {
+                $price      = $data['product_price'];
+                $sale_price = $data['product_sale_price'];
+            } else {
+                $price      = $data['collection_price'];
+                $sale_price = $data['collection_price'];
+            }
+
+            $cart_data[$key]->product       = $data['product'];
+            $cart_data[$key]->collection    = $data['collection'];
+            $cart_data[$key]->price         = $price;
+            $cart_data[$key]->sale_price    = $sale_price;
+
+            // $items = OrderItem::where('order_id', $item->id)
+            //     ->join('products', 'order_items.product_id', '=', 'products.id')  
+            //     ->select('order_items.*', 'products.name as product_name', 'products.price as product_price')  
+            //     ->get();
+            // $cart_data[$key]->order_items = $items;
         }
 
-        $user_data = $user->userdata();
-        $delivery_charge = 0;
-        $total_payable = $total_amount - $total_discount_amount + $delivery_charge;
+        $cart_total_data = $this->cart->get_user_cart_data($this->userId);
         $summary = [
-            'total_amount' => $total_amount,
-            'delivery_charge' => $delivery_charge,
-            'discount_amount' => $total_discount_amount,
-            'total_payable' => $total_payable
+            'total_amount' => $cart_total_data['total_amount'],
+            'delivery_charge' => $cart_total_data['delivery_charge'],
+            'discount_amount' => $cart_total_data['total_discount'],
+            'total_payable' => $cart_total_data['total_payable'] + $cart_total_data['delivery_charge'],
         ];
+
+
         $data = [
             'user_address' => $user_data['address'] . ', ' . $user_data['pincode'],
+            'phone' => $user_data['phone'],
             'cart_data' => $cart_data,
             'summary' => $summary
         ];

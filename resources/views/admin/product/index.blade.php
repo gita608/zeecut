@@ -74,7 +74,7 @@
                                     @endforeach
                                 </ul>
                                 @else
-                                    <span class="text-muted">No collection</span>
+                                    <span class="text-muted">Non collection Item</span>
                                 @endif
                             </td>
 
