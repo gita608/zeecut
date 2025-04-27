@@ -49,6 +49,7 @@ class Product extends BaseModel
             'product_sale_price'    => $product->sale_price,
             'collection'            => optional($collection)->title ?? '',
             'collection_price'      => optional($collection)->price ?? '',
+            'collection_sale_price' => optional($collection)->sale_price ?? '',
             'unit'                  => $unitTypes[$product->unit] ?? 'Quantity',
             'has_collection'        => $collection ? 1 : 0,
         ];

@@ -11,6 +11,7 @@ class ProductCollection extends BaseModel
         'product_id',
         'title',
         'price',
+        'sale_price'
     ];
 
 

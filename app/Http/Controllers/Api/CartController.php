@@ -47,7 +47,8 @@ class CartController extends ApiBaseController
             'products.minimum_limit as enter_quantity_limit',
             'products.sale_price',
             'products.unit',
-            'product_collections.price as collections_price',
+            'product_collections.sale_price as collection_sale_price',
+            'product_collections.price as collection_price',
             DB::raw("IF(cart.collection_id = 0, '', product_collections.title) as collection_name")
         ];
 
@@ -59,7 +60,10 @@ class CartController extends ApiBaseController
 
             if ($val->collection_id > 0) {
                 // $collection_price = ProductCollection::where(['id' => $val->collection_id])->first()->price;
-                $val['sale_price'] = $val->collections_price * $val->quantity;
+                $val['product_name']    = $val->product_name.' - '.$val->collection_name;
+                $val['product_price']   = $val->collection_price;
+                $val['discount_price']  = $val->collection_sale_price;
+                $val['sale_price']      = $val->collection_sale_price * $val->quantity;
             } else {
                 $val['sale_price'] = $val->sale_price * $val->quantity;
             }
@@ -76,6 +80,7 @@ class CartController extends ApiBaseController
         $data = [
             'cart_items' => $cart,
             'min_order_amout' => get_setting('min_order_amout'),
+            'total_amount' => $cart_data['total_amount'],
             'total_payable' => $cart_data['total_payable'],
             'total_discount' => $cart_data['total_discount'],
             'delivery_charge' => $cart_data['delivery_charge'],
@@ -242,23 +247,17 @@ class CartController extends ApiBaseController
             $data = $this->product->get_product_details($item->product_id, $item->collection_id);
 
             if ($data['has_collection'] == 0) {
-                $price      = $data['product_price'];
-                $sale_price = $data['product_sale_price'];
+                $price      = $data['product_price'] * $item->quantity;
+                $sale_price = $data['product_sale_price'] * $item->quantity;
             } else {
-                $price      = $data['collection_price'];
-                $sale_price = $data['collection_price'];
+                $price      = $data['collection_price'] * $item->quantity;
+                $sale_price = $data['collection_sale_price'] * $item->quantity;
             }
 
-            $cart_data[$key]->product       = $data['product'];
+            $cart_data[$key]->product       = $data['collection'] != null ?  $data['product'].' - '.$data['collection'] : $data['product'];
             $cart_data[$key]->collection    = $data['collection'];
             $cart_data[$key]->price         = $price;
             $cart_data[$key]->sale_price    = $sale_price;
-
-            // $items = OrderItem::where('order_id', $item->id)
-            //     ->join('products', 'order_items.product_id', '=', 'products.id')  
-            //     ->select('order_items.*', 'products.name as product_name', 'products.price as product_price')  
-            //     ->get();
-            // $cart_data[$key]->order_items = $items;
         }
 
         $cart_total_data = $this->cart->get_user_cart_data($this->userId);
