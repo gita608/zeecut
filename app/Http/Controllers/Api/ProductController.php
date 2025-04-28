@@ -112,12 +112,21 @@ class ProductController extends ApiBaseController
         $data = [];
         if ($search) {
 
-            $data = Product::when($search, function ($query, $search) {
+            $datas = Product::when($search, function ($query, $search) {
                 return $query->where('name', 'like', '%' . $search . '%');
             })->get();
+            
+            
+            foreach($datas as $key => $data){
+                
+                $unit_text = $data->unit == 1 ? ' Kg' : ($data->unit == 2 ? ' L' : ' Q');
+
+                $datas[$key]->thumbnail = $data->thumbnail ? asset('storage/' . $data->thumbnail) : '';
+                $datas[$key]->unit_text = 1 . $unit_text;
+            }
         }
 
-        return $this->sendSuccessResponse($data, 'Success');
+        return $this->sendSuccessResponse($datas, 'Success');
     }
 
 }

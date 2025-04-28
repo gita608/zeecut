@@ -47,6 +47,7 @@ class Product extends BaseModel
             'product_price'         => $product->price,
             'product_discount'      => $product->discount_price,
             'product_sale_price'    => $product->sale_price,
+            'product_image'         => $product->thumbnail != null ? asset('storage/' . $product->thumbnail) : '',
             'collection'            => optional($collection)->title ?? '',
             'collection_price'      => optional($collection)->price ?? '',
             'collection_sale_price' => optional($collection)->sale_price ?? '',
