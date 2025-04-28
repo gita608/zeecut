@@ -3,12 +3,16 @@
 namespace App\Http\Controllers\api;
 
 use Illuminate\Http\Request;
+use App\Models\Categories;
+use App\Models\User;
+use App\Models\Banners;
+use App\Models\Product;
+use App\Models\Product_images;
 use App\Models\Cart;
 use App\Models\Order;
 use App\Models\OrderItem;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
-
 class OrderController extends ApiBaseController
 {
     protected $order;
@@ -22,8 +26,9 @@ class OrderController extends ApiBaseController
 
     public function index(Request $request)
     {
-
-        $cartIds = json_decode($request->cart_ids, true); // Expecting an array of cart IDs
+         
+        $cartIds = json_decode($request->cart_ids,true); // Expecting an array of cart IDs
+ 
 
         if (empty($cartIds)) {
             return $this->sendErrorResponse('No cart items selected.');
@@ -33,9 +38,10 @@ class OrderController extends ApiBaseController
 
         // Generate order number and insert into `orders`
         $data['order_no'] = $this->order->generate_order_number();
-        $data['cart_id'] = 0; // If you want to track general cart id, or leave null
         $data['user_id'] = $this->userId;
         $data['total_amount'] = 0;
+        $data['address'] = $request->address;
+        $data['phone'] = $request->phone;
         $data['created_at'] = date('Y-m-d H:i:s');
 
         $orderId = $this->order->add($data);
@@ -54,7 +60,6 @@ class OrderController extends ApiBaseController
 
             DB::table('order_items')->insert([
                 'order_id' => $orderId,
-                'cart_id' => $item->id,
                 'product_id' => $item->product_id,
                 'collection_id' => $item->collection_id,
                 'quantity' => $item->quantity,
@@ -70,28 +75,31 @@ class OrderController extends ApiBaseController
 
         return $this->sendSuccessResponse([], 'Order placed successfully');
     }
-
+ 
     public function get_order_list(Request $request)
     {
 
 
         $datas = Order::where(['user_id' => $this->userId, 'status' => 'pending'])->get();
 
-        foreach ($datas as $key => $data) {
+         foreach($datas as $key => $data){
 
             $items = OrderItem::where('order_id', $data->id)
-                ->join('products', 'order_items.product_id', '=', 'products.id')  // Join products table
-                ->select('order_items.*', 'products.name as product_name', 'products.price as product_price')  // Select necessary columns
-                ->get();
+            ->join('products', 'order_items.product_id', '=', 'products.id')  // Join products table
+            ->join('product_collections', 'product_collections.id', '=', 'order_items.collection_id')  // Join products table
+            ->select('order_items.id','order_items.quantity', 'products.name as product', 'product_collections.title as collection')  // Select necessary columns
+            ->get();
 
-            $datas[$key]->order_items = $items;
+            $datas[$key]->status        = $data['status'] == 'pending' ? 'Placed' : $data['status'];
+            $datas[$key]->created_at    = date('d-m-Y',strtotime($data['created_at']));
+            $datas[$key]->order_items   = $items;
 
         }
 
         return $this->sendSuccessResponse($datas, 'success');
 
     }
-
+ 
     public function order_details(Request $request)
     {
 
@@ -103,8 +111,26 @@ class OrderController extends ApiBaseController
             return $this->sendErrorResponse($validator->errors()->first(), 403);
         }
 
-        return $this->sendSuccessResponse([], 'success');
+        $order_id = $request->order_id;
+
+        $datas = Order::where(['user_id' => $this->userId, 'status' => 'pending', 'id' => $order_id])->get();
+ 
+        foreach($datas as $key => $data){
+
+            $items = OrderItem::where('order_id', $data->id)
+            ->join('products', 'order_items.product_id', '=', 'products.id')  // Join products table
+            ->join('product_collections', 'product_collections.id', '=', 'order_items.collection_id','left')  // Join products table
+            ->select('order_items.*', 'products.name as product', 'product_collections.title as collection')  // Select necessary columns
+            ->get();
+
+            $datas[$key]->created_at    = date('d-m-Y',strtotime($data['created_at']));
+            $datas[$key]->status        = $data['status'] == 'pending' ? 'Placed' : $data['status'];
+            $datas[$key]->order_items   = $items;
+
+        }
+
+        return $this->sendSuccessResponse($datas, 'success');
 
     }
 
-}
+ }

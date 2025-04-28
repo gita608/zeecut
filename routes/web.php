@@ -10,6 +10,7 @@ use App\Http\Middleware\RoleMiddleware;
 use App\Http\Controllers\ProductContoller;
 use App\Http\Controllers\OfferController;
 use App\Http\Controllers\PincodeAccesController;
+use App\Http\Controllers\SettingController;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\OrderController;
 
@@ -76,9 +77,12 @@ Route::middleware(RoleMiddleware::class)->group(function () {
     Route::post('/banner-submit', [BannerContoller::class, 'submit'])->name('banner.submit');
     Route::put('/banner-update/{id}', [BannerContoller::class, 'update'])->name('banner.update');
     Route::get('/banner-delete/{id}', [BannerContoller::class, 'delete'])->name('banner.delete'); 
-    Route::get('/stock',[StockController::class,'index'])->name('stock.index');
     
-    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
-    Route::post('/updateStatus/{id}', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
-
+    //stock
+    Route::get('/stock',[StockController::class,'index'])->name('stock.index');
+    Route::post('/update-quantity', [StockController::class, 'update_quantity'])->name('stocks.update_quantity');
+    
+    //settings
+    Route::get('/setting',[SettingController::class,'index'])->name('setting.index');
+    Route::post('/setting-update',[SettingController::class,'update'])->name('setting.update');
  });

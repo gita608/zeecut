@@ -40,7 +40,9 @@ class ProductContoller extends Controller
 
         foreach ($list_items as $key => $list_item) {
             $list_items[$key]['collection_items'] = ProductCollection::where(['product_id' => $list_item['id']])->get();
+            $list_items[$key]['has_collection'] = Category::where(['id' => $list_item['category_id']])->first()->has_collection;
         }
+
 
         $data['list_items'] = $list_items;
 
@@ -70,6 +72,7 @@ class ProductContoller extends Controller
             'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
             'collection_title.*' => 'nullable|string',
             'collection_price.*' => 'nullable|numeric|min:0',
+            'collection_sale_price.*' => 'nullable|numeric|min:0',
             'extra_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
@@ -78,14 +81,15 @@ class ProductContoller extends Controller
 
         // Store Product
         $product = Product::create([
-            'category_id' => $request->category,
-            'name' => $request->title,
-            'description' => $request->description,
-            'price' => $request->price,
-            'discount_price' => $request->discount_price,
-            'thumbnail' => $filePath,
-            'no_of_collection' => $request->no_of_collection,
-            'unit' => $request->unit,
+            'category_id'       => $request->category,
+            'name'              => $request->title,
+            'description'       => $request->description,
+            'price'             => $request->price,
+            'discount_price'    => $request->discount_price,
+            'sale_price'        =>  $request->discount_price,
+            'thumbnail'         => $filePath,
+            'no_of_collection'  => $request->no_of_collection,
+            'unit'              => $request->unit,
         ]);
 
         // Store Product Collections
@@ -93,9 +97,10 @@ class ProductContoller extends Controller
             foreach ($request->collection_title as $index => $title) {
                 if ($title) {
                     ProductCollection::create([
-                        'product_id' => $product->id,
-                        'title' => $title,
-                        'price' => $request->collection_price[$index] ?? 0,
+                        'product_id'    => $product->id,
+                        'title'         => $title,
+                        'price'         => $request->collection_price[$index] ?? 0,
+                        'sale_price'    => $request->collection_sale_price[$index] ?? 0,
                     ]);
                 }
             }
@@ -158,9 +163,13 @@ class ProductContoller extends Controller
             'description' => $request->description,
             'price' => $request->price,
             'discount_price' => $request->discount_price,
+            'sale_price' => $request->discount_price ,
             'no_of_collection' => $request->no_of_collection,
             'unit' => $request->unit,
         ];
+
+
+        // dd($data);
 
 
         // Handle Thumbnail Upload
@@ -179,8 +188,9 @@ class ProductContoller extends Controller
 
             foreach ($request->collection_title as $key => $title) {
                 $product->collections()->create([
-                    'title' => $title,
-                    'price' => $request->collection_price[$key] ?? 0,
+                    'title'         => $title,
+                    'price'         => $request->collection_price[$key] ?? 0,
+                    'sale_price'    => $request->collection_sale_price[$key] ?? 0,
                 ]);
             }
         }

@@ -10,9 +10,9 @@
                     <select class="form-control" name="category" id="category" onchange="get_category_id(this.value)">
                         <option value="">Choose Category</option>
                         @foreach($categories as $category)
-                            <option value="{{ $category->id }}" {{ $edit_data->category_id == $category->id ? 'selected' : '' }}>
-                                {{ $category->name }}
-                            </option>
+                        <option value="{{ $category->id }}" {{ $edit_data->category_id == $category->id ? 'selected' : '' }}>
+                            {{ $category->name }}
+                        </option>
                         @endforeach
                     </select>
                 </div>
@@ -34,6 +34,7 @@
                 </div>
             </div>
 
+            <!-- Unit -->
             <div class="col-md-6">
                 <label class="form-label">Unit<span class="text-danger">*</span></label>
                 <select name="unit" class="form-control" onchange="get_price_label(this.value)">
@@ -47,11 +48,10 @@
             <!-- Price -->
             <div class="col-md-6">
                 <div class="mb-3">
-                    <label class="form-label" id="price_label"> <span class="text-danger">*</span></label>
+                    <label class="form-label" id="price_label">Price <span class="text-danger">*</span></label>
                     <input type="number" name="price" class="form-control" value="{{ $edit_data->price }}" placeholder="Enter price" required>
                 </div>
             </div>
-
 
             <!-- Discount Price -->
             <div class="col-md-12">
@@ -72,7 +72,7 @@
             </div>
 
             <!-- Collections -->
-            <div class="" id="collection_div">
+            <div id="collection_div">
                 <div class="col-md-12">
                     <label class="form-label">Number of Collections</label>
                     <input type="number" id="inputCount" name="no_of_collection" value="" class="form-control mb-3" placeholder="Enter number of collections">
@@ -82,11 +82,15 @@
                 <div class="col-md-12" id="dynamicInputs">
                     @if($collections)
                         @foreach($collections as $index => $collection)
-                            <div class="d-flex align-items-center mb-3 p-2 bg-light rounded shadow-sm" data-index="{{ $index + 1 }}">
-                                <input type="text" class="form-control me-3" name="collection_title[]" value="{{ $collection->title }}" placeholder="Collection Title">
-                                <input type="number" class="form-control me-3" name="collection_price[]" value="{{ $collection->price }}" placeholder="Collection Price">
-                                <button type="button" class="btn btn-danger btn-sm remove-row"><i class="fas fa-trash"></i></button>
-                            </div>
+                        <div class="d-flex align-items-center mb-3 p-2 bg-light rounded shadow-sm" data-index="{{ $index + 1 }}">
+                            <input type="text" class="form-control me-3" name="collection_title[]" value="{{ $collection->title }}" placeholder="Collection Title">
+                            <input type="number" class="form-control me-3" name="collection_price[]" value="{{ $collection->price }}" placeholder="Collection Price">
+                            <input type="number" class="form-control me-3" name="collection_sale_price[]" value="{{ $collection->sale_price }}" placeholder="Collection Discount Price">
+                            
+                            @if($index > 0)
+                            <button type="button" class="btn btn-danger btn-sm remove-row"><i class="fas fa-trash"></i></button>
+                            @endif
+                        </div>
                         @endforeach
                     @endif
                 </div>
@@ -97,20 +101,22 @@
     </form>
 </div>
 
+<!-- SCRIPTS -->
 <script>
     function get_price_label(value){
         if(value == 1){
-            $('#price_label').html('Per Kg');
+            $('#price_label').html('Price Per Kg <span class="text-danger">*</span>');
         } else if(value == 2){
-            $('#price_label').html('Per Liter');
+            $('#price_label').html('Price Per Liter <span class="text-danger">*</span>');
         } else {
-            $('#price_label').html('Per Quantity');
+            $('#price_label').html('Price Per Quantity <span class="text-danger">*</span>');
         }
     }
 
-    // Optional: Set default on page load
     $(document).ready(function(){
-        get_price_label({{ $collection->unit }}); // or default value
+        @if(!empty($collection))
+            get_price_label("{{ $collection->unit }}");
+        @endif
     });
 </script>
 
@@ -146,6 +152,8 @@
         const inputCount = parseInt(document.getElementById('inputCount').value);
         const dynamicInputsContainer = document.getElementById('dynamicInputs');
 
+        let currentIndex = dynamicInputsContainer.children.length;
+
         if (!isNaN(inputCount) && inputCount > 0) {
             for (let i = 0; i < inputCount; i++) {
                 const rowDiv = document.createElement('div');
@@ -163,19 +171,30 @@
                 priceInput.name = 'collection_price[]';
                 priceInput.placeholder = 'Collection Price';
 
-                const removeBtn = document.createElement('button');
-                removeBtn.className = 'btn btn-danger btn-sm remove-row';
-                removeBtn.innerHTML = '<i class="fas fa-trash"></i>';
-                removeBtn.type = 'button';
-                removeBtn.addEventListener('click', function () {
-                    rowDiv.remove();
-                });
+                const collectionSalePriceInput = document.createElement('input');
+                collectionSalePriceInput.type = 'number';
+                collectionSalePriceInput.className = 'form-control me-3';
+                collectionSalePriceInput.name = 'collection_sale_price[]';
+                collectionSalePriceInput.placeholder = 'Collection Discount Price';
 
                 rowDiv.appendChild(titleInput);
                 rowDiv.appendChild(priceInput);
-                rowDiv.appendChild(removeBtn);
+                rowDiv.appendChild(collectionSalePriceInput);
+
+                // Only add remove button if not the very first row
+                if (currentIndex > 0 || i > 0) {
+                    const removeBtn = document.createElement('button');
+                    removeBtn.className = 'btn btn-danger btn-sm remove-row';
+                    removeBtn.innerHTML = '<i class="fas fa-trash"></i>';
+                    removeBtn.type = 'button';
+                    removeBtn.addEventListener('click', function () {
+                        rowDiv.remove();
+                    });
+                    rowDiv.appendChild(removeBtn);
+                }
 
                 dynamicInputsContainer.appendChild(rowDiv);
+                currentIndex++;
             }
         }
     });
