@@ -73,7 +73,7 @@
     </div>
     @else
     <div class="text-center mt-5">
-        <img src="https://cdn-icons-png.flaticon.com/512/4076/4076549.png" alt="No orders" width="130" class="mb-3">
+    <img src="{{asset('assets/images/empty.png')}}" alt="No orders" width="130" class="img-fluid mb-3">
         <h5 class="text-muted">No orders found</h5>
     </div>
     @endif
