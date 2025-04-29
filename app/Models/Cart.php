@@ -16,9 +16,17 @@ class Cart extends BaseModel
     ];
 
 
-    public function get_user_cart_data($user_id){
+    public function get_user_cart_data($user_id,$cart_id=null){
 
-        $carts = Cart::where(['user_id' => $user_id,'purchase_status' => 0])->get();
+        $where = [];
+        $where['user_id']           = $user_id;
+        $where['purchase_status']   = 0;
+
+        if($cart_id){
+            $where['id']   = $cart_id;
+        }
+
+        $carts = Cart::where($where)->get();
 
         $total_amount = 0;
         $total_discount = 0;

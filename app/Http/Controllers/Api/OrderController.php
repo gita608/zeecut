@@ -16,12 +16,16 @@ use Illuminate\Support\Facades\Validator;
 class OrderController extends ApiBaseController
 {
     protected $order;
+    protected $cart;
+    protected $product;
 
     public function __construct(Request $request)
     {
         parent::__construct($request);
 
         $this->order = new Order();
+        $this->cart = new Cart();
+        $this->product = new Product();
     }
 
     public function index(Request $request)
@@ -34,7 +38,7 @@ class OrderController extends ApiBaseController
             return $this->sendErrorResponse('No cart items selected.');
         }
 
-        // dd($cartIds);
+        $delivery_charge = get_setting('delivery_charge');
 
         // Generate order number and insert into `orders`
         $data['order_no'] = $this->order->generate_order_number();
@@ -52,26 +56,32 @@ class OrderController extends ApiBaseController
             ->where('user_id', $this->userId)
             ->get();
 
-        $total_amount = 0;
+        $final_amount = 0;    
 
         foreach ($cartItems as $item) {
 
-            $total_amount += $item->amount;
+            $product    = $this->product->get_product_details($item->product_id,$item->collection_id);
+
+            $price          =   $item->collection_id == 0 ? $product['product_price'] : $product['collection_price'];
+            $sale_price     =   $item->collection_id == 0 ? $product['product_sale_price'] : $product['collection_sale_price'];
+            $final_amount   +=  ($sale_price * $item->quantity) + $delivery_charge;
 
             DB::table('order_items')->insert([
-                'order_id' => $orderId,
-                'product_id' => $item->product_id,
+                'order_id'      => $orderId,
+                'cart_id'       => $item->id,
+                'product_id'    => $item->product_id,
                 'collection_id' => $item->collection_id,
-                'quantity' => $item->quantity,
-                'price' => $item->amount, // or final amount logic
-                'created_at' => now(),
+                'quantity'      => $item->quantity,
+                'price'         => $price * $item->quantity,  
+                'sale_price'    => $sale_price * $item->quantity,
+                'created_at'    => now(),
             ]);
 
             // Optional: Mark cart as purchased
             DB::table('cart')->where('id', $item->id)->update(['purchase_status' => 1]);
         }
 
-        DB::table('orders')->where('id', $orderId)->update(['total_amount' => $total_amount]);
+        DB::table('orders')->where('id', $orderId)->update(values: ['total_amount' => $final_amount]);
 
         return $this->sendSuccessResponse([], 'Order placed successfully');
     }
