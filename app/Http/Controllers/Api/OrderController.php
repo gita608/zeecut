@@ -88,7 +88,7 @@ class OrderController extends ApiBaseController
         $final_amount_total = $final_amount + $delivery_charge;
         $total_price_total = $total_price + $delivery_charge;
 
-        DB::table('orders')->where('id', $orderId)->update(values: ['total_amount' => $final_amount_total,'price_amount' => $total_price_total,'total_discount' => $total_price_total - $final_amount_total]);
+        DB::table('orders')->where('id', $orderId)->update(values: ['total_amount' => $final_amount_total,'price_amount' => $total_price_total,'total_discount' => $total_price_total - $final_amount_total,'status' => 'placed']);
 
         return $this->sendSuccessResponse([], 'Order placed successfully');
     }
@@ -163,7 +163,9 @@ class OrderController extends ApiBaseController
             ,'order_items.quantity','order_items.price','order_items.sale_price','products.unit') // Select necessary columns
             ->get();
  
-            $datas['total_amount']  = $data['total_amount'];
+            $datas['total_amount']      = $data['price_amount'];
+            $datas['total_payble']      = $data['total_amount'];
+            $datas['total_discount']    = $data['`total_discount`'];
             $datas['address']       = $data['address'];
             $datas['phone']         = $data['phone'];
             $datas['ordered_date']  = date('d-M-Y',strtotime($data['ordered_date']));
