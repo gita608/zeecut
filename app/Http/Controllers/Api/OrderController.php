@@ -81,7 +81,7 @@ class OrderController extends ApiBaseController
             DB::table('cart')->where('id', $item->id)->update(['purchase_status' => 1]);
         }
 
-        DB::table('orders')->where('id', $orderId)->update(values: ['total_amount' => $final_amount]);
+        DB::table('orders')->where('id', $orderId)->update(values: ['total_amount' => $final_amount + $delivery_charge]);
 
         return $this->sendSuccessResponse([], 'Order placed successfully');
     }
