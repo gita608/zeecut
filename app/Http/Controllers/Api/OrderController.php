@@ -57,7 +57,9 @@ class OrderController extends ApiBaseController
             ->where('user_id', $this->userId)
             ->get();
 
-        $final_amount = 0;    
+
+        $total_price    = 0;
+        $final_amount   = 0;
 
         foreach ($cartItems as $item) {
 
@@ -65,6 +67,7 @@ class OrderController extends ApiBaseController
 
             $price          =   $item->collection_id == 0 ? $product['product_price'] : $product['collection_price'];
             $sale_price     =   $item->collection_id == 0 ? $product['product_sale_price'] : $product['collection_sale_price'];
+            $total_price    +=  $price * $item->quantity;
             $final_amount   +=  $sale_price * $item->quantity;
 
             DB::table('order_items')->insert([
@@ -82,7 +85,10 @@ class OrderController extends ApiBaseController
             DB::table('cart')->where('id', $item->id)->update(['purchase_status' => 1]);
         }
 
-        DB::table('orders')->where('id', $orderId)->update(values: ['total_amount' => $final_amount + $delivery_charge]);
+        $final_amount_total = $final_amount + $delivery_charge;
+        $total_price_total = $total_price + $delivery_charge;
+
+        DB::table('orders')->where('id', $orderId)->update(values: ['total_amount' => $final_amount_total,'price_amount' => $total_price_total,'total_discount' => $final_amount_total - $total_price_total]);
 
         return $this->sendSuccessResponse([], 'Order placed successfully');
     }
@@ -157,13 +163,13 @@ class OrderController extends ApiBaseController
             ,'order_items.quantity','order_items.price','order_items.sale_price','products.unit') // Select necessary columns
             ->get();
  
-
-        //  
+            $datas['total_amount']  = $data['total_amount'];
+            $datas['address']       = $data['address'];
+            $datas['phone']         = $data['phone'];
             $datas['ordered_date']  = date('d-M-Y',strtotime($data['ordered_date']));
-            $datas['status']        = $data['status'];
             $datas['order_items']   = $items;
             $datas['status']        = $this->order->get_order_status($data);
-
+            $datas['delivery_charge']= get_setting('delivery_charge');
 
         return $this->sendSuccessResponse($datas, 'success');
 
