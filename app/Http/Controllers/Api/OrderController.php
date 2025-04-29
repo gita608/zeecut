@@ -88,7 +88,7 @@ class OrderController extends ApiBaseController
         $final_amount_total = $final_amount + $delivery_charge;
         $total_price_total = $total_price + $delivery_charge;
 
-        DB::table('orders')->where('id', $orderId)->update(values: ['total_amount' => $final_amount_total,'price_amount' => $total_price_total,'total_discount' => $final_amount_total - $total_price_total]);
+        DB::table('orders')->where('id', $orderId)->update(values: ['total_amount' => $final_amount_total,'price_amount' => $total_price_total,'total_discount' => $total_price_total - $final_amount_total]);
 
         return $this->sendSuccessResponse([], 'Order placed successfully');
     }
