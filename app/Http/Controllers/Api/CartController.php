@@ -106,13 +106,13 @@ class CartController extends ApiBaseController
         }
 
         // Build where condition
-        $where = ['product_id' => $request->product_id, 'user_id' => $this->userId];
+        $where = ['product_id' => $request->product_id, 'user_id' => $this->userId,'purchase_status' => 0];
         if ($request->collection_id > 0) {
             $where['collection_id'] = $request->collection_id;
         }
 
-        $already_exist = $this->cart->getData($where);
-        $product_details = $this->product->getData(['id' => $request->product_id], ['price', 'discount_price'])->first();
+        $already_exist      = $this->cart->getData($where);
+        $product_details    = $this->product->getData(['id' => $request->product_id], ['price', 'discount_price'])->first();
 
         if (!$already_exist->isEmpty()) {
             $existing = $already_exist->first();
@@ -121,6 +121,7 @@ class CartController extends ApiBaseController
                 'quantity' => $quantity,
             ];
             $this->cart->update_record(['id' => $existing->id], $updateData);
+            $message = 'Cart updated successfully!';
         } else {
             $insertData = [
                 'product_id' => $request->product_id,
@@ -129,9 +130,10 @@ class CartController extends ApiBaseController
                 'quantity' => $request->quantity,
             ];
             $this->cart->add($insertData);
+            $message = 'Cart Insert successfully!';
         }
 
-        return $this->sendSuccessResponse([], 'Cart updated successfully!');
+        return $this->sendSuccessResponse([], );
     }
  
     public function remove_cart(Request $request)
