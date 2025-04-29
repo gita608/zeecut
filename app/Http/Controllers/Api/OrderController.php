@@ -95,9 +95,25 @@ class OrderController extends ApiBaseController
 
          foreach($datas as $key => $data){
 
+            $items = DB::table('order_items')
+            ->select(DB::raw("
+                IF(
+                    product_collections.title IS NOT NULL,
+                    CONCAT(products.name, '-', product_collections.title),
+                    products.name
+                ) AS item_name
+            "))
+            ->join('products', 'products.id', '=', 'order_items.product_id')
+            ->leftJoin('product_collections', 'product_collections.id', '=', 'order_items.collection_id')
+            ->where('order_items.order_id', $data['id'])
+            ->get();
+
+
+
+
             $datas[$key]->status        =   $data['status'] == 'pending' ? 'Placed' : $data['status'];
             $datas[$key]->ordered_date  =   date('d-M-Y',strtotime($data['ordered_date']));            
-            $datas[$key]->order_items   =   [];
+            $datas[$key]->order_items   =   $items;
 
         }
 
