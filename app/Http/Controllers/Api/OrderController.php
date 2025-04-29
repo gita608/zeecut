@@ -159,9 +159,10 @@ class OrderController extends ApiBaseController
  
 
         //  
-            $datas['ordered_date']  = date('d-m-Y',strtotime($data['ordered_date']));
+            $datas['ordered_date']  = date('d-M-Y',strtotime($data['ordered_date']));
             $datas['status']        = $data['status'];
             $datas['order_items']   = $items;
+            $datas['status']        = $this->order->get_order_status($data);
 
 
         return $this->sendSuccessResponse($datas, 'success');
