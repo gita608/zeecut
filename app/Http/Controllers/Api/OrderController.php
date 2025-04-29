@@ -111,7 +111,7 @@ class OrderController extends ApiBaseController
 
 
 
-            $datas[$key]->status        =   $data['status'] == 'pending' ? 'Placed' : $data['status'];
+            $datas[$key]->status        =   $data['status'];
             $datas[$key]->ordered_date  =   date('d-M-Y',strtotime($data['ordered_date']));            
             $datas[$key]->order_items   =   $items;
 
@@ -134,21 +134,35 @@ class OrderController extends ApiBaseController
 
         $order_id = $request->order_id;
 
-        $datas = Order::where(['user_id' => $this->userId, 'status' => 'pending', 'id' => $order_id])->get();
- 
-        foreach($datas as $key => $data){
-
-            $items = OrderItem::where('order_id', $data->id)
+        $datas = [];
+        $data = Order::where(['user_id' => $this->userId, 'status' => 'placed', 'id' => $order_id])->get()->first();
+        $items = OrderItem::where('order_id', $data->id)
             ->join('products', 'order_items.product_id', '=', 'products.id')  // Join products table
             ->join('product_collections', 'product_collections.id', '=', 'order_items.collection_id','left')  // Join products table
-            ->select('order_items.*', 'products.name as product', 'product_collections.title as collection')  // Select necessary columns
+            ->select(DB::raw("
+            IF(
+                product_collections.title IS NOT NULL,
+                CONCAT(products.name, '-', product_collections.title),
+                products.name
+            ) AS item_name
+            ",),
+            DB::raw("
+                CASE products.unit
+                    WHEN 1 THEN 'Kg'
+                    WHEN 2 THEN 'L'
+                    WHEN 3 THEN 'Qty'
+                    ELSE 'unknown'
+                END AS unit_name
+            ")
+            ,'order_items.quantity','order_items.price','order_items.sale_price','products.unit') // Select necessary columns
             ->get();
+ 
 
-            $datas[$key]->created_at    = date('d-m-Y',strtotime($data['created_at']));
-            $datas[$key]->status        = $data['status'] == 'pending' ? 'Placed' : $data['status'];
-            $datas[$key]->order_items   = $items;
+        //  
+            $datas['ordered_date']  = date('d-m-Y',strtotime($data['ordered_date']));
+            $datas['status']        = $data['status'];
+            $datas['order_items']   = $items;
 
-        }
 
         return $this->sendSuccessResponse($datas, 'success');
 
