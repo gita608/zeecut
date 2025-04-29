@@ -102,7 +102,7 @@ class OrderController extends ApiBaseController
                     CONCAT(products.name, '-', product_collections.title),
                     products.name
                 ) AS item_name
-            "))
+            ",),'order_items.quantity')
             ->join('products', 'products.id', '=', 'order_items.product_id')
             ->leftJoin('product_collections', 'product_collections.id', '=', 'order_items.collection_id')
             ->where('order_items.order_id', $data['id'])
