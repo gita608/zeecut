@@ -64,7 +64,7 @@ class OrderController extends ApiBaseController
 
             $price          =   $item->collection_id == 0 ? $product['product_price'] : $product['collection_price'];
             $sale_price     =   $item->collection_id == 0 ? $product['product_sale_price'] : $product['collection_sale_price'];
-            $final_amount   +=  ($sale_price * $item->quantity) + $delivery_charge;
+            $final_amount   +=  $sale_price * $item->quantity;
 
             DB::table('order_items')->insert([
                 'order_id'      => $orderId,

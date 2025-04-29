@@ -75,7 +75,7 @@ class CartController extends ApiBaseController
             $total_discount_amount      += $val->discount_price;
             $val['product_thumbnail']   = $val['product_thumbnail'] ? asset('storage/' . $val['product_thumbnail']) : '';
             $val['unit']                = ($val->unit == 1) ? 'Kg' : (($val->unit == 2) ? 'L' : 'Qty');
-            $val['is_out_of_stock']     = $this->stock->get_product_stock($val->product_id) >= 1 ? 1 : 0;
+            $val['is_out_of_stock']     = $this->stock->get_product_stock($val->product_id) >= 1 ? 0 : 1;
 
         }
 
