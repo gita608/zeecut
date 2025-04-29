@@ -165,7 +165,7 @@ class OrderController extends ApiBaseController
  
             $datas['total_amount']      = $data['price_amount'];
             $datas['total_payble']      = $data['total_amount'];
-            $datas['total_discount']    = $data['`total_discount`'];
+            $datas['total_discount']    = $data['total_discount`'];
             $datas['address']       = $data['address'];
             $datas['phone']         = $data['phone'];
             $datas['ordered_date']  = date('d-M-Y',strtotime($data['ordered_date']));
