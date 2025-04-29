@@ -41,12 +41,13 @@ class OrderController extends ApiBaseController
         $delivery_charge = get_setting('delivery_charge');
 
         // Generate order number and insert into `orders`
-        $data['order_no'] = $this->order->generate_order_number();
-        $data['user_id'] = $this->userId;
-        $data['total_amount'] = 0;
-        $data['address'] = $request->address;
-        $data['phone'] = $request->phone;
-        $data['created_at'] = date('Y-m-d H:i:s');
+        $data['order_no']       = $this->order->generate_order_number();
+        $data['user_id']        = $this->userId;
+        $data['total_amount']   = 0;
+        $data['address']        = $request->address;
+        $data['phone']          = $request->phone;
+        $data['ordered_date']   = date('Y-m-d');
+        $data['created_at']     = date('Y-m-d H:i:s');
 
         $orderId = $this->order->add($data);
 
@@ -90,19 +91,13 @@ class OrderController extends ApiBaseController
     {
 
 
-        $datas = Order::where(['user_id' => $this->userId, 'status' => 'pending'])->get();
+        $datas = Order::where(['user_id' => $this->userId])->get();
 
          foreach($datas as $key => $data){
 
-            $items = OrderItem::where('order_id', $data->id)
-            ->join('products', 'order_items.product_id', '=', 'products.id')  // Join products table
-            ->join('product_collections', 'product_collections.id', '=', 'order_items.collection_id')  // Join products table
-            ->select('order_items.id','order_items.quantity', 'products.name as product', 'product_collections.title as collection')  // Select necessary columns
-            ->get();
-
-            $datas[$key]->status        = $data['status'] == 'pending' ? 'Placed' : $data['status'];
-            $datas[$key]->created_at    = date('d-m-Y',strtotime($data['created_at']));
-            $datas[$key]->order_items   = $items;
+            $datas[$key]->status        =   $data['status'] == 'pending' ? 'Placed' : $data['status'];
+            $datas[$key]->ordered_date  =   date('d-M-Y',strtotime($data['ordered_date']));            
+            $datas[$key]->order_items   =   [];
 
         }
 
