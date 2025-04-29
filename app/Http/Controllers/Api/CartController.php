@@ -149,9 +149,10 @@ class CartController extends ApiBaseController
         }
 
         $cart_item = Cart::where([
-            'user_id' => $this->userId,
-            'product_id' => $request->product_id,
-            'collection_id' => $request->collection_id
+            'user_id'           => $this->userId,
+            'product_id'        => $request->product_id,
+            'collection_id'     => $request->collection_id,
+            'purchase_status'   => 0
         ])->first();
 
         if (!$cart_item) {
