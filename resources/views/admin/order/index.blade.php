@@ -52,28 +52,32 @@
                 </div>
 
                 <div class="card-footer bg-white border-top-0 text-end p-3">
-                    <form action="{{ route('orders.updateStatus', $order->id) }}" method="POST" class="d-inline">
+                    <div class="col-6">
+                        <a href="{{ route('orders.details',$order->id) }}" class="btn btn-sm btn-primary">Details</a>
+                    </div>
+                    <form action="{{ route('orders.updateStatus', $order->id) }}" method="POST" class="d-inline" id="statusForm{{ $order->id }}">
                         @csrf
                         <div class="dropdown">
                             <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" id="statusDropdown{{ $order->id }}" data-bs-toggle="dropdown" aria-expanded="false">
                                 Update Status
                             </button>
                             <ul class="dropdown-menu" aria-labelledby="statusDropdown{{ $order->id }}">
-                                <li><button class="dropdown-item" type="submit" name="status" value="pending">Pending</button></li>
-                                <li><button class="dropdown-item" type="submit" name="status" value="packed">Packed</button></li>
-                                <li><button class="dropdown-item" type="submit" name="status" value="dispatched">Dispatched</button></li>
-                                <li><button class="dropdown-item" type="submit" name="status" value="delivered">Delivered</button></li>
+                                <li><button type="submit" class="dropdown-item" name="status" value="pending">Pending</button></li>
+                                <li><button type="submit" class="dropdown-item" name="status" value="packed">Packed</button></li>
+                                <li><button type="submit" class="dropdown-item" name="status" value="dispatched">Dispatched</button></li>
+                                <li><button type="submit" class="dropdown-item" name="status" value="delivered">Delivered</button></li>
                             </ul>
                         </div>
                     </form>
                 </div>
+
             </div>
         </div>
         @endforeach
     </div>
     @else
     <div class="text-center mt-5">
-    <img src="{{asset('assets/images/empty.png')}}" alt="No orders" width="130" class="img-fluid mb-3">
+        <img src="{{asset('assets/images/empty.png')}}" alt="No orders" width="130" class="img-fluid mb-3">
         <h5 class="text-muted">No orders found</h5>
     </div>
     @endif
