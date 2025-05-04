@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Log;
 
 class OfferController extends Controller
 {
+    protected $offer;
     public function __construct()
     {
         $this->offer = new Offer();
