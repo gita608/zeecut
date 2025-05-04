@@ -7,20 +7,25 @@ use Illuminate\Http\Request;
 use App\Models\Cart;
 use App\Models\Product;
 use App\Models\User;
+use App\Models\Stock;
 use App\Models\OrderItem;
+use App\Models\ProductCollection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class CartController extends ApiBaseController
 {
     protected $cart;
     protected $product;
     protected $user;
+    protected $stock;
     public function __construct(Request $request)
     {
         parent::__construct($request);
         $this->cart = new Cart();
         $this->product = new Product();
         $this->user = new User();
+        $this->stock = new Stock();
     }
 
     public function index(Request $request)
@@ -32,6 +37,7 @@ class CartController extends ApiBaseController
 
         $where = [
             ['cart.user_id', '=', $this->userId],
+            ['cart.purchase_status', '=', 0],
             ['products.status', '=', 1],
         ];
 
@@ -41,24 +47,47 @@ class CartController extends ApiBaseController
             'products.price as product_price',
             'products.discount_price as discount_price',
             'products.thumbnail as product_thumbnail',
+            'products.minimum_limit as enter_quantity_limit',
+            'products.sale_price',
+            'products.unit',
+            'product_collections.sale_price as collection_sale_price',
+            'product_collections.price as collection_price',
             DB::raw("IF(cart.collection_id = 0, '', product_collections.title) as collection_name")
         ];
 
         $cart = $this->cart->getJoin($joins, $where, $select);
+        $total_amount = 0;
+        $total_discount_amount = 0;
 
         foreach ($cart as &$val) {
-            $val['product_thumbnail'] = $val['product_thumbnail'] ? asset('storage/' . $val['product_thumbnail']) : '';
+
+            if ($val->collection_id > 0) {
+                // $collection_price = ProductCollection::where(['id' => $val->collection_id])->first()->price;
+                $val['product_name']    = $val->product_name.' - '.$val->collection_name;
+                $val['product_price']   = $val->collection_price;
+                $val['discount_price']  = $val->collection_sale_price;
+                $val['sale_price']      = $val->collection_sale_price * $val->quantity;
+            } else {
+                $val['sale_price']      = $val->sale_price * $val->quantity;
+            }
+
+            $total_amount               += $val->product_price;
+            $total_discount_amount      += $val->discount_price;
+            $val['product_thumbnail']   = $val['product_thumbnail'] ? asset('storage/' . $val['product_thumbnail']) : '';
+            $val['unit']                = ($val->unit == 1) ? 'Kg' : (($val->unit == 2) ? 'L' : 'Qty');
+            $val['is_out_of_stock']     = $this->stock->get_product_stock($val->product_id) >= 1 ? 0 : 1;
+
         }
 
+        $cart_data = $this->cart->get_user_cart_data($this->userId);
         $data = [
             'cart_items' => $cart,
-            'total_amount' => 200,
-            'total_discount' => 50,
-            'discounted_amount' => 150,
-            'delivery_charge' => 50,
-            'total_payable' => 200,
-            'enter_quantity_limit' => 0.5,
-            'product_count' => Cart::where(['user_id' => $this->userId, 'purchase_status' => 0])->count(),
+            'min_order_amout' => get_setting('min_order_amout'),
+            'total_amount' => $cart_data['total_amount'],
+            'total_payable' => $cart_data['total_payable'],
+            'total_discount' => $cart_data['total_discount'],
+            'delivery_charge' => $cart_data['delivery_charge'],
+            'product_count' => $cart_data['product_count'],
         ];
 
         return $this->sendSuccessResponse($data, 'Success');
@@ -77,97 +106,42 @@ class CartController extends ApiBaseController
         }
 
         // Build where condition
-        $where = ['product_id' => $request->product_id, 'user_id' => $this->userId];
+        $where = ['product_id' => $request->product_id, 'user_id' => $this->userId,'purchase_status' => 0];
         if ($request->collection_id > 0) {
             $where['collection_id'] = $request->collection_id;
         }
 
-        $already_exist = $this->cart->getData($where);
-        $product_details = $this->product->getData(['id' => $request->product_id], ['price', 'discount_price'])->first();
-        $price = $product_details->price;
-        $discount_price = $product_details->discount_price;
+        $already_exist      = $this->cart->getData($where);
+        $product_details    = $this->product->getData(['id' => $request->product_id], ['price', 'discount_price'])->first();
+
         if (!$already_exist->isEmpty()) {
             $existing = $already_exist->first();
             $quantity = $existing->quantity + $request->quantity;
-            $amount = $price * $quantity;
-            $discount_amount = $discount_price * $quantity;
             $updateData = [
                 'quantity' => $quantity,
-                'amount' => $amount,
-                'discount_amount' => $discount_amount,
             ];
             $this->cart->update_record(['id' => $existing->id], $updateData);
+            $message = 'Cart updated successfully!';
         } else {
             $insertData = [
                 'product_id' => $request->product_id,
                 'collection_id' => $request->collection_id,
                 'user_id' => $this->userId,
                 'quantity' => $request->quantity,
-                'amount' => $price,
-                'discount_amount' => $discount_price,
             ];
             $this->cart->add($insertData);
+            $message = 'Cart Insert successfully!';
         }
 
-        return $this->sendSuccessResponse([], 'Cart updated successfully!');
+        return $this->sendSuccessResponse([], );
     }
-
-    // public function remove_cart(Request $request)
-    // {
-    //     $validationResponse = $this->validateRequest($request, [
-    //         'cart_id' => 'required|integer',
-    //         'quantity' => 'required|numeric',
-    //     ]);
-
-    //     if ($validationResponse) {
-    //         return $validationResponse;
-    //     }
-
-    //     // Get the cart item by ID and ensure it belongs to the logged-in user
-    //     $cart_item = $this->cart->getData([
-    //         'id' => $request->cart_id,
-    //         'user_id' => $this->userId
-    //     ])->first();
-
-    //     if (!$cart_item) {
-    //         return $this->sendSuccessResponse([], 'No cart item found, nothing to remove.');
-    //     }
-
-    //     $current_quantity = $cart_item->quantity;
-    //     $remove_quantity = $request->quantity;
-
-    //     if ($remove_quantity >= $current_quantity) {
-    //         // Remove the cart item entirely
-    //         $this->cart->delete_record(['id' => $cart_item->id]);
-    //     } else {
-    //         // Fetch product price details
-    //         $product_details = $this->product->getData(['id' => $cart_item->product_id], ['price', 'discount_price'])->first();
-    //         $price = $product_details->price;
-    //         $discount_price = $product_details->discount_price;
-
-    //         // Calculate new quantity and amounts
-    //         $updated_quantity = $current_quantity - $remove_quantity;
-    //         $amount = $price * $updated_quantity;
-    //         $discount_amount = $discount_price * $updated_quantity;
-
-    //         $updateData = [
-    //             'quantity' => $updated_quantity,
-    //             'amount' => $amount,
-    //             'discount_amount' => $discount_amount,
-    //         ];
-
-    //         $this->cart->update_record(['id' => $cart_item->id], $updateData);
-    //     }
-
-    //     return $this->sendSuccessResponse([], 'Cart updated successfully!');
-    // }
-
+ 
     public function remove_cart(Request $request)
     {
         $validationResponse = $this->validateRequest($request, [
             'product_id' => 'required|integer',
             'collection_id' => 'required|integer',
-            'quantity' => 'sometimes|numeric|min:1', // now optional
+            'quantity' => 'sometimes|numeric', // now optional
         ]);
 
         if ($validationResponse) {
@@ -175,9 +149,10 @@ class CartController extends ApiBaseController
         }
 
         $cart_item = Cart::where([
-            'user_id' => $this->userId,
-            'product_id' => $request->product_id,
-            'collection_id' => $request->collection_id
+            'user_id'           => $this->userId,
+            'product_id'        => $request->product_id,
+            'collection_id'     => $request->collection_id,
+            'purchase_status'   => 0
         ])->first();
 
         if (!$cart_item) {
@@ -199,23 +174,8 @@ class CartController extends ApiBaseController
             return $this->sendSuccessResponse([], 'Item removed from cart.');
         }
 
-        // Get product pricing
-        $product_details = $this->product->getData(
-            ['id' => $cart_item->product_id],
-            ['price', 'discount_price']
-        )->first();
-
-        $price = $product_details->price ?? 0;
-        $discount_price = $product_details->discount_price ?? 0;
-
-        // ✅ Now assuming discount_price is final unit price (already discounted)
-        $amount = $price * $updated_quantity;
-        $discount_amount = $discount_price * $updated_quantity;
-
         $updateData = [
             'quantity' => $updated_quantity,
-            'amount' => $amount,
-            'discount_amount' => $discount_amount,
         ];
 
         $this->cart->update_record(['id' => $cart_item->id], $updateData);
@@ -226,48 +186,48 @@ class CartController extends ApiBaseController
         return $this->sendSuccessResponse($updated_cart_item, 'Cart updated successfully!');
     }
 
-    
-    public function checkout(Request $request){
-        $user = User::where('id', $this->userId)->first();
 
-        $cartIds = json_decode($request->cart_ids, true);
-        if (empty($cartIds)) {
-            return $this->sendSuccessResponse([], 'Cart Id Required');
-        }
+    public function checkout(Request $request)
+    {
+        $user       = User::where('id', $this->userId)->first();
+        $user_data  = $user->userdata();
 
 
-        $cart_data = Cart::whereIn('id',$cartIds)->get();
-
-        $total_amount = 0;
-        $total_discount_amount = 0;
+        $cart_data = Cart::where('user_id', $this->userId)->where('purchase_status', 0)->get();
 
         foreach ($cart_data as $key => $item) {
-            $total_amount += $item->amount;
-            $total_discount_amount += $item->discount_amount;
 
-            $items = OrderItem::where('order_id', $item->id)
-                ->join('products', 'order_items.product_id', '=', 'products.id')  // Join products table
-                ->select('order_items.*', 'products.name as product_name', 'products.price as product_price')  // Select necessary columns
-                ->get();
+            $data = $this->product->get_product_details($item->product_id, $item->collection_id);
 
-            $cart_data[$key]->order_items = $items;
+            if ($data['has_collection'] == 0) {
+                $price      = $data['product_price'] * $item->quantity;
+                $sale_price = $data['product_sale_price'] * $item->quantity;
+            } else {
+                $price      = $data['collection_price'] * $item->quantity;
+                $sale_price = $data['collection_sale_price'] * $item->quantity;
+            }
 
+            $cart_data[$key]->product       = $data['collection'] != null ?  $data['product'].' - '.$data['collection'] : $data['product'];
+            $cart_data[$key]->collection    = $data['collection'];
+            $cart_data[$key]->unit          = $data['unit'];
+            $cart_data[$key]->thumbnai      = $data['product_image'];
+            $cart_data[$key]->price         = $price;
+            $cart_data[$key]->sale_price    = $sale_price;
         }
 
-        $user_data = $user->userdata();
-        $delivery_charge = 0;
-        $total_payable = $total_amount - $total_discount_amount + $delivery_charge;
+        $cart_total_data = $this->cart->get_user_cart_data($this->userId);
         $summary = [
-            'total_amount' => $total_amount,
-            'delivery_charge' => $delivery_charge ,
-            'discount_amount' => $total_discount_amount,
-            'total_payable' => $total_payable
+            'total_amount'      => $cart_total_data['total_amount'],
+            'delivery_charge'   => $cart_total_data['delivery_charge'],
+            'discount_amount'   => $cart_total_data['total_discount'],
+            'total_payable'     => $cart_total_data['total_payable'] + $cart_total_data['delivery_charge'],
         ];
-        $data = [
 
-            'user_address' => $user_data['address']. ', '. $user_data['pincode'],
-            'cart_data' => $cart_data,
-            'summary' => $summary
+        $data = [
+            'user_address'  => $user_data['address'] . ', ' . $user_data['pincode'],
+            'phone'         => $user_data['phone'],
+            'cart_data'     => $cart_data,
+            'summary'       => $summary
         ];
 
         return $this->sendSuccessResponse($data, 'successfully!');

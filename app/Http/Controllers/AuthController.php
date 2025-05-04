@@ -22,7 +22,7 @@ class AuthController extends Controller
 
     public function login()
     {
-        if (Auth::check() && Auth::user()->role == 1) {
+        if (Auth::check()) {
             return redirect()->route('admin.dashboard');
         }
         return view('auth.login');

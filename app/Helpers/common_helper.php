@@ -1,4 +1,5 @@
 <?php
+use App\Models\Setting;
 
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Auth;

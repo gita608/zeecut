@@ -19,6 +19,7 @@ class User extends Authenticatable
         'password',
         'address',
         'pincode',
+        'notification_token'
     ];
 
     public function userdata()

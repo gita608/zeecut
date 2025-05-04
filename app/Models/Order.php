@@ -32,5 +32,17 @@ class Order extends BaseModel
         return 'ORD' . str_pad($newNumber, 4, '0', STR_PAD_LEFT); // e.g., ORD0001
     }
 
+    public function get_order_status($data)
+    {
+        $result = [
+            'placed'     => date('d-M-Y', strtotime($data->ordered_date)),
+            'packed'     => $data->packed_date != null ? date('d-M-Y', strtotime($data->packed_date)) : '',
+            'dispatched' => $data->dispatched_date != null ? date('d-M-Y', strtotime($data->dispatched_date)) : '',
+            'delivered'  => $data->delivered_date != null ? date('d-M-Y', strtotime($data->delivered_date)) : '',
+        ];
+        return $result;
+    }
+
+
 
 }
