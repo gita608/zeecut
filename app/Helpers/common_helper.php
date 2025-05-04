@@ -30,4 +30,3 @@ if (!function_exists('format_price')) {
         return $setting;
     }
 }
-}
