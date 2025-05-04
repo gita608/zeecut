@@ -141,7 +141,7 @@ class OrderController extends ApiBaseController
         $order_id = $request->order_id;
 
         $datas = [];
-        $data = Order::where(['user_id' => $this->userId, 'status' => 'placed', 'id' => $order_id])->get()->first();
+        $data = Order::where(['user_id' => $this->userId, 'id' => $order_id])->get()->first();
         $items = OrderItem::where('order_id', $data->id)
             ->join('products', 'order_items.product_id', '=', 'products.id')  // Join products table
             ->join('product_collections', 'product_collections.id', '=', 'order_items.collection_id','left')  // Join products table
