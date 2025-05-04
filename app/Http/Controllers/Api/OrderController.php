@@ -143,7 +143,6 @@ class OrderController extends ApiBaseController
         $datas = [];
         $data = Order::where(['user_id' => $this->userId, 'id' => $order_id])->get()->first();
         $items = OrderItem::where('order_id', $data->id)
-        ->join('orders', 'orders.id', '=', 'order_items.order_id')
         ->join('products', 'order_items.product_id', '=', 'products.id')
         ->join('product_collections', 'product_collections.id', '=', 'order_items.collection_id', 'left')
         ->select(
@@ -166,7 +165,6 @@ class OrderController extends ApiBaseController
             'order_items.price',
             'order_items.sale_price',
             'products.unit',
-            'orders.status',
             DB::raw("CONCAT('" . asset('storage') . "/', products.thumbnail) AS thumbnail")
         )
         ->get();
@@ -175,9 +173,10 @@ class OrderController extends ApiBaseController
             $datas['total_amount']      = $data['price_amount'];
             $datas['total_payble']      = $data['total_amount'];
             $datas['total_discount']    = $data['total_discount'];
-            $datas['address']       = $data['address'];
-            $datas['phone']         = $data['phone'];
-            $datas['ordered_date']  = date('d-M-Y',strtotime($data['ordered_date']));
+            $datas['address']           = $data['address'];
+            $datas['phone']             = $data['phone'];
+            $datas['ordered_date']      = date('d-M-Y',strtotime($data['ordered_date']));
+            $datas['order_status']      = $data['status'];;
             $datas['delivery_charge']= get_setting('delivery_charge');
             $datas['order_items']   = $items;
             $datas['status']        = $this->order->get_order_status($data);
