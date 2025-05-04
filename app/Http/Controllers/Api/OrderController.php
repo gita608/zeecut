@@ -176,7 +176,7 @@ class OrderController extends ApiBaseController
             $datas['address']           = $data['address'];
             $datas['phone']             = $data['phone'];
             $datas['ordered_date']      = date('d-M-Y',strtotime($data['ordered_date']));
-            $datas['order_status']      = $data['status'];;
+            $datas['order_status']      = ucfirst($data['status']);
             $datas['delivery_charge']= get_setting('delivery_charge');
             $datas['order_items']   = $items;
             $datas['status']        = $this->order->get_order_status($data);
