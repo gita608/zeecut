@@ -13,10 +13,13 @@ use App\Http\Controllers\PincodeAccesController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\HomeController;
 
 Route::get('/', [AuthController::class, 'login'])->name('login');
 Route::post('/verify', [AuthController::class, 'verify'])->name('verify');
 Route::get('/register', [AuthController::class, 'register'])->name('register');
+Route::get('/privacy', [HomeController::class, 'privacy'])->name('privacy');
+Route::get('/delete-account', [HomeController::class, 'delete_account'])->name('delete-account');
 
 
 Route::middleware(RoleMiddleware::class)->group(function () {
