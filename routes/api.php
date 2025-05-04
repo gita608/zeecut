@@ -6,7 +6,7 @@ use App\Http\Controllers\Api\CategoriesController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\HomeController;
 use App\Http\Controllers\Api\CartController;
-use App\Http\Controllers\api\OrderController;
+use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\ProfileController;
 use GuzzleHttp\Psr7\Request;
 
@@ -22,6 +22,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/home', [HomeController::class, 'index']);
+    Route::get('/update_notification_token', [HomeController::class, 'update_notification_token']);
+    Route::get('test-notification', [HomeController::class, 'send_test_notification']);
 
     Route::get('/profile', [ProfileController::class, 'index']);
     Route::post('/update_profile', [ProfileController::class, 'update_profile']);
@@ -41,8 +43,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/checkout', [CartController::class, 'checkout']);
     
     
-    Route::post('/order', [OrderController::class, 'index']);
-    Route::get('/order-list', [OrderController::class, 'get_order_list']);
     Route::post('/order', [OrderController::class, 'index']);
     Route::get('/order-list', [OrderController::class, 'get_order_list']);
     Route::get('/order-details', [OrderController::class, 'order_details']);

@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Models\Stock;
+
 class Cart extends BaseModel
 {
     protected $table = 'cart';
@@ -15,10 +17,24 @@ class Cart extends BaseModel
         'discount_amount',
     ];
 
+    public function __construct()
+    {
+        parent::__construct();
+        $this->stock = new Stock();
+    }
 
-    public function get_user_cart_data($user_id){
 
-        $carts = Cart::where(['user_id' => $user_id,'purchase_status' => 0])->get();
+    public function get_user_cart_data($user_id,$cart_id=null){
+
+        $where = [];
+        $where['user_id']           = $user_id;
+        $where['purchase_status']   = 0;
+
+        if($cart_id){
+            $where['id']   = $cart_id;
+        }
+
+        $carts = Cart::where($where)->get();
 
         $total_amount = 0;
         $total_discount = 0;
@@ -28,24 +44,27 @@ class Cart extends BaseModel
 
             $collection = ProductCollection::where(['id' => $cart->collection_id])->first();
             $product    = Product::where(['id' => $cart->product_id])->first();
+            $is_stock   = $this->stock->get_product_stock($cart->product_id) > 0 ? 1 : 0;
+            
+            if($is_stock == 1){
+                if($cart->collection_id > 0){
+                    
+                    $discount = $collection->price - $collection->sale_price;
 
-            if($cart->collection_id > 0){
-                
-                $discount = $collection->price - $collection->sale_price;
+                    $actual_total_amount    += ($collection->price * $cart->quantity);
+                    $total_amount           += $collection->sale_price * $cart->quantity;
+                    $total_discount         += $discount * $cart->quantity;;
 
-                $actual_total_amount    += ($collection->price * $cart->quantity);
-                $total_amount           += $collection->sale_price * $cart->quantity;
-                $total_discount         += $discount * $cart->quantity;;
+                }else{
 
-            }else{
+                    $discount = $product->price - $product->discount_price;
 
-                $discount = $product->price - $product->discount_price;
+                    $actual_total_amount    += ($product->price * $cart->quantity);
+                    $total_amount           += ($product->discount_price * $cart->quantity);
+                    $total_discount         += $discount * $cart->quantity;;
 
-                $actual_total_amount    += ($product->price * $cart->quantity);
-                $total_amount           += ($product->discount_price * $cart->quantity);
-                $total_discount         += $discount * $cart->quantity;;
-
-            }
+                }
+            } 
         }
 
         $data = [
