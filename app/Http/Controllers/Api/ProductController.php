@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Models\ProductCollection;
 use App\Models\Product_images;
 use App\Models\Cart;
+use App\Models\Stock;
 
 class ProductController extends ApiBaseController
 {
@@ -15,6 +16,7 @@ class ProductController extends ApiBaseController
     protected $product_collection;
     protected $product_images;
     protected $cart;
+    protected $stock;
     public function __construct(Request $request)
     {
         parent::__construct($request);
@@ -22,6 +24,7 @@ class ProductController extends ApiBaseController
         $this->product_collection = new ProductCollection();
         $this->product_images = new Product_images();
         $this->cart = new Cart();
+        $this->stock = new Stock();
     }
 
     public function index(Request $request)
@@ -84,6 +87,8 @@ class ProductController extends ApiBaseController
             $images->prepend($thumbObj);
         }
 
+        $data->stock                = $this->stock->get_product_stock($product_id);
+        $data->has_stock            = $data->stock > 0 ? 1 : 0;
         $data->images               = $images->values();
         $data->thumbnail            = $thumbnail;
         $data->collections          = $this->product_collection->getData(['product_id' => $product_id]);

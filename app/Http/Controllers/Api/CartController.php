@@ -60,6 +60,7 @@ class CartController extends ApiBaseController
         $total_discount_amount = 0;
 
         foreach ($cart as &$val) {
+            $stock = $this->stock->get_user_cart_stock_check($val->quantity,$val->product_id,0);
 
             if ($val->collection_id > 0) {
                 // $collection_price = ProductCollection::where(['id' => $val->collection_id])->first()->price;
@@ -75,7 +76,7 @@ class CartController extends ApiBaseController
             $total_discount_amount      += $val->discount_price;
             $val['product_thumbnail']   = $val['product_thumbnail'] ? asset('storage/' . $val['product_thumbnail']) : '';
             $val['unit']                = ($val->unit == 1) ? 'Kg' : (($val->unit == 2) ? 'L' : 'Qty');
-            $val['is_out_of_stock']     = $this->stock->get_product_stock($val->product_id) >= 1 ? 0 : 1;
+            $val['is_out_of_stock']     = $stock['status'] == true ? 0 : 1;
 
         }
 
@@ -94,47 +95,58 @@ class CartController extends ApiBaseController
     }
 
     public function add_cart(Request $request)
-    {
-        $validationResponse = $this->validateRequest($request, [
-            'product_id' => 'required|integer',
-            'collection_id' => 'nullable|integer',
-            'quantity' => 'required|numeric',
-        ]);
+{
+    $validationResponse = $this->validateRequest($request, [
+        'product_id' => 'required|integer',
+        'collection_id' => 'nullable|integer',
+        'quantity' => 'required|numeric',
+    ]);
 
-        if ($validationResponse) {
-            return $validationResponse;
-        }
-
-        // Build where condition
-        $where = ['product_id' => $request->product_id, 'user_id' => $this->userId,'purchase_status' => 0];
-        if ($request->collection_id > 0) {
-            $where['collection_id'] = $request->collection_id;
-        }
-
-        $already_exist      = $this->cart->getData($where);
-        $product_details    = $this->product->getData(['id' => $request->product_id], ['price', 'discount_price'])->first();
-
-        if (!$already_exist->isEmpty()) {
-            $existing = $already_exist->first();
-            $quantity = $existing->quantity + $request->quantity;
-            $updateData = [
-                'quantity' => $quantity,
-            ];
-            $this->cart->update_record(['id' => $existing->id], $updateData);
-            $message = 'Cart updated successfully!';
-        } else {
-            $insertData = [
-                'product_id' => $request->product_id,
-                'collection_id' => $request->collection_id,
-                'user_id' => $this->userId,
-                'quantity' => $request->quantity,
-            ];
-            $this->cart->add($insertData);
-            $message = 'Cart Insert successfully!';
-        }
-
-        return $this->sendSuccessResponse([], );
+    if ($validationResponse) {
+        return $validationResponse;
     }
+
+    // Build where condition
+    $where = ['product_id' => $request->product_id, 'user_id' => $this->userId, 'purchase_status' => 0];
+    if ($request->collection_id > 0) {
+        $where['collection_id'] = $request->collection_id;
+    }
+
+    $already_exist = $this->cart->getData($where);
+
+    $cart_quantity = !$already_exist->isEmpty() ? $already_exist->first()->quantity : 0;
+
+    // Check stock availability
+    $is_stock = $this->stock->get_user_cart_stock_check($cart_quantity, $request->product_id, $request->quantity);
+
+    if (!$is_stock['status']) {
+        // If stock is not enough, return message
+        return $this->sendErrorResponse($is_stock['message']);
+    }
+
+    if (!$already_exist->isEmpty()) {
+        $existing = $already_exist->first();
+        $quantity = $existing->quantity + $request->quantity;
+
+        $updateData = [
+            'quantity' => $quantity,
+        ];
+        $this->cart->update_record(['id' => $existing->id], $updateData);
+        $message = 'Cart updated successfully!';
+    } else {
+        $insertData = [
+            'product_id' => $request->product_id,
+            'collection_id' => $request->collection_id,
+            'user_id' => $this->userId,
+            'quantity' => $request->quantity,
+        ];
+        $this->cart->add($insertData);
+        $message = 'Cart inserted successfully!';
+    }
+
+    return $this->sendSuccessResponse([], $message);
+}
+
  
     public function remove_cart(Request $request)
     {

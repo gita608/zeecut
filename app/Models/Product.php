@@ -39,6 +39,7 @@ class Product extends BaseModel
         $unitTypes = [
             1 => 'Kg',
             2 => 'L',
+            3 => 'Qty'
         ];
 
         $data = [
