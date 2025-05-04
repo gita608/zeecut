@@ -143,15 +143,17 @@ class OrderController extends ApiBaseController
         $datas = [];
         $data = Order::where(['user_id' => $this->userId, 'id' => $order_id])->get()->first();
         $items = OrderItem::where('order_id', $data->id)
-            ->join('products', 'order_items.product_id', '=', 'products.id')  // Join products table
-            ->join('product_collections', 'product_collections.id', '=', 'order_items.collection_id','left')  // Join products table
-            ->select(DB::raw("
-            IF(
-                product_collections.title IS NOT NULL,
-                CONCAT(products.name, '-', product_collections.title),
-                products.name
-            ) AS item_name
-            ",),
+        ->join('orders', 'orders.id', '=', 'order_items.order_id')
+        ->join('products', 'order_items.product_id', '=', 'products.id')
+        ->join('product_collections', 'product_collections.id', '=', 'order_items.collection_id', 'left')
+        ->select(
+            DB::raw("
+                IF(
+                    product_collections.title IS NOT NULL,
+                    CONCAT(products.name, '-', product_collections.title),
+                    products.name
+                ) AS item_name
+            "),
             DB::raw("
                 CASE products.unit
                     WHEN 1 THEN 'Kg'
@@ -159,9 +161,16 @@ class OrderController extends ApiBaseController
                     WHEN 3 THEN 'Qty'
                     ELSE 'unknown'
                 END AS unit_name
-            ")
-            ,'order_items.quantity','order_items.price','order_items.sale_price','products.unit') // Select necessary columns
-            ->get();
+            "),
+            'order_items.quantity',
+            'order_items.price',
+            'order_items.sale_price',
+            'products.unit',
+            'orders.status',
+            DB::raw("CONCAT('" . asset('storage') . "/', products.thumbnail) AS thumbnail")
+        )
+        ->get();
+
  
             $datas['total_amount']      = $data['price_amount'];
             $datas['total_payble']      = $data['total_amount'];
@@ -169,9 +178,9 @@ class OrderController extends ApiBaseController
             $datas['address']       = $data['address'];
             $datas['phone']         = $data['phone'];
             $datas['ordered_date']  = date('d-M-Y',strtotime($data['ordered_date']));
+            $datas['delivery_charge']= get_setting('delivery_charge');
             $datas['order_items']   = $items;
             $datas['status']        = $this->order->get_order_status($data);
-            $datas['delivery_charge']= get_setting('delivery_charge');
 
         return $this->sendSuccessResponse($datas, 'success');
 
