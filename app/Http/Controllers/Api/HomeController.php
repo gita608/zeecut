@@ -9,7 +9,6 @@ use App\Models\Banners;
 use App\Models\Product;
 use App\Models\Product_images;
 use App\Models\Cart;
-use App\Services\FirebaseNotificationService;
 
 class HomeController extends ApiBaseController
 {
@@ -19,9 +18,8 @@ class HomeController extends ApiBaseController
     protected $product;
     protected $product_images;
     protected $cart;
-    protected $firebaseService;
 
-    public function __construct(Request $request, FirebaseNotificationService $firebaseService)
+    public function __construct(Request $request)
     {
         parent::__construct($request);
         $this->category = new Categories();
@@ -30,7 +28,6 @@ class HomeController extends ApiBaseController
         $this->product = new Product();
         $this->product_images = new Product_images();
         $this->cart = new Cart();
-        $this->firebaseService = $firebaseService;
     }
 
     public function index(Request $request)
@@ -89,19 +86,4 @@ class HomeController extends ApiBaseController
         return $this->sendSuccessResponse([], $message);
     }
 
-    public function send_test_notification(Request $request)
-    {
-        // Use the static token for testing, or allow dynamic input via request
-        $deviceToken = $request->input('token', 'f2byrsOPTqKgmAN6xr7gIv:APA91bGyCNF16SpOOoXNNUMAFhEwR2ubAC_PoaZwC0E5_FphRNk9u3ODYcSEPLqh5SI2ZRRXkgJCNHHnm5VpgU-wE0iGEvdycV3BRpFr6-RjLpWWHHcZbuE');
-        $title = "Test Notification";
-        $body = "This is a test push notification from Laravel backend.";
-
-        $sent = $this->firebaseService->sendPushNotification($deviceToken, $title, $body);
-
-        if ($sent) {
-            return $this->sendSuccessResponse([], 'Push Notification Sent Successfully!');
-        } else {
-            return $this->sendErrorResponse('Failed to Send Push Notification');
-        }
-    }
 }

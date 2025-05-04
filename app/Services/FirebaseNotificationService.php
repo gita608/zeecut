@@ -26,16 +26,16 @@ class FirebaseNotificationService
      * @param string $body
      * @return bool
      */
-    public function sendPushNotification($deviceToken, $title, $body)
+    public function sendPushNotification($deviceToken, $title, $body, $image, $extraData)
     {
         try {
             // Create notification object
-            $notification = Notification::create($title, $body);
+            $notification = Notification::create($title, $body, $image);
             
             // Create the message
             $message = CloudMessage::withTarget('token', $deviceToken)
                 ->withNotification($notification)
-                ->withData(['key' => 'value']); // Optional data payload
+                ->withData($extraData); // Optional data payload
             
             $this->messaging->send($message);
             return true; // Notification sent successfully

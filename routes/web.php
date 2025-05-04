@@ -12,10 +12,14 @@ use App\Http\Controllers\OfferController;
 use App\Http\Controllers\PincodeAccesController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\StockController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\HomeController;
 
 Route::get('/', [AuthController::class, 'login'])->name('login');
 Route::post('/verify', [AuthController::class, 'verify'])->name('verify');
 Route::get('/register', [AuthController::class, 'register'])->name('register');
+Route::get('/privacy', [HomeController::class, 'privacy'])->name('privacy');
+Route::get('/delete-account', [HomeController::class, 'delete_account'])->name('delete-account');
 
 
 Route::middleware(RoleMiddleware::class)->group(function () {
@@ -84,4 +88,11 @@ Route::middleware(RoleMiddleware::class)->group(function () {
     //settings
     Route::get('/setting',[SettingController::class,'index'])->name('setting.index');
     Route::post('/setting-update',[SettingController::class,'update'])->name('setting.update');
- });
+    
+    // Orders
+    Route::get('/orders', [OrderController::class, 'index'])->name('orders');
+    Route::post('/updateStatus/{id}', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
+    Route::get('/details/{id}', [OrderController::class, 'details'])->name('orders.details');
+    Route::get('/send_notify', [OrderController::class, 'send']);
+
+});

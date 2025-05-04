@@ -13,8 +13,24 @@ use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
+    protected $order;
+
+    public function __construct(){
+        $this->order = new Order();
+    }
+    
     public function index()
     {
+        $orders_with_users = $this->order->getJoin(
+            [
+                ['users', 'orders.user_id', 'users.id', 'leftJoin']
+            ],
+            [],
+            ['orders.*', 'users.name as customer_name'],
+            ['orders.id' => 'desc'],
+            5
+        );
+        
         $data = [
             'customer_count' => User::where('role_id', 2)->count(),
             'new_customers' => User::where('role_id', 2)
@@ -30,6 +46,7 @@ class DashboardController extends Controller
             'stock_count' => Stock::sum('quantity'),
             'low_stock_items' => Stock::where('quantity', '<', 10)->count(),
             'product_count' => Product::count(),
+            'latest_orders' => $orders_with_users,
             'page_title' => 'Dashboard',
             'page_name' => 'admin.dashboard.index'
         ];
