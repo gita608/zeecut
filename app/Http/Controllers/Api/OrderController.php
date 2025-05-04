@@ -46,7 +46,7 @@ class OrderController extends ApiBaseController
         $data['total_amount']   = 0;
         $data['address']        = $request->address;
         $data['phone']          = $request->phone;
-        $data['ordered_date']   = date('Y-m-d');
+        $data['ordered_date']   = date('Y-m-d H:i:s');
         $data['created_at']     = date('Y-m-d H:i:s');
 
         $orderId = $this->order->add($data);
