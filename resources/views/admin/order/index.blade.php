@@ -19,7 +19,7 @@
                         <i class="fas fa-receipt text-white me-2"></i>
                         <span class="text-white"><strong>Order #{{ $order->order_no }}</strong></span>
                     </div>
-                    <span class="badge text-uppercase" style="background-color: {{ $order->status == 'pending' ? '#f39c12' : ($order->status == 'packed' ? '#3498db' : ($order->status == 'dispatched' ? '#27ae60' : '#e74c3c')) }};">
+                    <span class="badge text-uppercase" style="background-color: {{ $order->status == 'placed' ? '#f39c12' : ($order->status == 'packed' ? '#3498db' : ($order->status == 'dispatched' ? '#27ae60' : '#e74c3c')) }};">
                         {{ ucfirst($order->status) }}
                     </span>
                 </div>
@@ -61,11 +61,22 @@
                             <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" id="statusDropdown{{ $order->id }}" data-bs-toggle="dropdown" aria-expanded="false">
                                 Update Status
                             </button>
+                            @php
+                            $statusOptions = [
+                            'placed' => 'Placed',
+                            'packed' => 'Packed',
+                            'dispatched' => 'Dispatched',
+                            'delivered' => 'Delivered'
+                            ];
+                            @endphp
                             <ul class="dropdown-menu" aria-labelledby="statusDropdown{{ $order->id }}">
-                                <li><button type="submit" class="dropdown-item" name="status" value="pending">Pending</button></li>
-                                <li><button type="submit" class="dropdown-item" name="status" value="packed">Packed</button></li>
-                                <li><button type="submit" class="dropdown-item" name="status" value="dispatched">Dispatched</button></li>
-                                <li><button type="submit" class="dropdown-item" name="status" value="delivered">Delivered</button></li>
+                                @foreach ($statusOptions as $value => $label)
+                                @if ($order->status != $value)
+                                <li>
+                                    <button type="submit" class="dropdown-item" name="status" value="{{ $value }}">{{ $label }}</button>
+                                </li>
+                                @endif
+                                @endforeach
                             </ul>
                         </div>
                     </form>

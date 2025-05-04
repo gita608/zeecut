@@ -57,11 +57,51 @@ class OrderController extends Controller
         }
 
         $status = request()->input('status');
+        $allowedStatuses = ['placed', 'packed', 'dispatched', 'delivered'];
+
+        if (!in_array($status, $allowedStatuses)) {
+            return redirect()->back()->with('error', 'Invalid status selected.');
+        }
+
+        if ($status === $order->status) {
+            return redirect()->back()->with('info', 'Order is already marked as ' . ucfirst($status) . '.');
+        }
+
+        $statusDates = [
+            'placed'     => 'ordered_date',
+            'packed'     => 'packed_date',
+            'dispatched' => 'dispatched_date',
+            'delivered'  => 'delivered_date',
+        ];
+
+        $now = now();
+
+        // Get the indexes for comparison
+        $oldIndex = array_search($order->status, $allowedStatuses);
+        $newIndex = array_search($status, $allowedStatuses);
+
+        // Update the new/current status date to now
+        $order->{$statusDates[$status]} = $now;
+
+        // If going backward, clear future status dates
+        foreach ($allowedStatuses as $i => $s) {
+            if ($i > $newIndex) {
+                $order->{$statusDates[$s]} = null;
+            }
+        }
+
+        // If going forward, set all previous status dates if not already set
+        foreach ($allowedStatuses as $i => $s) {
+            if ($i < $newIndex && empty($order->{$statusDates[$s]})) {
+                $order->{$statusDates[$s]} = $now; // You can keep this as original created time if tracked separately
+            }
+        }
+
         $order->status = $status;
         $order->save();
 
+        // Notify user
         $user = User::select('notification_token')->find($order->user_id);
-
         if (!$user || empty($user->notification_token)) {
             return redirect()->back()->with('warning', 'Order updated, but user notification token not found.');
         }
