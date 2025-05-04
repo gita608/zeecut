@@ -96,7 +96,7 @@ class HomeController extends ApiBaseController
         $title = "Test Notification";
         $body = "This is a test push notification from Laravel backend.";
 
-        $sent = $this->firebaseService->sendPushNotification($deviceToken, $title, $body);
+        $sent = $this->firebaseService->sendPushNotification($deviceToken, $title, $body,);
 
         if ($sent) {
             return $this->sendSuccessResponse([], 'Push Notification Sent Successfully!');

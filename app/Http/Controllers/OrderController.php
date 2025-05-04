@@ -6,16 +6,22 @@ use Illuminate\Http\Request;
 use App\Models\Categories;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\Notifications;
+use App\Models\User;
 
 class OrderController extends Controller
 {
     protected $order;
     protected $order_item;
+    protected $notifications;
+    protected $user;
 
     public function __construct()
     {
         $this->order = new Order();
         $this->order_item = new OrderItem();
+        $this->notifications = new Notifications();
+        $this->user = new User();
     }
 
     /**
@@ -50,10 +56,42 @@ class OrderController extends Controller
             return redirect()->back()->with('error', 'Order not found.');
         }
 
-        $order->status = request('status');
+        $status = request()->input('status');
+        $order->status = $status;
         $order->save();
 
+        $user = User::select('notification_token')->find($order->user_id);
+
+        if (!$user || empty($user->notification_token)) {
+            return redirect()->back()->with('warning', 'Order updated, but user notification token not found.');
+        }
+
+        $title = 'Order ' . ucfirst($status);
+        $description = 'Your order #' . $order->order_no . ' has been ' . ucfirst($status);
+
+        $this->send_notification(
+            $user->notification_token,
+            $order->id,
+            'order',
+            $title,
+            $description
+        );
+
         return redirect()->back()->with('success', 'Order status updated successfully.');
+    }
+
+    private function send_notification($token, $orderid, $type, $title, $description = '', $image = '')
+    {
+        $data = [
+            'notification_token'       => $token,
+            'notification_title'       => $title,
+            'notification_description' => $description,
+            'notification_image'       => $image,
+            'type'                     => $type,
+            'order_id'                 => $orderid,
+        ];
+
+        return $this->notifications->send_test_notification($data);
     }
 
     public function details($order_id)
@@ -98,5 +136,4 @@ class OrderController extends Controller
 
         return view('admin.main', $data);
     }
-
 }
