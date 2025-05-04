@@ -21,6 +21,7 @@ class ProfileController extends ApiBaseController
 
         $data = [
             'user_data' => $user->userdata(),
+            'privacy'   => "https://zeacut.in/privacy"
         ];
 
         return $this->sendSuccessResponse($data, 'Success');
