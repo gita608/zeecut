@@ -15,12 +15,17 @@ class Stock extends Model
      }
 
 
-     public function get_product_stock($product_id){
+    public function get_product_stock($product_id){
 
         $out_of_quantity = Stock::where('product_id',$product_id)->first()->quantity;
         $consumed_stocks = OrderItem::where('product_id', $product_id)->sum('quantity');
 
         return $out_of_quantity - $consumed_stocks;
 
-     }
+    }
+
+    public function get_user_cart_stock_check($existing_quantity,$product_id,$user_id){
+
+        $remaining_stock = $this->get_product_stock($product_id);
+    }
 }
