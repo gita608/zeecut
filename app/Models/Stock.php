@@ -24,8 +24,32 @@ class Stock extends Model
 
     }
 
-    public function get_user_cart_stock_check($existing_quantity,$product_id,$user_id){
-
+    public function get_user_cart_stock_check($cart_quantity, $product_id, $request_quantity) {
         $remaining_stock = $this->get_product_stock($product_id);
+    
+        if ($remaining_stock > 0) {
+            $total_cart_quantity = $cart_quantity + $request_quantity;
+    
+            if ($total_cart_quantity > $remaining_stock) {
+                return [
+                    'status' => false,
+                    'stock' => $remaining_stock,
+                    'message' => "Only {$remaining_stock} item(s) left in stock."
+                ];
+            } else {
+                return [
+                    'status' => true,
+                    'stock' => $remaining_stock,
+                    'message' => "Stock available."
+                ];
+            }
+        } else {
+            return [
+                'status' => false,
+                'stock' => 0,
+                'message' => "Out of stock."
+            ];
+        }
     }
+    
 }
