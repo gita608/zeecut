@@ -114,9 +114,8 @@ class ProductController extends ApiBaseController
 
         $search = $request->search;
 
-        $data = [];
-        if ($search) {
-
+        $datas = [];
+        if (!empty($search)) {
             $datas = Product::when($search, function ($query, $search) {
                 return $query->where('name', 'like', '%' . $search . '%');
             })->get();
