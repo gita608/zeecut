@@ -22,6 +22,7 @@ class Cart extends BaseModel
         parent::__construct();
         $this->stock = new Stock();
     }
+    
 
 
     public function get_user_cart_data($user_id,$cart_id=null){
@@ -34,8 +35,11 @@ class Cart extends BaseModel
             $where['id']   = $cart_id;
         }
 
-        $carts = Cart::where($where)->get();
-
+        $carts = Cart::where($where)
+        ->join('product_collections', 'cart.collection_id', '=', 'product_collections.id')
+        ->select('cart.*') // adjust fields as needed
+        ->get();
+    
         $total_amount = 0;
         $total_discount = 0;
         $actual_total_amount = 0;
