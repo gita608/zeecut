@@ -20,7 +20,7 @@ class ProductCollection extends BaseModel
         $quantity = $collection->sale_price > 0 ? $amount/$collection->sale_price : 0;
 
         
-        return round($quantity,2);
+        return $quantity;
     }
 
 }
