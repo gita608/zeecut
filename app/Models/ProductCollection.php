@@ -19,14 +19,8 @@ class ProductCollection extends BaseModel
         $collection = ProductCollection::where(['id' => $collection_id])->first();
         $quantity = $collection->sale_price > 0 ? $amount/$collection->sale_price : 0;
 
-        // $data = [
-        //     'sale_price' => $collection->sale_price,
-        //     'amount'     => $amount,
-        //     'quantity'   => $quantity,
-        // ];
-
-        // dd($data);
-        return $quantity;
+        
+        return round($quantity,2);
     }
 
 }

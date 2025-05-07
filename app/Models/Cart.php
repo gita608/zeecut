@@ -46,6 +46,7 @@ class Cart extends BaseModel
         ->select('cart.*') 
         ->get();            
 
+
         $total_amount = 0;
         $total_discount = 0;
         $actual_total_amount = 0;

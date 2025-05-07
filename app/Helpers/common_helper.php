@@ -1,5 +1,21 @@
 <?php
 use App\Models\Setting;
+use Illuminate\Support\Facades\DB;
+
+if (!function_exists('getLastQuery')) {
+    function getLastQuery()
+    {
+        $queries = DB::getQueryLog();
+        $query = end($queries);
+
+        if (!$query) return null;
+
+        return vsprintf(
+            str_replace('?', "'%s'", $query['query']),
+            $query['bindings']
+        );
+    }
+}
 
 if (!function_exists('format_price')) {
     function format_price($amount)
