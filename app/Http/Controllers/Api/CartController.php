@@ -61,12 +61,14 @@ class CartController extends ApiBaseController
         $total_amount = 0;
         $total_discount_amount = 0;
 
+
         foreach ($cart as &$val) {
-            $stock = $this->stock->get_user_cart_stock_check($val->quantity, $val->product_id, 0);
 
             if ($val->collection_id > 0) {
-                
+
                 $quantity = $this->product_collection->get_quantity_of_collection($val->collection_id,$val->amount);    
+
+                $stock = $this->stock->get_user_cart_stock_check($quantity, $val->product_id, 0);
 
                 $val['product_name'] = $val->product_name . ' - ' . $val->collection_name;
                 $val['quantity'] = $quantity;
@@ -75,6 +77,7 @@ class CartController extends ApiBaseController
                 $val['sale_price'] = $val->collection_sale_price * $val->quantity;
             } else {
 
+                $stock = $this->stock->get_user_cart_stock_check($val->quantity, $val->product_id, 0);
                 $val['sale_price'] = $val->sale_price * $val->quantity;
             }
 
@@ -85,6 +88,7 @@ class CartController extends ApiBaseController
             $val['is_out_of_stock'] = $stock['status'] == true ? 0 : 1;
 
         }
+
 
         $cart_data = $this->cart->get_user_cart_data($this->userId);
         $data = [
