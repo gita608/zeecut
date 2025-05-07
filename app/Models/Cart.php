@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use App\Models\Stock;
+use Illuminate\Support\Facades\DB;
+
 
 class Cart extends BaseModel
 {
@@ -29,6 +31,7 @@ class Cart extends BaseModel
 
         $this->stock = new Stock();
 
+
         $where = [];
         $where['user_id']           = $user_id;
         $where['purchase_status']   = 0;
@@ -37,11 +40,12 @@ class Cart extends BaseModel
             $where['id']   = $cart_id;
         }
 
+
         $carts = Cart::where($where)
-        ->join('product_collections', 'cart.collection_id', '=', 'product_collections.id')
-        ->select('cart.*') // adjust fields as needed
-        ->get();
-    
+        ->join('product_collections', 'cart.collection_id', '=', 'product_collections.id','left')
+        ->select('cart.*') 
+        ->get();            
+
         $total_amount = 0;
         $total_discount = 0;
         $actual_total_amount = 0;

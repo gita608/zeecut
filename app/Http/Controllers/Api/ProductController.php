@@ -66,16 +66,13 @@ class ProductController extends ApiBaseController
         $cart_data = $this->cart->getData(['collection_id' => 0, 'product_id' => $product_id, 'user_id' => $this->userId, 'purchase_status' => 0])->first();
 
         $data->cart_quantity = $cart_data->quantity ?? 0;
-        $data->cart_amount = $data->cart_quantity > 0 ? $data->price * $data->cart_quantity :  $data->price;
-        // $data->cart_discount = $data->discount_price ?? 0;
+        $data->cart_amount = $data->cart_quantity > 0 ? $data->sale_price * $data->cart_quantity :  $data->sale_price;
 
-        // Convert all image URLs to full path
         $images = $images->map(function ($img) {
             $img->image = asset('storage/' . $img->image);
             return $img;
         });
 
-        // Check if thumbnail is already in the image list
         $exists = $images->contains(function ($img) use ($thumbnail) {
             return $img->image === $thumbnail;
         });
