@@ -74,7 +74,8 @@ class CartController extends ApiBaseController
                 $val['quantity'] = $quantity;
                 $val['product_price'] = $val->collection_price;
                 $val['discount_price'] = $val->collection_sale_price;
-                $val['sale_price'] = $val->collection_sale_price * $val->quantity;
+                // $val['sale_price'] = $val->collection_sale_price * $val->quantity;
+                $val['sale_price'] = $val->amount;
             } else {
 
                 $stock = $this->stock->get_user_cart_stock_check($val->quantity, $val->product_id, 0);
