@@ -99,8 +99,8 @@ class ProductController extends ApiBaseController
 
             $cart_data_collection = $this->cart->getData(['collection_id' => $collection->id, 'product_id' => $product_id, 'user_id' => $this->userId, 'purchase_status' => 0])->first();
 
-            $collection->cart_quantity = $cart_data_collection->quantity ?? 0;
-            $collection->cart_amount = $cart_data_collection->price ?? 0;
+            $collection->cart_amount = $cart_data_collection->amount ?? 0;
+            $collection->cart_quantity = $this->product_collection->get_quantity_of_collection($collection->id,$collection->cart_amount);
         }       
 
         $data->cart = $this->cart->get_user_cart_data($this->userId);
