@@ -59,8 +59,8 @@ class ProductController extends ApiBaseController
 
         // Fetch product images
         $images             = $this->product_images->getData(['product_id' => $product_id]);
-        $unit_text          = $data->unit == 1 ? ' Kg' : ($data->unit == 2 ? ' L' : ' Q');
-        $data->unit_text    = 1 . $unit_text;
+        $unit_text          = $data->unit == 1 ? 'Kg' : ($data->unit == 2 ? 'L' : 'Q');
+        $data->unit_text    = $unit_text;
 
 
         $cart_data = $this->cart->getData(['collection_id' => 0, 'product_id' => $product_id, 'user_id' => $this->userId, 'purchase_status' => 0])->first();
