@@ -76,7 +76,7 @@ class OrderController extends ApiBaseController
             // dd($quantity);
 
             $price          =   $item->collection_id == 0 ? $product['product_price'] : $product['collection_price'];
-            $sale_price     =   $item->collection_id == 0 ? $product['product_sale_price'] : $item->amount;
+            $sale_price     =   $item->collection_id == 0 ? $product['product_sale_price'] : $product['collection_sale_price'];
             $total_price    +=  $price * $quantity;
             $final_amount   +=  $sale_price * $quantity;
 

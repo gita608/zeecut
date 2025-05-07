@@ -83,9 +83,9 @@ class Cart extends BaseModel
         }
 
         $data = [
-            'total_amount'      => $actual_total_amount,
-            'total_payable'     => $total_amount,
-            'total_discount'    => $total_discount,
+            'total_amount'      => round($actual_total_amount),
+            'total_payable'     => round($total_amount),
+            'total_discount'    => round($total_discount),
             'delivery_charge'   => get_setting('delivery_charge'),
             'product_count'     => $carts->count(),
         ];
