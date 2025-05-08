@@ -25,6 +25,7 @@ class Stock extends Model
     }
 
     public function get_user_cart_stock_check($cart_quantity, $product_id, $request_quantity) {
+
         $remaining_stock = $this->get_product_stock($product_id);
     
         if ($remaining_stock > 0) {

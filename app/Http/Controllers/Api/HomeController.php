@@ -43,7 +43,7 @@ class HomeController extends ApiBaseController
             $banner->image = $banner->image ? asset('storage/' . $banner->image) : '';
         }
 
-        $offer_products = $this->product->getData([], ['*'], ['created_at' => 'DESC'], 10);
+        $offer_products = $this->product->getData(['status' => 1], ['*'], ['created_at' => 'DESC'], 10);
         foreach ($offer_products as &$product) {
             $product->thumbnail = $product->thumbnail ? asset('storage/' . $product->thumbnail) : '';
             $unit_text = $product->unit == 1 ? ' Kg' : ($product->unit == 2 ? ' L' : ' Q');

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Models\ProductCollection;
 use Illuminate\Http\Request;
 use App\Models\Categories;
 use App\Models\User;
@@ -18,6 +19,7 @@ class OrderController extends ApiBaseController
     protected $order;
     protected $cart;
     protected $product;
+    protected $productcollection;
 
     public function __construct(Request $request)
     {
@@ -26,6 +28,7 @@ class OrderController extends ApiBaseController
         $this->order = new Order();
         $this->cart = new Cart();
         $this->product = new Product();
+        $this->productcollection = new ProductCollection();
     }
 
     public function index(Request $request)
@@ -51,7 +54,7 @@ class OrderController extends ApiBaseController
 
         $orderId = $this->order->add($data);
 
-        // Now fetch cart items and insert into order_items
+
         $cartItems = DB::table('cart')
             ->whereIn('id', $cartIds)
             ->where('user_id', $this->userId)
@@ -64,20 +67,27 @@ class OrderController extends ApiBaseController
         foreach ($cartItems as $item) {
 
             $product    = $this->product->get_product_details($item->product_id,$item->collection_id);
+            if($item->collection_id == 0){
+                $quantity   =   $item->quantity;
+            }else{
+                $quantity   = $this->productcollection->get_quantity_of_collection($item->collection_id,$item->amount);
+            }
+
+            // dd($quantity);
 
             $price          =   $item->collection_id == 0 ? $product['product_price'] : $product['collection_price'];
             $sale_price     =   $item->collection_id == 0 ? $product['product_sale_price'] : $product['collection_sale_price'];
-            $total_price    +=  $price * $item->quantity;
-            $final_amount   +=  $sale_price * $item->quantity;
+            $total_price    +=  $price * $quantity;
+            $final_amount   +=  $sale_price * $quantity;
 
             DB::table('order_items')->insert([
                 'order_id'      => $orderId,
                 'cart_id'       => $item->id,
                 'product_id'    => $item->product_id,
                 'collection_id' => $item->collection_id,
-                'quantity'      => $item->quantity,
-                'price'         => $price * $item->quantity,  
-                'sale_price'    => $sale_price * $item->quantity,
+                'quantity'      => $quantity,
+                'price'         => $price * $quantity,  
+                'sale_price'    => $sale_price * $quantity,
                 'created_at'    => now(),
             ]);
 
@@ -143,7 +153,6 @@ class OrderController extends ApiBaseController
         $datas = [];
         $data = Order::where(['user_id' => $this->userId, 'id' => $order_id])->get()->first();
         $items = OrderItem::where('order_id', $data->id)
-        ->join('orders', 'orders.id', '=', 'order_items.order_id')
         ->join('products', 'order_items.product_id', '=', 'products.id')
         ->join('product_collections', 'product_collections.id', '=', 'order_items.collection_id', 'left')
         ->select(
@@ -166,7 +175,6 @@ class OrderController extends ApiBaseController
             'order_items.price',
             'order_items.sale_price',
             'products.unit',
-            'orders.status',
             DB::raw("CONCAT('" . asset('storage') . "/', products.thumbnail) AS thumbnail")
         )
         ->get();
@@ -175,9 +183,10 @@ class OrderController extends ApiBaseController
             $datas['total_amount']      = $data['price_amount'];
             $datas['total_payble']      = $data['total_amount'];
             $datas['total_discount']    = $data['total_discount'];
-            $datas['address']       = $data['address'];
-            $datas['phone']         = $data['phone'];
-            $datas['ordered_date']  = date('d-M-Y',strtotime($data['ordered_date']));
+            $datas['address']           = $data['address'];
+            $datas['phone']             = $data['phone'];
+            $datas['ordered_date']      = date('d-M-Y',strtotime($data['ordered_date']));
+            $datas['order_status']      = ucfirst($data['status']);
             $datas['delivery_charge']= get_setting('delivery_charge');
             $datas['order_items']   = $items;
             $datas['status']        = $this->order->get_order_status($data);

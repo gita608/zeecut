@@ -15,4 +15,12 @@ class ProductCollection extends BaseModel
     ];
 
 
+    public function get_quantity_of_collection($collection_id,$amount){
+        $collection = ProductCollection::where(['id' => $collection_id])->first();
+        $quantity = $collection->sale_price > 0 ? $amount/$collection->sale_price : 0;
+
+        
+        return $quantity;
+    }
+
 }

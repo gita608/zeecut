@@ -59,23 +59,20 @@ class ProductController extends ApiBaseController
 
         // Fetch product images
         $images             = $this->product_images->getData(['product_id' => $product_id]);
-        $unit_text          = $data->unit == 1 ? ' Kg' : ($data->unit == 2 ? ' L' : ' Q');
-        $data->unit_text    = 1 . $unit_text;
+        $unit_text          = $data->unit == 1 ? 'Kg' : ($data->unit == 2 ? 'L' : 'Q');
+        $data->unit_text    = $unit_text;
 
 
         $cart_data = $this->cart->getData(['collection_id' => 0, 'product_id' => $product_id, 'user_id' => $this->userId, 'purchase_status' => 0])->first();
 
         $data->cart_quantity = $cart_data->quantity ?? 0;
-        $data->cart_amount = $data->cart_quantity > 0 ? $data->price * $data->cart_quantity :  $data->price;
-        // $data->cart_discount = $data->discount_price ?? 0;
+        $data->cart_amount = $data->cart_quantity > 0 ? $data->sale_price * $data->cart_quantity :  $data->sale_price;
 
-        // Convert all image URLs to full path
         $images = $images->map(function ($img) {
             $img->image = asset('storage/' . $img->image);
             return $img;
         });
 
-        // Check if thumbnail is already in the image list
         $exists = $images->contains(function ($img) use ($thumbnail) {
             return $img->image === $thumbnail;
         });
@@ -99,8 +96,8 @@ class ProductController extends ApiBaseController
 
             $cart_data_collection = $this->cart->getData(['collection_id' => $collection->id, 'product_id' => $product_id, 'user_id' => $this->userId, 'purchase_status' => 0])->first();
 
-            $collection->cart_quantity = $cart_data_collection->quantity ?? 0;
-            $collection->cart_amount = $cart_data_collection->price ?? 0;
+            $collection->cart_amount = $cart_data_collection->amount ?? 0;
+            $collection->cart_quantity = $this->product_collection->get_quantity_of_collection($collection->id,$collection->cart_amount);
         }       
 
         $data->cart = $this->cart->get_user_cart_data($this->userId);
@@ -114,9 +111,8 @@ class ProductController extends ApiBaseController
 
         $search = $request->search;
 
-        $data = [];
-        if ($search) {
-
+        $datas = [];
+        if (!empty($search)) {
             $datas = Product::when($search, function ($query, $search) {
                 return $query->where('name', 'like', '%' . $search . '%');
             })->get();

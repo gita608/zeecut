@@ -1,5 +1,21 @@
 <?php
 use App\Models\Setting;
+use Illuminate\Support\Facades\DB;
+
+if (!function_exists('getLastQuery')) {
+    function getLastQuery()
+    {
+        $queries = DB::getQueryLog();
+        $query = end($queries);
+
+        if (!$query) return null;
+
+        return vsprintf(
+            str_replace('?', "'%s'", $query['query']),
+            $query['bindings']
+        );
+    }
+}
 
 if (!function_exists('format_price')) {
     function format_price($amount)
@@ -10,11 +26,11 @@ if (!function_exists('format_price')) {
     if (!function_exists('get_setting')) {
         function get_setting($key, $default = null)
         {
-            $setting = cache()->remember("setting_{$key}", 60*60, function () use ($key) {
+            // $setting = cache()->remember("setting_{$key}", 60*60, function () use ($key) {
                 return Setting::where('key', $key)->value('value');
-            });
+            // });
     
-            return $setting ?? $default;
+            // return $setting ?? $default;
         }
     }
 
