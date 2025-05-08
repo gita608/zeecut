@@ -14,7 +14,7 @@
         <div class="card-body">
             <form action="{{ route('product.index') }}" method="GET">
                 <div class="row g-2">
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <select name="category_id" class="form-select">
                             <option value="">All Categories</option>
                             @foreach ($categories as $category)
@@ -23,6 +23,13 @@
                                 {{ $category->name }}
                             </option>
                             @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select name="status" id="status" class="form-select shadow-none">
+                            <option value="">All Status</option>
+                            <option value="1" {{ request('status')=='1' ? 'selected' : '' }}>Active</option>
+                            <option value="0" {{ request('status')=='0' ? 'selected' : '' }}>Inactive</option>
                         </select>
                     </div>
                     <div class="col-md-4">
@@ -55,8 +62,10 @@
                         @foreach ($list_items as $key => $item)
                         <tr>
                             <td>{{ ++$key }}</td>
-                            <td><img src="{{ asset('storage/' . $item->thumbnail) }}" alt="" class="img-thumbnail"
-                                    width="150"></td>
+                            <td>
+                                <img src="{{ asset('storage/' . $item->thumbnail) }}" alt="{{ $item->name }}" 
+                                class="rounded" width="60" height="60" style="object-fit: cover;">
+                            </td>
                             <td>{{ $item->name }}</td>
                             <td>{{ $item->category_name ?? '' }}</td>
                             <td>{{ format_price($item->price) }}</td>
@@ -80,22 +89,20 @@
 
                             <td>{{ $item->created_at ? date('d-m-Y', strtotime($item->created_at)) : '' }}</td>
                             <td class="text-center">
-                                <div class="btn-group">
-                                    <a href="javascript:void(0);" class="btn btn-outline-warning btn-sm"
-                                        onclick="show_ajax_modal('{{ route('product.edit',$item->id) }}', 'Edit {{ $page_title ?? '' }}')"
-                                        title="Edit">
+                            <div class="d-flex justify-content-center gap-2">
+                                    <button class="btn btn-sm btn-outline-primary" 
+                                        onclick="show_ajax_modal('{{ route('product.view_images',$item->id) }}', 'Images')">
+                                        <i class="fas fa-images"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-success" 
+                                        onclick="show_ajax_modal('{{ route('product.edit',$item->id) }}', 'Edit Product')">
                                         <i class="fas fa-edit"></i>
-                                    </a>
-                                    <a href="javascript:void(0);" class="btn btn-outline-danger btn-sm"
-                                        onclick="delete_modal('{{ route('product.delete',$item->id) }}')"
-                                        title="Delete">
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger" 
+                                        onclick="delete_modal('{{ route('product.delete',$item->id) }}')">
                                         <i class="fas fa-trash-alt"></i>
-                                    </a>
+                                    </button>
                                 </div>
-                                <hr>
-                                <a href="javascript:void(0);" class="btn btn-outline-primary w-75"
-                                    onclick="show_ajax_modal('{{ route('product.view_images',$item->id) }}', 'Images {{ $page_title ?? '' }}')">View
-                                    Images</a>
                             </td>
                         </tr>
                         @endforeach
