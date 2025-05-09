@@ -26,15 +26,21 @@ class Stock extends Model
     public function get_user_cart_stock_check($cart_quantity, $product_id, $request_quantity) {
 
         $remaining_stock = $this->get_product_stock($product_id);
-    
+        $unit = Product::where('id',$product_id)->first()->unit;
+        $unitTypes = [
+            1 => 'Kg',
+            2 => 'L',
+            3 => 'Qty'
+        ];
         if ($remaining_stock > 0) {
             $total_cart_quantity = $cart_quantity + $request_quantity;
     
             if ($total_cart_quantity > $remaining_stock) {
+                $rounded_stock = round($remaining_stock,2);
                 return [
                     'status' => false,
-                    'stock' => $remaining_stock,
-                    'message' => "Only {$remaining_stock} item(s) left in stock."
+                    'stock' => $rounded_stock,
+                    'message' => "Only {$rounded_stock} {$unitTypes[$unit]} left in stock."
                 ];
             } else {
                 return [
