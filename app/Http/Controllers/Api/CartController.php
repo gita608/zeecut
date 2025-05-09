@@ -312,7 +312,7 @@ class CartController extends ApiBaseController
             $message = "Successfully Added!!!";
         }
 
-        return $this->sendSuccessResponse($request_quantity, $message);
+        return $this->sendSuccessResponse(round($request_quantity), $message);
     }
 
 }
