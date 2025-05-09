@@ -23,11 +23,15 @@
                             </thead>
                             <tbody class="border-top-0">
                                 @foreach ($list_items as $item)
+                                @php
+                                $quantity = $item['balance_stock'] ?? 0;
+                                $stockPercentage = min(100, ($quantity / 100) * 100);
+                                @endphp
                                 <tr class="hover-shadow inventory-row">
                                     <td class="ps-4 text-muted">{{ $loop->iteration }}</td>
                                     <td>
                                         <div class="d-flex align-items-center">
-                                        <div class="symbol symbol-50px me-3">
+                                            <div class="symbol symbol-50px me-3">
                                                 <div class="symbol-label bg-light">
                                                     <span class="text-primary fs-4 fw-bold">{{ substr($item->name, 0, 1) }}</span>
                                                 </div>
@@ -39,10 +43,6 @@
                                         </div>
                                     </td>
                                     <td class="text-center">
-                                        @php 
-                                            $quantity = $item->stock->quantity ?? 0;
-                                            $stockPercentage = min(100, ($quantity / ($item->ideal_stock ?? 100)) * 100);
-                                        @endphp
                                         <div class="d-flex flex-column align-items-center">
                                             <div class="stock-progress-container mb-2" style="width: 120px;">
                                                 <div class="progress" style="height: 8px;">
@@ -50,11 +50,11 @@
                                                         @if($quantity > 10) bg-success
                                                         @elseif($quantity > 3) bg-warning
                                                         @else bg-danger
-                                                        @endif" 
-                                                        role="progressbar" 
-                                                        style="width: {{ $stockPercentage }}%" 
-                                                        aria-valuenow="{{ $quantity }}" 
-                                                        aria-valuemin="0" 
+                                                        @endif"
+                                                        role="progressbar"
+                                                        style="width: {{ $stockPercentage }}%"
+                                                        aria-valuenow="{{ $quantity }}"
+                                                        aria-valuemin="0"
                                                         aria-valuemax="{{ $item->ideal_stock ?? 100 }}">
                                                     </div>
                                                 </div>
@@ -82,29 +82,29 @@
                                     </td>
                                     <td class="text-center">
                                         <div class="d-flex justify-content-center">
-                                            <button class="btn btn-sm btn-success me-2 stock-action-btn" 
+                                            <button class="btn btn-sm btn-success me-2 stock-action-btn"
                                                 onclick="showStockEditor({{ $item->id }}, 'add')"
                                                 data-bs-toggle="tooltip" title="Add Stock">
                                                 <i class="fas fa-plus"></i>
                                             </button>
-                                            <button class="btn btn-sm btn-danger stock-action-btn" 
+                                            <button class="btn btn-sm btn-danger stock-action-btn"
                                                 onclick="showStockEditor({{ $item->id }}, 'subtract')"
                                                 data-bs-toggle="tooltip" title="Remove Stock">
                                                 <i class="fas fa-minus"></i>
                                             </button>
                                         </div>
-                                        
+
                                         <!-- Stock Editor (Hidden by Default) -->
                                         <div id="stock-editor-{{ $item->id }}" class="stock-editor d-none mt-2">
                                             <div class="d-flex align-items-center justify-content-center">
-                                                <input type="number" id="stock-input-{{ $item->id }}" 
-                                                    class="form-control text-center stock-input me-2" 
+                                                <input type="number" id="stock-input-{{ $item->id }}"
+                                                    class="form-control text-center stock-input me-2"
                                                     placeholder="0" value="1" min="1" style="width: 80px;">
-                                                <button class="btn btn-sm btn-primary" 
+                                                <button class="btn btn-sm btn-primary"
                                                     onclick="submitStockUpdate({{ $item->id }})">
                                                     <i class="fas fa-check"></i> Confirm
                                                 </button>
-                                                <button class="btn btn-sm btn-light ms-1" 
+                                                <button class="btn btn-sm btn-light ms-1"
                                                     onclick="cancelStockEdit({{ $item->id }})">
                                                     <i class="fas fa-times"></i>
                                                 </button>
@@ -114,6 +114,7 @@
                                 </tr>
                                 @endforeach
                             </tbody>
+
                         </table>
                     </div>
                 </div>
@@ -127,50 +128,50 @@
 
 <script>
     // Initialize tooltips
-    $(function () {
+    $(function() {
         $('[data-bs-toggle="tooltip"]').tooltip();
     });
 
     function showStockEditor(productId, action) {
         // Hide all other open editors first
         $('.stock-editor').addClass('d-none');
-        
+
         // Show the editor for this product
         const editor = $(`#stock-editor-${productId}`);
         editor.removeClass('d-none');
-        
+
         // Reset input value and focus
         $(`#stock-input-${productId}`).val(1).focus();
-        
+
         // Store the action type in the editor for later use
         editor.data('action', action);
     }
-    
+
     function cancelStockEdit(productId) {
         $(`#stock-editor-${productId}`).addClass('d-none');
     }
-    
+
     function submitStockUpdate(productId) {
         const editor = $(`#stock-editor-${productId}`);
         const action = editor.data('action');
         const inputElement = $(`#stock-input-${productId}`);
         const quantity = parseInt(inputElement.val());
         const quantityElement = $(`#quantity-${productId}`);
-        
+
         // Validate input
         if (isNaN(quantity) || quantity <= 0) {
             showToast('Please enter a valid quantity (minimum 1)', 'warning');
             inputElement.focus();
             return;
         }
-        
+
         // Set loading state
         const originalQuantity = quantityElement.text();
         quantityElement.html(`<span class="spinner-border spinner-border-sm" role="status"></span>`);
-        
+
         // Hide the editor
         editor.addClass('d-none');
-        
+
         $.ajax({
             url: '{{ route("stocks.update_quantity") }}',
             type: 'POST',
@@ -183,14 +184,14 @@
                 quantity: quantity,
                 action: action
             },
-            success: function (data) {
+            success: function(data) {
                 if (data.success) {
                     // Update quantity display
                     quantityElement.text(data.quantity);
-                    
+
                     // Update status badge
                     updateStockStatus(productId, data.quantity);
-                    
+
                     // Show success message
                     showToast(`Stock ${action === 'add' ? 'increased' : 'decreased'} successfully`, 'success');
                 } else {
@@ -198,19 +199,19 @@
                     showToast(data.message || 'Error updating quantity', 'danger');
                 }
             },
-            error: function (xhr) {
+            error: function(xhr) {
                 console.error(xhr.responseText);
                 quantityElement.text(originalQuantity);
                 showToast('Something went wrong!', 'danger');
             }
         });
     }
-    
+
     function updateStockStatus(productId, newQuantity) {
         // Update the quantity text color
         const quantityElement = $(`#quantity-${productId}`);
         quantityElement.removeClass('text-success text-warning text-danger');
-        
+
         if (newQuantity > 10) {
             quantityElement.addClass('text-success');
         } else if (newQuantity > 3) {
@@ -218,11 +219,11 @@
         } else {
             quantityElement.addClass('text-danger');
         }
-        
+
         // Update the status badge
         const statusBadge = $(`#status-badge-${productId}`);
         statusBadge.removeClass('bg-success bg-warning bg-danger text-success text-warning text-danger bg-opacity-10');
-        
+
         if (newQuantity > 10) {
             statusBadge.addClass('bg-success bg-opacity-10 text-success').text('In Stock');
         } else if (newQuantity > 3) {
@@ -230,14 +231,14 @@
         } else {
             statusBadge.addClass('bg-danger bg-opacity-10 text-danger').text('Critical');
         }
-        
+
         // Add pulse animation to highlight the change
         quantityElement.addClass('animate__animated animate__pulse');
         setTimeout(() => {
             quantityElement.removeClass('animate__animated animate__pulse');
         }, 1000);
     }
-    
+
     function showToast(message, type) {
         const iconMap = {
             'success': 'check-circle',
@@ -245,7 +246,7 @@
             'danger': 'exclamation-circle',
             'info': 'info-circle'
         };
-        
+
         const toast = $(`
             <div class="toast show mb-3" role="alert" aria-live="assertive" aria-atomic="true">
                 <div class="toast-header bg-${type} text-white">
@@ -258,9 +259,9 @@
                 </div>
             </div>
         `);
-        
+
         $('#toast-container').append(toast);
-        
+
         // Auto-remove toast after 5 seconds
         setTimeout(() => {
             toast.remove();
@@ -280,7 +281,7 @@
         box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.1) !important;
         transform: translateY(-2px);
     } */
-    
+
     .symbol {
         display: flex;
         align-items: center;
@@ -314,23 +315,23 @@
         box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08);
         transform: translateY(-2px);
     }
-    
+
     .stock-progress-container {
         height: 8px;
     }
-    
+
     .stock-input {
         font-weight: 500;
         border-radius: 5px;
         border: 1px solid #e2e2e2;
         transition: all 0.2s;
     }
-    
+
     .stock-input:focus {
         border-color: #86b7fe;
         box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
     }
-    
+
     .stock-action-btn {
         width: 32px;
         height: 32px;
@@ -340,45 +341,53 @@
         justify-content: center;
         transition: all 0.2s;
     }
-    
+
     .stock-action-btn:hover {
         transform: scale(1.1);
     }
-    
+
     /* Animation classes */
     .animate__animated {
         animation-duration: 0.5s;
     }
-    
+
     .animate__pulse {
         animation-name: pulse;
     }
-    
+
     @keyframes pulse {
-        0% { transform: scale(1); }
-        50% { transform: scale(1.05); }
-        100% { transform: scale(1); }
+        0% {
+            transform: scale(1);
+        }
+
+        50% {
+            transform: scale(1.05);
+        }
+
+        100% {
+            transform: scale(1);
+        }
     }
-    
+
     /* Custom scrollbar for table */
     .table-responsive::-webkit-scrollbar {
         height: 6px;
     }
-    
+
     .table-responsive::-webkit-scrollbar-track {
         background: #f1f1f1;
         border-radius: 10px;
     }
-    
+
     .table-responsive::-webkit-scrollbar-thumb {
         background: #c1c1c1;
         border-radius: 10px;
     }
-    
+
     .table-responsive::-webkit-scrollbar-thumb:hover {
         background: #a8a8a8;
     }
-    
+
     /* Search input style */
     .search-input {
         border-radius: 20px;
@@ -386,12 +395,12 @@
         border: 1px solid #e2e2e2;
         transition: all 0.3s;
     }
-    
+
     .search-input:focus {
         border-color: #86b7fe;
         box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
     }
-    
+
     /* Toast styles */
     .toast {
         border: none;
@@ -399,7 +408,7 @@
         border-radius: 0.5rem;
         overflow: hidden;
     }
-    
+
     .toast-header {
         border-bottom: none;
     }

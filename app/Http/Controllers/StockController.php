@@ -9,10 +9,17 @@ use Illuminate\Support\Facades\Log;
 
 class StockController extends Controller
 {
+    private $stock;
+
+    public function __construct(){
+        $this->stock = new Stock();
+    }
     public function index()
     {
-
         $data['list_items'] = Product::with(relations: 'stock')->get();
+        foreach($data['list_items'] as &$item){
+            $item['balance_stock'] = $this->stock->get_product_stock($item->id);
+        }
         $data['page_title'] = 'Stocks';
         $data['page_name'] = 'admin.stock.index';
         return view('admin.main', $data);

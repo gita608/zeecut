@@ -20,7 +20,6 @@ class Stock extends Model
         $out_of_quantity = Stock::where('product_id',$product_id)->first()->quantity;
         $consumed_stocks = OrderItem::where('product_id', $product_id)->sum('quantity');
 
-        return $out_of_quantity - $consumed_stocks;
-
+        return round($out_of_quantity - $consumed_stocks, 2);
      }
 }
