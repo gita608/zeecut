@@ -56,13 +56,12 @@ class Cart extends BaseModel
             $collection = ProductCollection::where(['id' => $cart->collection_id])->first();
             $product    = Product::where(['id' => $cart->product_id])->first();
             $is_stock   = $this->stock->get_product_stock($cart->product_id) > 0 ? 1 : 0;
-            
+
             if($is_stock == 1){
                 if($cart->collection_id > 0){
 
-                    $quantity = $collection->sale_price > 0 ? $cart->amount/$collection->sale_price : 0;
 
-                    // print_r($quantity);die();
+                    $quantity = $collection->sale_price > 0 ? $cart->amount/$collection->sale_price : 0;
                     
                     $discount = $collection->price - $collection->sale_price;
 
