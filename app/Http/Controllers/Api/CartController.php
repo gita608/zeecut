@@ -293,7 +293,7 @@ class CartController extends ApiBaseController
             return $this->sendErrorResponse($is_stock['message']);
         }
 
-        $cart = Cart::where(['user_id' => $this->userId, 'product_id' => $product_id, 'collection_id' => $collection_id])->first();
+        $cart = Cart::where(['user_id' => $this->userId, 'product_id' => $product_id, 'collection_id' => $collection_id,'purchase_status' => 0])->first();
         if (!empty($cart)) {
 
             $data['amount'] = $requested_amount;
