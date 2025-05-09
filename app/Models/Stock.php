@@ -22,9 +22,6 @@ class Stock extends Model
 
         return round($out_of_quantity - $consumed_stocks, 2);
      }
-        return $out_of_quantity - $consumed_stocks;
-
-    }
 
     public function get_user_cart_stock_check($cart_quantity, $product_id, $request_quantity) {
 
