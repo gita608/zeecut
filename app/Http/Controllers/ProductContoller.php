@@ -140,37 +140,16 @@ class ProductContoller extends Controller
 
     public function update(Request $request, $id)
     {
-
-        // Log::info('Product List Data', $_POST);
-
-        // $request->validate([
-        //     'category' => 'required|exists:categories,id',
-        //     'title' => 'required|string|max:255',
-        //     'description' => 'required|string',
-        //     'price' => 'required|numeric|min:0',
-        //     'discount_price' => 'nullable|numeric|min:0',
-        //     'no_of_collection' => 'numeric',
-        //     'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-        //     'collection_title.*' => 'required|string|max:255', // Validate collection title
-        //     'collection_price.*' => 'required|numeric|min:0',  // Validate collection price
-        // ]);
-
-        // Log::info('Product List Data2', $_POST);
-
         $data = [
             'category_id' => $request->category,
             'name' => $request->title,
             'description' => $request->description,
             'price' => $request->price,
             'discount_price' => $request->discount_price,
-            'sale_price' => $request->discount_price ,
+            'sale_price' => $request->discount_price,
             'no_of_collection' => $request->no_of_collection,
             'unit' => $request->unit,
         ];
-
-
-        // dd($data);
-
 
         // Handle Thumbnail Upload
         if ($request->hasFile('thumbnail')) {
@@ -184,15 +163,39 @@ class ProductContoller extends Controller
 
         // Handle Collection Data
         if ($request->has('collection_title') && $request->has('collection_price')) {
-            $product->collections()->delete(); // Delete previous collection data
-
+            // Get existing collections to track which ones to keep/update
+            $existingCollections = $product->collections()->get();
+            $updatedCollectionIds = [];
+            
             foreach ($request->collection_title as $key => $title) {
-                $product->collections()->create([
-                    'title'         => $title,
-                    'price'         => $request->collection_price[$key] ?? 0,
-                    'sale_price'    => $request->collection_sale_price[$key] ?? 0,
-                ]);
+                // If there's an existing collection at this index, update it
+                if (isset($existingCollections[$key])) {
+                    $existingCollections[$key]->update([
+                        'title' => $title,
+                        'price' => $request->collection_price[$key] ?? 0,
+                        'sale_price' => $request->collection_sale_price[$key] ?? 0,
+                    ]);
+                    $updatedCollectionIds[] = $existingCollections[$key]->id;
+                } else {
+                    // Create a new collection if no existing one at this index
+                    $newCollection = $product->collections()->create([
+                        'title' => $title,
+                        'price' => $request->collection_price[$key] ?? 0,
+                        'sale_price' => $request->collection_sale_price[$key] ?? 0,
+                    ]);
+                    $updatedCollectionIds[] = $newCollection->id;
+                }
             }
+            
+            // Delete any collections that weren't updated (if there are more old ones than new ones)
+            if (count($existingCollections) > count($updatedCollectionIds)) {
+                $product->collections()
+                    ->whereNotIn('id', $updatedCollectionIds)
+                    ->delete();
+            }
+        } else {
+            // If no collections were submitted, remove all existing collections
+            $product->collections()->delete();
         }
 
         return redirect()->route('product.index')->with('message_success', 'Product updated successfully!');
