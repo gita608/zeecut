@@ -174,7 +174,7 @@ class OrderController extends ApiBaseController
                 END AS unit_name
             "),
             DB::raw("ROUND(order_items.quantity, 2) AS quantity"), // rounding to 2 decimal places
-            'order_items.price',
+            DB::raw("ROUND(order_items.price) AS price"), // rounding to 2 decimal places
             'order_items.sale_price',
             'products.unit',
             DB::raw("CONCAT('" . asset('storage') . "/', products.thumbnail) AS thumbnail")
