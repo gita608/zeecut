@@ -118,7 +118,9 @@ class OrderController extends ApiBaseController
                     CONCAT(products.name, '-', product_collections.title),
                     products.name
                 ) AS item_name
-            ",),'order_items.quantity')
+            ",),
+            DB::raw("ROUND(order_items.quantity, 2) AS quantity"), // rounding to 2 decimal places
+            )
             ->join('products', 'products.id', '=', 'order_items.product_id')
             ->leftJoin('product_collections', 'product_collections.id', '=', 'order_items.collection_id')
             ->where('order_items.order_id', $data['id'])
@@ -171,14 +173,13 @@ class OrderController extends ApiBaseController
                     ELSE 'unknown'
                 END AS unit_name
             "),
-            'order_items.quantity',
+            DB::raw("ROUND(order_items.quantity, 2) AS quantity"), // rounding to 2 decimal places
             'order_items.price',
             'order_items.sale_price',
             'products.unit',
             DB::raw("CONCAT('" . asset('storage') . "/', products.thumbnail) AS thumbnail")
         )
         ->get();
-
  
             $datas['total_amount']      = $data['price_amount'];
             $datas['total_payble']      = $data['total_amount'];
@@ -187,9 +188,9 @@ class OrderController extends ApiBaseController
             $datas['phone']             = $data['phone'];
             $datas['ordered_date']      = date('d-M-Y',strtotime($data['ordered_date']));
             $datas['order_status']      = ucfirst($data['status']);
-            $datas['delivery_charge']= get_setting('delivery_charge');
-            $datas['order_items']   = $items;
-            $datas['status']        = $this->order->get_order_status($data);
+            $datas['delivery_charge']   = get_setting('delivery_charge');
+            $datas['order_items']       = $items;
+            $datas['status']            = $this->order->get_order_status($data);
 
         return $this->sendSuccessResponse($datas, 'success');
 
