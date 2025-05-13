@@ -215,7 +215,6 @@ class CartController extends ApiBaseController
         $user = User::where('id', $this->userId)->first();
         $user_data = $user->userdata();
 
-
         $cart_data = Cart::where('user_id', $this->userId)->where('purchase_status', 0)->get();
 
         foreach ($cart_data as $key => $item) {
@@ -223,36 +222,38 @@ class CartController extends ApiBaseController
             $data = $this->product->get_product_details($item->product_id, $item->collection_id);
 
             if ($data['has_collection'] == 0) {
-                $price = $data['product_price'] * $item->quantity;
+                $price      = $data['product_price'] * $item->quantity;
                 $sale_price = $data['product_sale_price'] * $item->quantity;
             } else {
-                $quantity = $this->product_collection->get_quantity_of_collection($item['collection_id'],$item->amount);
-                $price = round($data['collection_price'] * $quantity);
-                $sale_price = round($item->amount);
-                $cart_data[$key]->quantity = round($quantity,2);
+                $quantity                   = $this->product_collection->get_quantity_of_collection($item['collection_id'],$item->amount);
+                $price                      = round($data['collection_price'] * $quantity);
+                $sale_price                 = round($item->amount);
+                $cart_data[$key]->quantity  = round($quantity,2);
             }
 
-            $cart_data[$key]->product = $data['collection'] != null ? $data['product'] . ' - ' . $data['collection'] : $data['product'];
-            $cart_data[$key]->collection = $data['collection'];
-            $cart_data[$key]->unit = $data['unit'];
-            $cart_data[$key]->thumbnai = $data['product_image'];
-            $cart_data[$key]->price = $price;
-            $cart_data[$key]->sale_price = $sale_price;
+            $cart_data[$key]->product       = $data['collection'] != null ? $data['product'] . ' - ' . $data['collection'] : $data['product'];
+            $cart_data[$key]->collection    = $data['collection'];
+            $cart_data[$key]->unit          = $data['unit'];
+            $cart_data[$key]->thumbnai      = $data['product_image'];
+            $cart_data[$key]->price         = $price;
+            $cart_data[$key]->sale_price    = $sale_price;
         }
 
         $cart_total_data = $this->cart->get_user_cart_data($this->userId);
         $summary = [
-            'total_amount' => $cart_total_data['total_amount'],
-            'delivery_charge' => $cart_total_data['delivery_charge'],
-            'discount_amount' => $cart_total_data['total_discount'],
-            'total_payable' => $cart_total_data['total_payable'] + $cart_total_data['delivery_charge'],
+            'total_amount'      => $cart_total_data['total_amount'],
+            'delivery_charge'   => $cart_total_data['delivery_charge'],
+            'discount_amount'   => $cart_total_data['total_discount'],
+            'total_payable'     => $cart_total_data['total_payable'] + $cart_total_data['delivery_charge'],
         ];
 
         $data = [
-            'user_address' => $user_data['address'] . ', ' . $user_data['pincode'],
-            'phone' => $user_data['phone'],
-            'cart_data' => $cart_data,
-            'summary' => $summary
+            'user_address'  => $user_data['address'] . ', ' . $user_data['pincode'],
+            'phone'         => $user_data['phone'],
+            'paylater'      => is_payLater($this->userId),
+            'paylater_balance' => credit_balance($this->userId),
+            'cart_data'     => $cart_data,
+            'summary'       => $summary,
         ];
 
         return $this->sendSuccessResponse($data, 'successfully!');
