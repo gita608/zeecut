@@ -1,4 +1,6 @@
 <?php
+use App\Models\PayLater;
+use App\Models\PayLaterHistory;
 use App\Models\Setting;
 use Illuminate\Support\Facades\DB;
 
@@ -44,5 +46,34 @@ if (!function_exists('format_price')) {
         cache()->forget("setting_{$key}");
 
         return $setting;
+    }
+
+    if (!function_exists('is_payLater')) {
+        function is_payLater($user_id)
+        {
+            if($user_id > 0){
+                $data = PayLater::where('user_id', $user_id)->first();
+                if(!empty($data)){
+                    return $data->status == 1 ? true : false;
+                }
+            }
+            return false;
+        }
+
+    }
+
+    if (!function_exists('credit_balance')) {
+        function credit_balance($user_id)
+        {
+            if($user_id > 0){
+                $data = PayLater::where('user_id', $user_id)->first();
+                if($data->status == 1){
+                    $used_credit = PayLaterHistory::where('user_id',$user_id)->sum('credit');
+                    return $data->credit_limit - $used_credit;
+                }
+            }
+            return 0;
+        }
+
     }
 }
