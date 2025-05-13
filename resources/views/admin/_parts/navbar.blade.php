@@ -19,7 +19,7 @@
       @if(Route::has('admin.dashboard'))
       <li class="nav-item">
         <a href="{{ route('admin.dashboard') }}" class="nav-link">
-          <i class="link-icon" data-feather="box"></i>
+          <i class="link-icon" data-feather="home"></i> <!-- Changed to home for dashboard -->
           <span class="link-title">Dashboard</span>
         </a>
       </li>
@@ -47,11 +47,10 @@
         </div>
       </li>
 
-
       @if(Route::has('banner.index'))
       <li class="nav-item">
         <a href="{{ route('banner.index') }}" class="nav-link">
-          <i class="link-icon" data-feather="image"></i> {{-- Banner Icon --}}
+          <i class="link-icon" data-feather="image"></i>
           <span class="link-title">Banner</span>
         </a>
       </li>
@@ -60,7 +59,7 @@
       @if(Route::has('category.index'))
       <li class="nav-item">
         <a href="{{ route('category.index') }}" class="nav-link">
-          <i class="link-icon" data-feather="grid"></i> {{-- Category Icon --}}
+          <i class="link-icon" data-feather="layers"></i> <!-- Changed to layers for category hierarchy -->
           <span class="link-title">Category</span>
         </a>
       </li>
@@ -69,7 +68,7 @@
       @if(Route::has('product.index'))
       <li class="nav-item">
         <a href="{{ route('product.index') }}" class="nav-link">
-          <i class="link-icon" data-feather="box"></i> {{-- Product Icon --}}
+          <i class="link-icon" data-feather="shopping-bag"></i> <!-- Changed to shopping-bag for products -->
           <span class="link-title">Product</span>
         </a>
       </li>
@@ -84,10 +83,19 @@
       </li>
       @endif
 
+      @if(Route::has('payLater.index'))
+      <li class="nav-item">
+        <a href="{{ route('payLater.index') }}" class="nav-link">
+          <i class="link-icon" data-feather="dollar-sign"></i> <!-- Changed to dollar-sign for payments -->
+          <span class="link-title">Pay Later</span>
+        </a>
+      </li>
+      @endif
+
       <li class="nav-item">
         <a href="{{ route('orders') }}" class="nav-link">
-          <i class="link-icon" data-feather="shopping-cart"></i>
-          <span class="link-title">Orders</span> <!-- Order + Tracking -->
+          <i class="link-icon" data-feather="package"></i> <!-- Changed to package for orders -->
+          <span class="link-title">Orders</span>
         </a>
       </li>
 
@@ -101,7 +109,7 @@
       @if(Route::has('offer.index'))
       <li class="nav-item">
         <a href="{{route('stock.index')}}" class="nav-link">
-          <i class="link-icon" data-feather="archive"></i>
+          <i class="link-icon" data-feather="database"></i> <!-- Changed to database for stock/inventory -->
           <span class="link-title">Stock</span>
         </a>
       </li>
@@ -110,12 +118,11 @@
       @if(Route::has('offer.index'))
       <li class="nav-item">
         <a href="{{ route('offer.index') }}" class="nav-link">
-          <i class="link-icon" data-feather="tag"></i>
+          <i class="link-icon" data-feather="percent"></i> <!-- Changed to percent for discounts/offers -->
           <span class="link-title">Offers</span>
         </a>
       </li>
       @endif
-
 
       @if(Route::has('pincode.index'))
       <li class="nav-item">
@@ -134,9 +141,6 @@
         </a>
       </li>
       @endif
-
-
-
     </ul>
   </div>
 </nav>
