@@ -104,6 +104,7 @@ Route::middleware(RoleMiddleware::class)->group(function () {
     Route::get('payLater-delete/{id}',[PayLaterController::class,'delete'])->name('payLater.delete');
     Route::post('update/{data}',action: [PayLaterController::class,'update'])->name('payLater.update');
     Route::post('/payLater/toggle-status', [PayLaterController::class, 'toggleStatus'])->name('payLater.toggleStatus');
+    Route::get('payLaterHistory/{id}',[PayLaterController::class,'payLaterHistory'])->name('payLater.History');
 
 
 });
