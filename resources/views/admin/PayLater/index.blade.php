@@ -60,17 +60,20 @@
                             <td>{{ ++$key }}</td>
                             <td>{{ $item->user->name  }}</td>
                             <td>{{ $item->user->phone }}</td>
-                            <td>{{ credit_balance($item->user->id) }}</td>
+                            <td>{{ credit_balance($item->user->id) }} </td>
                             <td>
                                 <div class="form-check form-switch">
                                     <input class="form-check-input toggle-status" style="width:50px;height:20px" type="checkbox"
                                            data-id="{{ $item->id }}"
                                            @if($item->status) checked @endif>
                                 </div>
-                            </td>                            
+                            </td>                       
                             <td>{{ $item->created_at ? date('d-m-Y', strtotime($item->created_at )) : '' }}</td>
                             <td>
                                 <div class="btn-group" role="group">
+                                    <a href="{{route('payLater.History',$item->user->id)}}" class="btn btn-outline-secondary mx-1"
+                                     data-bs-toggle="tooltip" data-bs-placement="top" title="History View"
+                                    >History</a>
                                     <a href="javascript:void(0);" class="btn btn-sm btn-outline-warning"
                                         onclick="show_small_modal('{{ route('payLater.edit',$item->id) }}', 'Edit {{ $page_title ?? '' }}')"
                                         data-bs-toggle="tooltip" data-bs-placement="top" title="Edit">

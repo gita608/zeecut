@@ -79,4 +79,15 @@ class PayLaterController extends Controller
         return response()->json(['message' => 'Item not found.'], 404);
     }
 
+    public function payLaterHistory($userId){
+
+
+        $data['list_items'] = Payment::with(['user','order'])
+        ->where('user_id',$userId)->get();
+
+        $data['page_title'] = 'Pay Later History';
+        $data['page_name']  = 'admin.PayLater.history';
+        return view('admin.main',$data);
+    }
+
 }

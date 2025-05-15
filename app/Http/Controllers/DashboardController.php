@@ -42,7 +42,7 @@ class DashboardController extends Controller
             'order_dispatched_count' => Order::where('status','dispatched')->count(),
             'order_packed_count' => Order::where('status','packed')->count(),
             'payment_completed_count' => Payment::where('status', 'completed')->count(),
-            'revenue' => Payment::where('status', 'completed')->sum('amount'),
+            'revenue' => Payment::where('status', 'completed')->sum('paid'),
             'stock_count' => Stock::sum('quantity'),
             'low_stock_items' => Stock::where('quantity', '<', 10)->count(),
             'product_count' => Product::count(),
