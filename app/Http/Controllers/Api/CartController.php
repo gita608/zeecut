@@ -23,11 +23,11 @@ class CartController extends ApiBaseController
     public function __construct(Request $request)
     {
         parent::__construct($request);
-        $this->cart = new Cart();
-        $this->product = new Product();
+        $this->cart     = new Cart();
+        $this->product  = new Product();
         $this->product_collection = new ProductCollection();
-        $this->user = new User();
-        $this->stock = new Stock();
+        $this->user     = new User();
+        $this->stock    = new Stock();
     }
 
     public function index(Request $request)
@@ -68,24 +68,24 @@ class CartController extends ApiBaseController
 
                 $quantity = $this->product_collection->get_quantity_of_collection($val->collection_id,$val->amount);    
 
-                $stock = $this->stock->get_user_cart_stock_check($quantity, $val->product_id, 0);
+                $stock  = $this->stock->get_user_cart_stock_check($quantity, $val->product_id, 0);
 
-                $val['product_name'] = $val->product_name . ' - ' . $val->collection_name;
-                $val['quantity'] = round($quantity,2);
-                $val['product_price'] = $val->collection_price;
-                $val['discount_price'] = $val->collection_sale_price;
+                $val['product_name']    = $val->product_name . ' - ' . $val->collection_name;
+                $val['quantity']        = round($quantity,2);
+                $val['product_price']   = $val->collection_price;
+                $val['discount_price']  = $val->collection_sale_price;
                 // $val['sale_price'] = $val->collection_sale_price * $val->quantity;
-                $val['sale_price'] = $val->amount;
+                $val['sale_price']      = $val->amount;
             } else {
 
-                $stock = $this->stock->get_user_cart_stock_check($val->quantity, $val->product_id, 0);
+                $stock  = $this->stock->get_user_cart_stock_check($val->quantity, $val->product_id, 0);
                 $val['sale_price'] = $val->sale_price * $val->quantity;
             }
 
-            $total_amount += $val->product_price;
-            $total_discount_amount += $val->discount_price;
+            $total_amount   += $val->product_price;
+            $total_discount_amount  += $val->discount_price;
             $val['product_thumbnail'] = $val['product_thumbnail'] ? asset('storage/' . $val['product_thumbnail']) : '';
-            $val['unit'] = ($val->unit == 1) ? 'Kg' : (($val->unit == 2) ? 'L' : 'Qty');
+            $val['unit']            = ($val->unit == 1) ? 'Kg' : (($val->unit == 2) ? 'L' : 'Qty');
             $val['is_out_of_stock'] = $stock['status'] == true ? 0 : 1;
 
         }
@@ -93,13 +93,13 @@ class CartController extends ApiBaseController
 
         $cart_data = $this->cart->get_user_cart_data($this->userId);
         $data = [
-            'cart_items' => $cart,
-            'min_order_amout' => get_setting('min_order_amout'),
-            'total_amount' => $cart_data['total_amount'],
-            'total_payable' => $cart_data['total_payable'],
-            'total_discount' => $cart_data['total_discount'],
-            'delivery_charge' => $cart_data['delivery_charge'],
-            'product_count' => $cart_data['product_count'],
+            'cart_items'        => $cart,
+            'min_order_amout'   => get_setting('min_order_amout'),
+            'total_amount'      => $cart_data['total_amount'],
+            'total_payable'     => $cart_data['total_payable'],
+            'total_discount'    => $cart_data['total_discount'],
+            'delivery_charge'   => $cart_data['delivery_charge'],
+            'product_count'     => $cart_data['product_count'],
         ];
 
         return $this->sendSuccessResponse($data, 'Success');
@@ -108,9 +108,9 @@ class CartController extends ApiBaseController
     public function add_cart(Request $request)
     {
         $validationResponse = $this->validateRequest($request, [
-            'product_id' => 'required|integer',
+            'product_id'    => 'required|integer',
             'collection_id' => 'nullable|integer',
-            'quantity' => 'required|numeric',
+            'quantity'      => 'required|numeric',
         ]);
 
         if ($validationResponse) {
@@ -146,13 +146,13 @@ class CartController extends ApiBaseController
             $message = 'Cart updated successfully!';
         } else {
             $insertData = [
-                'product_id' => $request->product_id,
+                'product_id'    => $request->product_id,
                 'collection_id' => $request->collection_id,
-                'user_id' => $this->userId,
-                'quantity' => $request->quantity,
+                'user_id'       => $this->userId,
+                'quantity'      => $request->quantity,
             ];
             $this->cart->add($insertData);
-            $message = 'Cart inserted successfully!';
+            $message   = 'Cart inserted successfully!';
         }
 
         return $this->sendSuccessResponse([], $message);
@@ -162,9 +162,9 @@ class CartController extends ApiBaseController
     public function remove_cart(Request $request)
     {
         $validationResponse = $this->validateRequest($request, [
-            'product_id' => 'required|integer',
+            'product_id'    => 'required|integer',
             'collection_id' => 'required|integer',
-            'quantity' => 'sometimes|numeric', // now optional
+            'quantity'      => 'sometimes|numeric', // now optional
         ]);
 
         if ($validationResponse) {
@@ -172,10 +172,10 @@ class CartController extends ApiBaseController
         }
 
         $cart_item = Cart::where([
-            'user_id' => $this->userId,
-            'product_id' => $request->product_id,
-            'collection_id' => $request->collection_id,
-            'purchase_status' => 0
+            'user_id'           => $this->userId,
+            'product_id'        => $request->product_id,
+            'collection_id'     => $request->collection_id,
+            'purchase_status'   => 0
         ])->first();
 
         if (!$cart_item) {
@@ -188,9 +188,9 @@ class CartController extends ApiBaseController
             return $this->sendSuccessResponse([], 'Item removed from cart.');
         }
 
-        $remove_quantity = $request->quantity;
-        $current_quantity = $cart_item->quantity;
-        $updated_quantity = $current_quantity - $remove_quantity;
+        $remove_quantity    = $request->quantity;
+        $current_quantity   = $cart_item->quantity;
+        $updated_quantity   = $current_quantity - $remove_quantity;
 
         if ($updated_quantity <= 0) {
             $cart_item->delete();
@@ -257,7 +257,6 @@ class CartController extends ApiBaseController
         ];
 
         return $this->sendSuccessResponse($data, 'successfully!');
-
     }
 
     public function update_cart_by_collection_amount(Request $request)

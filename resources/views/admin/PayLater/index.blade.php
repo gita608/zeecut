@@ -60,7 +60,7 @@
                             <td>{{ ++$key }}</td>
                             <td>{{ $item->user->name  }}</td>
                             <td>{{ $item->user->phone }}</td>
-                            <td>{{ $item->credit_limit }}</td>
+                            <td>{{ credit_balance($item->user->id) }}</td>
                             <td>
                                 <div class="form-check form-switch">
                                     <input class="form-check-input toggle-status" style="width:50px;height:20px" type="checkbox"
