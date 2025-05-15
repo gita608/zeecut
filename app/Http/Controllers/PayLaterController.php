@@ -51,11 +51,14 @@ class PayLaterController extends Controller
 
     public function update(Request $request,$id){
 
-        $data = $request->validate([
+        $request->validate([
             'credit_limit' => 'required|numeric'
         ]);
-
+        
         $payLater = PayLater::findOrFail($id);
+
+        $data['credit_limit'] = $request->credit_limit + $payLater->credit_limit;
+
         $payLater->update($data);
 
         return redirect(route('payLater.index'))->with('message_success','Sucessfully Updated Credit');
