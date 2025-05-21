@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\HomeController;
 use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\OrderController;
+use App\Http\Controllers\api\PayLaterController;
 use App\Http\Controllers\Api\ProfileController;
 use GuzzleHttp\Psr7\Request;
 
@@ -31,22 +32,25 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::get('/categories', [CategoriesController::class, 'index']);
 
-
+    //products
     Route::get('/products', [ProductController::class, 'index']);
     Route::get('/product_search', [ProductController::class, 'product_search']);
     Route::get('/product-details', [ProductController::class, 'details']);
 
-
+    //carts
     Route::get('/cart', [CartController::class, 'index']);
     Route::post('/add-to-cart', [CartController::class, 'add_cart']);
     Route::post('/remove-from-cart', [CartController::class, 'remove_cart']);
     Route::get('/checkout', [CartController::class, 'checkout']);
     Route::post('/update-cart-amount', [CartController::class, 'update_cart_by_collection_amount']);
     
-    
+    //orders
     Route::post('/order', [OrderController::class, 'index']);
     Route::get('/order-list', [OrderController::class, 'get_order_list']);
     Route::get('/order-details', [OrderController::class, 'order_details']);
+
+    //paylater
+    Route::get('/PayLater',[PayLaterController::class,'index']);
 
 });
 
