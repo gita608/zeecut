@@ -100,7 +100,7 @@
       </li>
 
       <li class="nav-item">
-        <a href="" class="nav-link">
+        <a href="{{ route('payments.index') }}" class="nav-link">
           <i class="link-icon" data-feather="credit-card"></i>
           <span class="link-title">Payment</span>
         </a>
