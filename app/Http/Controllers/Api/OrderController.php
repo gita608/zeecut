@@ -12,6 +12,7 @@ use App\Models\Product_images;
 use App\Models\Cart;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\Payment;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 class OrderController extends ApiBaseController
@@ -25,9 +26,9 @@ class OrderController extends ApiBaseController
     {
         parent::__construct($request);
 
-        $this->order = new Order();
-        $this->cart = new Cart();
-        $this->product = new Product();
+        $this->order    = new Order();
+        $this->cart     = new Cart();
+        $this->product  = new Product();
         $this->productcollection = new ProductCollection();
     }
 
@@ -47,6 +48,8 @@ class OrderController extends ApiBaseController
         $data['order_no']       = $this->order->generate_order_number();
         $data['user_id']        = $this->userId;
         $data['total_amount']   = 0;
+        $data['is_pay_later']   = $request->is_pay_later;
+        $data['pay_later_credit']   = $request->pay_later_credit;
         $data['address']        = $request->address;
         $data['phone']          = $request->phone;
         $data['ordered_date']   = date('Y-m-d H:i:s');
@@ -73,8 +76,6 @@ class OrderController extends ApiBaseController
                 $quantity   = $this->productcollection->get_quantity_of_collection($item->collection_id,$item->amount);
             }
 
-            // dd($quantity);
-
             $price          =   $item->collection_id == 0 ? $product['product_price'] : $product['collection_price'];
             $sale_price     =   $item->collection_id == 0 ? $product['product_sale_price'] : $product['collection_sale_price'];
             $total_price    +=  $price * $quantity;
@@ -91,6 +92,8 @@ class OrderController extends ApiBaseController
                 'created_at'    => now(),
             ]);
 
+           
+
             // Optional: Mark cart as purchased
             DB::table('cart')->where('id', $item->id)->update(['purchase_status' => 1]);
         }
@@ -100,13 +103,30 @@ class OrderController extends ApiBaseController
 
         DB::table('orders')->where('id', $orderId)->update(values: ['total_amount' => $final_amount_total,'price_amount' => $total_price_total,'total_discount' => $total_price_total - $final_amount_total,'status' => 'placed']);
 
+        //payment table    
+
+        $credit_balance = credit_balance($this->userId);
+        if($credit_balance > $request->pay_later_credit && $request->is_pay_later == 1){
+            $final_total    = $final_amount_total - $request->pay_later_credit ;
+        }elseif($credit_balance > 0){
+            $final_total    = $final_amount_total - $credit_balance;
+        }else{
+            $final_total    = $final_amount_total;
+        }
+
+         $payment['order_id']            = $orderId;
+         $payment['user_id']             = $this->userId;
+         $payment['pending_amount']      = $final_total;
+         $payment['pay_later_credit']    = $credit_balance > $request->pay_later_credit ? $request->pay_later_credit : $credit_balance;
+         $payment['payment_method']      = ($request->is_pay_later == 1 && $payment['pay_later_credit'] > 0) ? 2 : 1;
+         $payment['paid']                = 0;
+         Payment::create($payment);
+
         return $this->sendSuccessResponse([], 'Order placed successfully');
     }
  
     public function get_order_list(Request $request)
     {
-
-
         $datas = Order::where(['user_id' => $this->userId])->get();
 
          foreach($datas as $key => $data){
@@ -125,9 +145,6 @@ class OrderController extends ApiBaseController
             ->leftJoin('product_collections', 'product_collections.id', '=', 'order_items.collection_id')
             ->where('order_items.order_id', $data['id'])
             ->get();
-
-
-
 
             $datas[$key]->status        =   $data['status'];
             $datas[$key]->ordered_date  =   date('d-M-Y',strtotime($data['ordered_date']));            

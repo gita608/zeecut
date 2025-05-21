@@ -14,6 +14,7 @@ use App\Http\Controllers\SettingController;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\PayLaterController;
 
 Route::get('/', [AuthController::class, 'login'])->name('login');
 Route::post('/verify', [AuthController::class, 'verify'])->name('verify');
@@ -94,5 +95,16 @@ Route::middleware(RoleMiddleware::class)->group(function () {
     Route::post('/updateStatus/{id}', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
     Route::get('/details/{id}', [OrderController::class, 'details'])->name('orders.details');
     Route::get('/send_notify', [OrderController::class, 'send']);
-    Route::get('/order-invoice/{id}', [OrderController::class, 'invoice']);
+
+    //payl_later
+    Route::get('pay-later',[PayLaterController::class,'index'])->name('payLater.index');
+    Route::get('payLater-add',[PayLaterController::class,'ajax_add'])->name('payLater.add');
+    Route::post('submit',[PayLaterController::class,'submit'])->name('payLater.submit');
+    Route::get('payLater-edit/{id}',[PayLaterController::class,'ajax_edit'])->name('payLater.edit');
+    Route::get('payLater-delete/{id}',[PayLaterController::class,'delete'])->name('payLater.delete');
+    Route::post('update/{data}',action: [PayLaterController::class,'update'])->name('payLater.update');
+    Route::post('/payLater/toggle-status', [PayLaterController::class, 'toggleStatus'])->name('payLater.toggleStatus');
+    Route::get('payLaterHistory/{id}',[PayLaterController::class,'payLaterHistory'])->name('payLater.History');
+
+
 });

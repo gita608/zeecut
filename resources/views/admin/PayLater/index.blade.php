@@ -3,7 +3,7 @@
         <div class="card-body d-flex justify-content-between align-items-center">
             <h5 class="card-title m-0">{{ $page_title ?? '' }}</h5>
             <a href="javascript:void(0);" class="btn btn-primary btn-sm"
-                onclick="show_small_modal('{{ route('user.add') }}', 'Add {{ $page_title ?? '' }}')">
+                onclick="show_small_modal('{{ route('payLater.add') }}', 'Add {{ $page_title ?? '' }}')">
                 <i class="fas fa-plus"></i> Add {{ $page_title ?? '' }}
             </a>
         </div>
@@ -28,7 +28,7 @@
                         <button type="submit" class="btn btn-success me-2">
                             <i class="fas fa-filter"></i> Filter
                         </button>
-                        <a href="{{ route('user.index') }}" class="btn btn-secondary">
+                        <a href="{{ route('payLater.index') }}" class="btn btn-secondary">
                             <i class="fas fa-sync-alt"></i> Reset
                         </a>
                     </div>
@@ -47,7 +47,8 @@
                             <th>#</th>
                             <th>Name</th>
                             <th>Phone</th>
-                            <th>Email</th>
+                            <th>Credit</th>
+                            <th>Status</th>
                             <th>Created on</th>
                             <th>Action</th>
                         </tr>
@@ -57,23 +58,35 @@
                         @foreach ($list_items as $key => $item)
                         <tr>
                             <td>{{ ++$key }}</td>
-                            <td>{{ $item->name }}</td>
-                            <td>{{ $item->phone }}</td>
-                            <td>{{ $item->email }}</td>
+                            <td>{{ $item->user->name  }}</td>
+                            <td>{{ $item->user->phone }}</td>
+                            <td class="fw-bold">
+                                {{ credit_balance($item->user->id) }}
+                             </td>
+                            <td>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input toggle-status" style="width:50px;height:20px" type="checkbox"
+                                           data-id="{{ $item->id }}"
+                                           @if($item->status) checked @endif>
+                                </div>
+                            </td>                       
                             <td>{{ $item->created_at ? date('d-m-Y', strtotime($item->created_at )) : '' }}</td>
                             <td>
                                 <div class="btn-group" role="group">
+                                    <a href="{{route('payLater.History',$item->user->id)}}" class="btn btn-outline-secondary mx-1"
+                                     data-bs-toggle="tooltip" data-bs-placement="top" title="History View"
+                                    >History</a>
                                     <a href="javascript:void(0);" class="btn btn-sm btn-outline-warning"
-                                        onclick="show_small_modal('{{ route('user.edit',$item->id) }}', 'Edit {{ $page_title ?? '' }}')"
+                                        onclick="show_small_modal('{{ route('payLater.edit',$item->id) }}', 'Edit {{ $page_title ?? '' }}')"
                                         data-bs-toggle="tooltip" data-bs-placement="top" title="Edit">
                                         <i class="fas fa-edit"></i>
                                     </a>
 
-                                    <a class="btn btn-sm btn-outline-danger" href="javascript:void(0);"
-                                        onclick="delete_modal('{{ route('user.delete',$item->id) }}')"
+                                    {{-- <a class="btn btn-sm btn-outline-danger" href="javascript:void(0);"
+                                        onclick="delete_modal('{{ route('payLater.delete',$item->id) }}')"
                                         data-bs-toggle="tooltip" data-bs-placement="top" title="Delete">
                                         <i class="fas fa-trash"></i>
-                                    </a>
+                                    </a> --}}
 
                                 </div>
                             </td>
@@ -88,3 +101,30 @@
 </div>
 </div>
 </div>
+ 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        $('.toggle-status').change(function () {
+            let status = $(this).prop('checked') ? 1 : 0;
+            let id = $(this).data('id');
+
+            $.ajax({
+                url: "{{ route('payLater.toggleStatus') }}", // You'll create this route
+                type: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    id: id,
+                    status: status
+                },
+                success: function (response) {
+                    toastr.success(response.message || 'Status updated successfully');
+                },
+                error: function () {
+                    toastr.error('Something went wrong while updating status.');
+                }
+            });
+        });
+    });
+</script>
