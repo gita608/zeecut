@@ -24,7 +24,9 @@
                             <td>{{ ++$key }}</td>
                             <td>{{$item->order->order_no}}</td>
                             <td>{{$item->pay_later_credit}}</td>
-                            <td>{{ $item->created_at ? date('d-m-Y', strtotime($item->created_at )) : '' }}</td>
+                            <td>
+                                {{ $item->created_at ? date('h:i A | d-m-Y', strtotime($item->created_at)) : '' }}
+                            </td>
                         </tr>
                         @endforeach
                         @endif

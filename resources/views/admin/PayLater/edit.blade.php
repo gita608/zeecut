@@ -7,7 +7,7 @@
             <div class="col-md-12">
                 <div class="mb-3">
                     <label class="form-label" for="">Credit Limit<span class="text-danger">*</span></label>
-                    <input type="number" class="form-control" name="credit_limit" value="" placeholder="Balance: {{credit_balance($edit_data->user_id)}}" required>
+                    <input type="number" class="form-control" name="credit_limit" value="{{$edit_data->credit_limit}}" placeholder="" required>
                 </div>
             </div>
         </div>

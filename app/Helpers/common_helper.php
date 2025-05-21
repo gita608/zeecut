@@ -70,7 +70,11 @@ if (!function_exists('format_price')) {
             if($user_id > 0){
                 $data = PayLater::where('user_id', $user_id)->first();
                 if(is_payLater($user_id)){
-                    $used_credit = Payment::where('user_id',$user_id)->sum('pay_later_credit');
+                    $used_credit = Payment::where('user_id', $user_id)
+                    ->where('status', '!=', 'completed')
+                    ->where('payment_method', 2)
+                    ->sum('pay_later_credit');
+                    // dd($used_credit);
                     return $data->credit_limit - $used_credit;
                 }
             }
