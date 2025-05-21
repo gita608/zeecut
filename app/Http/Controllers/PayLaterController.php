@@ -55,11 +55,12 @@ class PayLaterController extends Controller
             'credit_limit' => 'required|numeric'
         ]);
         
+        //commented method was adding limit on to the current limit
+        // $data['credit_limit'] = $request->credit_limit + $payLater->credit_limit;
+        // $payLater->update($data);
+        
         $payLater = PayLater::findOrFail($id);
-
-        $data['credit_limit'] = $request->credit_limit + $payLater->credit_limit;
-
-        $payLater->update($data);
+        $payLater->update(['credit_limit' => $request->credit_limit]);
 
         return redirect(route('payLater.index'))->with('message_success','Sucessfully Updated Credit');
     }
@@ -83,7 +84,8 @@ class PayLaterController extends Controller
 
 
         $data['list_items'] = Payment::with(['user','order'])
-        ->where('user_id',$userId)->get();
+        ->where(['user_id' => $userId,'payment_method' => 2])
+        ->get();
 
         $data['page_title'] = 'Pay Later History';
         $data['page_name']  = 'admin.PayLater.history';
