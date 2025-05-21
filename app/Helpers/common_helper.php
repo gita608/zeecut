@@ -62,6 +62,8 @@ if (!function_exists('format_price')) {
             return false;
         }
     }
+
+    
     
 
     if (!function_exists('credit_balance')) {
@@ -81,5 +83,15 @@ if (!function_exists('format_price')) {
             return 0;
         }
 
+    }
+
+    if(!function_exists('user_credit')) {
+        function user_credit($user_id)
+        {
+            if(is_payLater($user_id)){
+                return PayLater::where('user_id', $user_id)->first()->credit_limit;
+            }
+        }
+        return 0;
     }
 }
