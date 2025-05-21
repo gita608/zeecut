@@ -94,5 +94,5 @@ Route::middleware(RoleMiddleware::class)->group(function () {
     Route::post('/updateStatus/{id}', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
     Route::get('/details/{id}', [OrderController::class, 'details'])->name('orders.details');
     Route::get('/send_notify', [OrderController::class, 'send']);
-
+    Route::get('/order-invoice/{id}', [OrderController::class, 'invoice']);
 });
