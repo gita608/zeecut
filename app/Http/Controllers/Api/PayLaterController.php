@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
 use App\Models\PayLater;
 use App\Models\Payment;
 use App\Models\Product;
