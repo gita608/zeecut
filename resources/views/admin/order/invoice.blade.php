@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Invoice - Order #{{ $order->id }}</title>
+    <title>Invoice - Order #{{ $order->order_no }}</title>
     <style>
         body {
             font-family: 'Helvetica', 'Arial', sans-serif;
@@ -134,7 +134,7 @@
         <div class="invoice-header">
             <div>
                 <h1>INVOICE</h1>
-                <p>Order #{{ $order->id }}</p>
+                <p>Order #{{ $order->order_no }}</p>
             </div>
             <div class="text-right">
                 <span class="status-badge {{ strtolower($order->status) }}">{{ $order->status }}</span>
@@ -231,14 +231,14 @@
             </div>
             
             <div class="company-details">
-                <strong>Your Company Name</strong><br>
+                <strong>{{ Env('APP_NAME') }}</strong><br>
                 123 Business Street, City, State, ZIP<br>
                 Email: support@yourcompany.com | Phone: (123) 456-7890
             </div>
         </div>
         
         <div class="invoice-footer">
-            <p>&copy; {{ date('Y') }} Your Company Name. All rights reserved.</p>
+            <p>&copy; {{ date('Y') }} {{ Env('APP_NAME') }}. All rights reserved.</p>
         </div>
     </div>
 </body>

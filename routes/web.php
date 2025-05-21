@@ -15,6 +15,7 @@ use App\Http\Controllers\StockController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PayLaterController;
+use App\Http\Controllers\PaymentController;
 
 Route::get('/', [AuthController::class, 'login'])->name('login');
 Route::post('/verify', [AuthController::class, 'verify'])->name('verify');
@@ -80,31 +81,34 @@ Route::middleware(RoleMiddleware::class)->group(function () {
     Route::get('/banner-edit/{id}', [BannerContoller::class, 'ajax_edit'])->name('banner.edit');
     Route::post('/banner-submit', [BannerContoller::class, 'submit'])->name('banner.submit');
     Route::put('/banner-update/{id}', [BannerContoller::class, 'update'])->name('banner.update');
-    Route::get('/banner-delete/{id}', [BannerContoller::class, 'delete'])->name('banner.delete'); 
-    
+    Route::get('/banner-delete/{id}', [BannerContoller::class, 'delete'])->name('banner.delete');
+
     //stock
-    Route::get('/stock',[StockController::class,'index'])->name('stock.index');
+    Route::get('/stock', [StockController::class, 'index'])->name('stock.index');
     Route::post('/update-quantity', [StockController::class, 'update_quantity'])->name('stocks.update_quantity');
-    
+
     //settings
-    Route::get('/setting',[SettingController::class,'index'])->name('setting.index');
-    Route::post('/setting-update',[SettingController::class,'update'])->name('setting.update');
-    
+    Route::get('/setting', [SettingController::class, 'index'])->name('setting.index');
+    Route::post('/setting-update', [SettingController::class, 'update'])->name('setting.update');
+
     // Orders
     Route::get('/orders', [OrderController::class, 'index'])->name('orders');
     Route::post('/updateStatus/{id}', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
     Route::get('/details/{id}', [OrderController::class, 'details'])->name('orders.details');
     Route::get('/send_notify', [OrderController::class, 'send']);
+    Route::get('/order-invoice/{id}', [OrderController::class, 'invoice'])->name('order-invoice');
 
     //payl_later
-    Route::get('pay-later',[PayLaterController::class,'index'])->name('payLater.index');
-    Route::get('payLater-add',[PayLaterController::class,'ajax_add'])->name('payLater.add');
-    Route::post('submit',[PayLaterController::class,'submit'])->name('payLater.submit');
-    Route::get('payLater-edit/{id}',[PayLaterController::class,'ajax_edit'])->name('payLater.edit');
-    Route::get('payLater-delete/{id}',[PayLaterController::class,'delete'])->name('payLater.delete');
-    Route::post('update/{data}',action: [PayLaterController::class,'update'])->name('payLater.update');
+    Route::get('pay-later', [PayLaterController::class, 'index'])->name('payLater.index');
+    Route::get('payLater-add', [PayLaterController::class, 'ajax_add'])->name('payLater.add');
+    Route::post('submit', [PayLaterController::class, 'submit'])->name('payLater.submit');
+    Route::get('payLater-edit/{id}', [PayLaterController::class, 'ajax_edit'])->name('payLater.edit');
+    Route::get('payLater-delete/{id}', [PayLaterController::class, 'delete'])->name('payLater.delete');
+    Route::post('update/{data}', action: [PayLaterController::class, 'update'])->name('payLater.update');
     Route::post('/payLater/toggle-status', [PayLaterController::class, 'toggleStatus'])->name('payLater.toggleStatus');
-    Route::get('payLaterHistory/{id}',[PayLaterController::class,'payLaterHistory'])->name('payLater.History');
+    Route::get('payLaterHistory/{id}', [PayLaterController::class, 'payLaterHistory'])->name('payLater.History');
 
-
+    Route::get('/payments', [PaymentController::class, 'index'])->name('payments.index');
+    Route::get('/payments/{payment}/add', [PaymentController::class, 'addPaymentForm'])->name('payments.add_payment');
+    Route::post('/payments/{payment}/add', [PaymentController::class, 'storePayment'])->name('payments.store_payment');
 });

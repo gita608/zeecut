@@ -132,12 +132,8 @@
 
         <!-- Help and Support -->
         <div class="support-section text-center mt-5">
-            <p class="text-muted mb-3">Need help with your order?</p>
-            <button class="btn btn-primary rounded-3 px-4 me-2">
-                <i class="bi bi-chat-text me-2"></i>Chat Support
-            </button>
-            <a href="#" class="btn btn-outline-secondary rounded-3 px-4">
-                <i class="bi bi-question-circle me-2"></i>Help Center
+            <a href="{{ route('order-invoice', $order->id) }}" target="_blank" class="btn btn-primary rounded-3 px-4 me-2">
+                <i class="bi bi-printer me-2"></i>Print
             </a>
         </div>
     </div>
