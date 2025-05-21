@@ -20,6 +20,8 @@ class PayLaterController extends ApiBaseController
 
     public function index(Request $request)
     {
+        dd($this->userId);
+
         $userCredit     = user_credit($this->userId);
         $creditBalance  = credit_balance($this->userId);
 
@@ -27,7 +29,7 @@ class PayLaterController extends ApiBaseController
         $data = [
             'user_limit'      => $userCredit,
             'balance_amount'  => $creditBalance,
-            'paid_amount'     => $userCredit - $creditBalance
+            'used_amount'     => $userCredit - $creditBalance
         ];
 
 
