@@ -2,26 +2,37 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Models\PayLater;
-use App\Models\Payment;
-use App\Models\Product;
-use App\Models\User;
 use Illuminate\Http\Request;
+use App\Models\Categories;
+use App\Models\User;
+use App\Models\Banners;
+use App\Models\Product;
+use App\Models\Product_images;
+use App\Models\Cart;
+use App\Models\Payment;
 
 class PayLaterController extends ApiBaseController
 {
+    protected $category;
+    protected $user;
+    protected $banners;
     protected $product;
+    protected $product_images;
+    protected $cart;
 
-    public function __construct(Request $request){
-
-        $this->product = new Product;
+    public function __construct(Request $request)
+    {
+        parent::__construct($request);
+        $this->category = new Categories();
+        $this->user = new User();
+        $this->banners = new Banners();
+        $this->product = new Product();
+        $this->product_images = new Product_images();
+        $this->cart = new Cart();
     }
-
 
     public function index(Request $request)
     {
-        dd($this->userId);
-
         $userCredit     = user_credit($this->userId);
         $creditBalance  = credit_balance($this->userId);
 
@@ -50,4 +61,5 @@ class PayLaterController extends ApiBaseController
 
         return $this->sendSuccessResponse($data, 'Success');
     }
+
 }
