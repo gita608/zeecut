@@ -9,6 +9,8 @@ use App\Models\Banners;
 use App\Models\Product;
 use App\Models\Product_images;
 use App\Models\Cart;
+use App\Models\Order;
+use App\Models\OrderItem;
 use App\Models\Payment;
 
 class PayLaterController extends ApiBaseController
@@ -33,33 +35,48 @@ class PayLaterController extends ApiBaseController
 
     public function index(Request $request)
     {
-        $userCredit     = user_credit($this->userId);
-        $creditBalance  = credit_balance($this->userId);
-
+        $userCredit = user_credit($this->userId);
+        $creditBalance = credit_balance($this->userId);
 
         $data = [
-            'user_limit'      => $userCredit,
-            'balance_amount'  => $creditBalance,
-            'used_amount'     => $userCredit - $creditBalance
+            'user_limit' => $userCredit,
+            'balance_amount' => $creditBalance,
+            'used_amount' => $userCredit - $creditBalance,
+            'history' => []
         ];
 
+        $histories = Payment::where('user_id', $this->userId)
+            ->where('payment_method', 2)
+            ->get();
 
-        $histories = Payment::where('user_id',$this->userId)
-        ->where('payment_method',2)
-        ->get();
+        $orderIds   = $histories->pluck('order_id')->unique();
+        $orders     = Order::whereIn('id', $orderIds)->get()->keyBy('id');
+        $orderItems = OrderItem::whereIn('order_id', $orderIds)->get()->groupBy('order_id');
 
-        $data['history'] = [];
+        foreach ($histories as $history) {
+            $order = $orders->get($history->order_id);
+            if (!$order)
+                continue;
 
-        foreach($histories as $history){
-            $items = [];
-            $items['order_no']  = $history->order_id;
-            $items['amount']    = $history->pay_later_credit;
-            $items['status']    = $history->status;
-            $data['history'][]  = $items;  // Append instead of overwrite
+            $productsList = [];
+
+            foreach ($orderItems->get($history->order_id, []) as $orderItem) {
+                $productDetails = $this->product->get_product_details($orderItem->product_id, $orderItem->collection_id);
+                $productsList[] = [$productDetails['product'] ?? null];
+            }
+
+            $data['history'][] = [
+                'order_no' => $order->order_no,
+                'products' => $productsList,
+                'amount' => $history->pay_later_credit,
+                'status' => $history->status,
+                'pending_date' => date('d-M-Y', strtotime($history->created_at)),
+                'completed_date' => $history->completed_date ? date('d-M-Y', strtotime($history->completed_date)) : ''
+            ];
         }
-
 
         return $this->sendSuccessResponse($data, 'Success');
     }
+
 
 }
