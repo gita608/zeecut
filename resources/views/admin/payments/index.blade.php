@@ -33,6 +33,7 @@
                                 <td>{{ ucfirst($payment->status) }}</td>
                                 <td>{{ $payment->paid_date ? date('d-m-Y', strtotime($payment->paid_date)) : '' }}</td>
                                 <td>
+                                    <a href="javascript:void(0);" onclick="show_ajax_modal('{{ route('payments.history', $payment->id) }}', 'History')"  class="btn btn-sm btn-info">View History</a>
                                     <a href="javascript:void(0);" onclick="show_small_modal('{{ route('payments.add_payment', $payment->id) }}', 'Add Payment')" class="btn btn-sm btn-success">Add Payment</a>
                                 </td>
                             </tr>

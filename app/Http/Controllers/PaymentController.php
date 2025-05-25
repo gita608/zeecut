@@ -15,7 +15,7 @@ class PaymentController extends Controller
         $data['payments'] = Payment::with(['user', 'order'])->latest()->paginate(10);
 
         $data['page_title'] = 'Payment';
-        $data['page_name']  = 'admin.payments.index';
+        $data['page_name'] = 'admin.payments.index';
 
         return view('admin.main', $data);
     }
@@ -62,5 +62,23 @@ class PaymentController extends Controller
         });
 
         return redirect()->route('payments.index')->with('success', 'Payment updated and history recorded.');
+    }
+
+    public function history($paymentId)
+    {
+        $payment = Payment::with(['user', 'order', 'histories'])
+                        ->findOrFail($paymentId);
+        if ($payment->paid_date) {
+            $payment->paid_date = \Carbon\Carbon::parse($payment->paid_date);
+        }
+        
+        $histories = $payment->histories()
+                          ->latest()
+                          ->paginate(10);
+
+        return view('admin.payments.history', [
+            'payment' => $payment,
+            'histories' => $histories
+        ]);
     }
 }

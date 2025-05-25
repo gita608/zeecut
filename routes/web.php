@@ -16,6 +16,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PayLaterController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\CouponController;
 
 Route::get('/', [AuthController::class, 'login'])->name('login');
 Route::post('/verify', [AuthController::class, 'verify'])->name('verify');
@@ -111,4 +112,7 @@ Route::middleware(RoleMiddleware::class)->group(function () {
     Route::get('/payments', [PaymentController::class, 'index'])->name('payments.index');
     Route::get('/payments/{payment}/add', [PaymentController::class, 'addPaymentForm'])->name('payments.add_payment');
     Route::post('/payments/{payment}/add', [PaymentController::class, 'storePayment'])->name('payments.store_payment');
+    Route::get('payments/history/{paymentId}', [PaymentController::class, 'history'])->name('payments.history');
+
+    Route::resource('coupons', CouponController::class)->only(['index', 'create', 'store']);
 });
