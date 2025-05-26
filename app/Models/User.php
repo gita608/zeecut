@@ -32,6 +32,7 @@ class User extends Authenticatable
             'role_id' => $this->role_id,
             'address' => $this->address,
             'pincode' => $this->pincode,
+            'is_payLater' => is_payLater($this->id),
             'created_at' => $this->created_at->format('Y-m-d H:i:s'),
         ];
     }
