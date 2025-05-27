@@ -1,5 +1,4 @@
 <div class="container">
-    <h2>Create Coupon</h2>
     <form action="{{ route('coupons.store') }}" method="POST">
         @csrf
         <div class="mb-3">
@@ -7,19 +6,12 @@
             <input type="text" name="coupon_code" class="form-control" required>
         </div>
         <div class="mb-3">
-            <label>Status</label>
-            <select name="status" class="form-control">
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
-            </select>
-        </div>
-        <div class="mb-3">
             <label>Start Date</label>
-            <input type="date" name="start_date" class="form-control" required>
+            <input type="date" name="start_date" min="<?= date('Y-m-d') ?>" class="form-control" required>
         </div>
         <div class="mb-3">
             <label>End Date</label>
-            <input type="date" name="end_date" class="form-control" required>
+            <input type="date" name="end_date" min="<?= date('Y-m-d') ?>" class="form-control" required>
         </div>
         <div class="mb-3">
             <label>Usage Limit (Total)</label>

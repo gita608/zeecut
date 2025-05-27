@@ -115,4 +115,7 @@ Route::middleware(RoleMiddleware::class)->group(function () {
     Route::get('payments/history/{paymentId}', [PaymentController::class, 'history'])->name('payments.history');
 
     Route::resource('coupons', CouponController::class)->only(['index', 'create', 'store']);
+    Route::get('/coupons-delete/{id}', [CouponController::class, 'delete'])->name('coupons.delete');
+    Route::post('coupons/{id}/toggle-status', [CouponController::class, 'toggleStatus'])->name('coupons.toggle-status');
+
 });
