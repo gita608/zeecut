@@ -127,34 +127,34 @@ class OrderController extends ApiBaseController
  
     public function get_order_list(Request $request)
     {
-        $datas = Order::where(['user_id' => $this->userId])->get();
-
-         foreach($datas as $key => $data){
-
-            $items = DB::table('order_items')
-            ->select(DB::raw("
-                IF(
-                    product_collections.title IS NOT NULL,
-                    CONCAT(products.name, '-', product_collections.title),
-                    products.name
-                ) AS item_name
-            ",),
-            DB::raw("ROUND(order_items.quantity, 2) AS quantity"), // rounding to 2 decimal places
-            )
-            ->join('products', 'products.id', '=', 'order_items.product_id')
-            ->leftJoin('product_collections', 'product_collections.id', '=', 'order_items.collection_id')
-            ->where('order_items.order_id', $data['id'])
+        $datas = Order::where(['user_id' => $this->userId])
+            ->orderBy('id', 'desc') // Sort orders in descending order
             ->get();
 
-            $datas[$key]->status        =   $data['status'];
-            $datas[$key]->ordered_date  =   date('d-M-Y',strtotime($data['ordered_date']));            
-            $datas[$key]->order_items   =   $items;
+        foreach ($datas as $key => $data) {
+            $items = DB::table('order_items')
+                ->select(DB::raw("
+                    IF(
+                        product_collections.title IS NOT NULL,
+                        CONCAT(products.name, '-', product_collections.title),
+                        products.name
+                    ) AS item_name
+                "),
+                DB::raw("ROUND(order_items.quantity, 2) AS quantity"))
+                ->join('products', 'products.id', '=', 'order_items.product_id')
+                ->leftJoin('product_collections', 'product_collections.id', '=', 'order_items.collection_id')
+                ->where('order_items.order_id', $data['id'])
+                ->orderBy('order_items.id', 'desc') // Sort items in descending order
+                ->get();
 
+            $datas[$key]->status = $data['status'];
+            $datas[$key]->ordered_date = date('d-M-Y', strtotime($data['ordered_date']));
+            $datas[$key]->order_items = $items;
         }
 
         return $this->sendSuccessResponse($datas, 'success');
-
     }
+
  
     public function order_details(Request $request)
     {
