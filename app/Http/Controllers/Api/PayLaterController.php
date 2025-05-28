@@ -62,7 +62,7 @@ class PayLaterController extends ApiBaseController
 
             foreach ($orderItems->get($history->order_id, []) as $orderItem) {
                 $productDetails = $this->product->get_product_details($orderItem->product_id, $orderItem->collection_id);
-                $productsList[] = [$productDetails['product'] ?? null];
+                $productsList[] = $productDetails['product'] ?? null;
             }
 
             $data['history'][] = [
