@@ -24,73 +24,139 @@ class Cart extends BaseModel
     {
         parent::__construct();
     }
-    
 
 
-    public function get_user_cart_data($user_id,$cart_id=null){
-
+    public function get_user_cart_data($user_id, $cart_id = null, $coupon = null)
+    {
         $this->stock = new Stock();
 
+        $where = [
+            'user_id' => $user_id,
+            'purchase_status' => 0
+        ];
 
-        $where = [];
-        $where['user_id']           = $user_id;
-        $where['purchase_status']   = 0;
-
-        if($cart_id){
-            $where['id']   = $cart_id;
+        if ($cart_id) {
+            $where['id'] = $cart_id;
         }
 
-
         $carts = Cart::where($where)
-        ->join('product_collections', 'cart.collection_id', '=', 'product_collections.id','left')
-        ->select('cart.*') 
-        ->get();            
-
+            ->join('product_collections', 'cart.collection_id', '=', 'product_collections.id', 'left')
+            ->select('cart.*')
+            ->get();
 
         $total_amount = 0;
         $total_discount = 0;
         $actual_total_amount = 0;
         $discount = 0;
-        foreach($carts as $cart){
 
+        foreach ($carts as $cart) {
             $collection = ProductCollection::where(['id' => $cart->collection_id])->first();
-            $product    = Product::where(['id' => $cart->product_id])->first();
-            $is_stock   = $this->stock->get_product_stock($cart->product_id) > 0 ? 1 : 0;
+            $product = Product::where(['id' => $cart->product_id])->first();
+            $is_stock = $this->stock->get_product_stock($cart->product_id) > 0 ? 1 : 0;
 
-            if($is_stock == 1){
-                if($cart->collection_id > 0){
-
-
-                    $quantity = $collection->sale_price > 0 ? $cart->amount/$collection->sale_price : 0;
-                    
+            if ($is_stock == 1) {
+                if ($cart->collection_id > 0 && $collection) {
+                    $quantity = $collection->sale_price > 0 ? $cart->amount / $collection->sale_price : 0;
                     $discount = $collection->price - $collection->sale_price;
 
-                    $actual_total_amount    += ($collection->price * $quantity);
-                    $total_amount           += $collection->sale_price * $quantity;
-                    $total_discount         += $discount * $quantity;
-
-                }else{
-
+                    $actual_total_amount += ($collection->price * $quantity);
+                    $total_amount += $collection->sale_price * $quantity;
+                    $total_discount += $discount * $quantity;
+                } elseif ($product) {
                     $discount = $product->price - $product->discount_price;
 
-                    $actual_total_amount    += ($product->price * $cart->quantity);
-                    $total_amount           += ($product->discount_price * $cart->quantity);
-                    $total_discount         += $discount * $cart->quantity;
-
+                    $actual_total_amount += ($product->price * $cart->quantity);
+                    $total_amount += ($product->discount_price * $cart->quantity);
+                    $total_discount += $discount * $cart->quantity;
                 }
-            } 
+            }
+        }
+
+        // Apply coupon discount if provided
+        $coupon_discount = 0;
+        if ($coupon && is_object($coupon) && isset($coupon->percentage)) {
+            $coupon_discount = ($total_amount * $coupon->percentage) / 100;
+            $total_amount -= $coupon_discount;
         }
 
         $data = [
-            'total_amount'      => round($actual_total_amount),
-            'total_payable'     => round($total_amount),
-            'total_discount'    => round($total_discount),
-            'delivery_charge'   => get_setting('delivery_charge'),
-            'product_count'     => $carts->count(),
+            'total_amount' => round($actual_total_amount),
+            'total_payable' => round($total_amount),
+            'total_discount' => round($total_discount + $coupon_discount),
+            'coupon_discount' => round($coupon_discount),
+            'delivery_charge' => get_setting('delivery_charge'),
+            'product_count' => $carts->count(),
         ];
 
         return $data;
     }
+
+
+
+    // public function get_user_cart_data($user_id,$cart_id=null){
+
+    //     $this->stock = new Stock();
+
+
+    //     $where = [];
+    //     $where['user_id']           = $user_id;
+    //     $where['purchase_status']   = 0;
+
+    //     if($cart_id){
+    //         $where['id']   = $cart_id;
+    //     }
+
+
+    //     $carts = Cart::where($where)
+    //     ->join('product_collections', 'cart.collection_id', '=', 'product_collections.id','left')
+    //     ->select('cart.*') 
+    //     ->get();            
+
+
+    //     $total_amount = 0;
+    //     $total_discount = 0;
+    //     $actual_total_amount = 0;
+    //     $discount = 0;
+    //     foreach($carts as $cart){
+
+    //         $collection = ProductCollection::where(['id' => $cart->collection_id])->first();
+    //         $product    = Product::where(['id' => $cart->product_id])->first();
+    //         $is_stock   = $this->stock->get_product_stock($cart->product_id) > 0 ? 1 : 0;
+
+    //         if($is_stock == 1){
+    //             if($cart->collection_id > 0){
+
+
+    //                 $quantity = $collection->sale_price > 0 ? $cart->amount/$collection->sale_price : 0;
+
+    //                 $discount = $collection->price - $collection->sale_price;
+
+    //                 $actual_total_amount    += ($collection->price * $quantity);
+    //                 $total_amount           += $collection->sale_price * $quantity;
+    //                 $total_discount         += $discount * $quantity;
+
+    //             }else{
+
+    //                 $discount = $product->price - $product->discount_price;
+
+    //                 $actual_total_amount    += ($product->price * $cart->quantity);
+    //                 $total_amount           += ($product->discount_price * $cart->quantity);
+    //                 $total_discount         += $discount * $cart->quantity;
+
+    //             }
+    //         } 
+    //     }
+
+    //     $data = [
+    //         'total_amount'      => round($actual_total_amount),
+    //         'total_payable'     => round($total_amount),
+    //         'total_discount'    => round($total_discount),
+    //         'delivery_charge'   => get_setting('delivery_charge'),
+    //         'product_count'     => $carts->count(),
+    //     ];
+
+    //     return $data;
+    // }
 
     // public function get_user_cart_data($user_id,$cart_id=null){
 
@@ -108,7 +174,7 @@ class Cart extends BaseModel
     //     ->join('product_collections', 'cart.collection_id', '=', 'product_collections.id')
     //     ->select('cart.*') // adjust fields as needed
     //     ->get();
-    
+
     //     $total_amount = 0;
     //     $total_discount = 0;
     //     $actual_total_amount = 0;
@@ -118,10 +184,10 @@ class Cart extends BaseModel
     //         $collection = ProductCollection::where(['id' => $cart->collection_id])->first();
     //         $product    = Product::where(['id' => $cart->product_id])->first();
     //         $is_stock   = $this->stock->get_product_stock($cart->product_id) > 0 ? 1 : 0;
-            
+
     //         if($is_stock == 1){
     //             if($cart->collection_id > 0){
-                    
+
     //                 $discount = $collection->price - $collection->sale_price;
 
     //                 $actual_total_amount    += ($collection->price * $cart->quantity);

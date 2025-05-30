@@ -41,4 +41,10 @@ class User extends Authenticatable
     {
         return $this->createToken('authToken')->plainTextToken;
     }
+
+    public function couponUsages()
+{
+    return $this->hasMany(CouponUsage::class);
+}
+
 }

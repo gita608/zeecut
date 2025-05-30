@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\CategoriesController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\HomeController;
 use App\Http\Controllers\Api\CartController;
+use App\Http\Controllers\api\CouponController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\PayLaterController;
 use App\Http\Controllers\Api\ProfileController;
@@ -51,6 +52,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     //paylater
     Route::get('/PayLater',[PayLaterController::class,'index']);
+
+    //coupon
+    Route::post('coupon-verfiy',[CouponController::class,'index']);
 
 });
 

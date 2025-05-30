@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use \App\Models\Payment;
+use \App\Models\CouponUsage;
 
 class Coupon extends Model
 {
@@ -18,33 +19,40 @@ class Coupon extends Model
 
     protected $dates = ['start_date', 'end_date'];
 
-    public function isUsableByUser($userId)
+    public function getUsabilityMessage($userId)
     {
         $now = now();
 
-        // Check if coupon is active and within date
-        if ($this->status !== 'active' || $this->start_date > $now || $this->end_date < $now) {
-            return false;
+        if ($this->status !== 'active') {
+            return ['status' => 0, 'message' => 'Coupon is inactive.'];
         }
 
-        // Check global usage limit
+        if ($this->start_date > $now || $this->end_date < $now) {
+            return ['status' => 0, 'message' => 'Coupon is not valid at this time.'];
+        }
+
         if ($this->usage_limit !== null && $this->payments()->count() >= $this->usage_limit) {
-            return false;
+            return ['status' => 0, 'message' => 'Coupon usage limit reached.'];
         }
 
-        // Check per user usage
         $userUsage = $this->payments()->where('user_id', $userId)->count();
         if ($this->per_user_limit !== null && $userUsage >= $this->per_user_limit) {
-            return false;
+            return ['status' => 0, 'message' => 'You have already used this coupon.'];
         }
 
-        return true;
+        return ['status' => 1, 'message' => 'coupon is used.']; // means it's valid
     }
+
 
     // Define relation to payments
     public function payments()
     {
         return $this->hasMany(Payment::class);
+    }
+
+    public function usages()
+    {
+        return $this->hasMany(CouponUsage::class);
     }
 
 }
