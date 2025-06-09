@@ -218,8 +218,23 @@ class CartController extends ApiBaseController
         $cart_data = Cart::where('user_id', $this->userId)->where('purchase_status', 0)->get();
 
         foreach ($cart_data as $key => $item) {
+
             $data = $this->product->get_product_details($item->product_id, $item->collection_id);
-            // (UI composition skipped for brevity)
+
+            if ($data['has_collection'] == 0) {
+                $price      = $data['product_price'] * $item->quantity;
+                $sale_price = $data['product_sale_price'] * $item->quantity;
+            } else {
+                $price      = $data['collection_price'] * $item->quantity;
+                $sale_price = $data['collection_sale_price'] * $item->quantity;
+            }
+
+            $cart_data[$key]->product       = $data['collection'] != null ?  $data['product'].' - '.$data['collection'] : $data['product'];
+            $cart_data[$key]->collection    = $data['collection'];
+            $cart_data[$key]->unit          = $data['unit'];
+            $cart_data[$key]->thumbnai      = $data['product_image'];
+            $cart_data[$key]->price         = $price;
+            $cart_data[$key]->sale_price    = $sale_price;
         }
 
         $coupon = null;
