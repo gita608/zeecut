@@ -220,13 +220,18 @@ class CartController extends ApiBaseController
         foreach ($cart_data as $key => $item) {
 
             $data = $this->product->get_product_details($item->product_id, $item->collection_id);
+           
 
             if ($data['has_collection'] == 0) {
                 $price      = $data['product_price'] * $item->quantity;
                 $sale_price = $data['product_sale_price'] * $item->quantity;
+                
             } else {
-                $price      = $data['collection_price'] * $item->quantity;
-                $sale_price = $data['collection_sale_price'] * $item->quantity;
+
+                $quantity = $this->product_collection->get_quantity_of_collection($item['collection_id'],$item['amount']);
+
+                $price      = $data['collection_price'] * $quantity;
+                $sale_price = $data['collection_sale_price'] * $quantity;
             }
 
             $cart_data[$key]->product       = $data['collection'] != null ?  $data['product'].' - '.$data['collection'] : $data['product'];
