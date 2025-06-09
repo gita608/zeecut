@@ -229,7 +229,7 @@ class CartController extends ApiBaseController
             } else {
 
                 $quantity = $this->product_collection->get_quantity_of_collection($item['collection_id'],$item['amount']);
-
+                $cart_data[$key]->quantity    = $quantity;
                 $price      = $data['collection_price'] * $quantity;
                 $sale_price = $data['collection_sale_price'] * $quantity;
             }
