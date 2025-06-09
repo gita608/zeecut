@@ -239,7 +239,7 @@ class CartController extends ApiBaseController
 
         $coupon = null;
         $coupon_message = '';
-        $is_coupon_used = 0;
+        $is_coupon_used = '';
 
         if ($request->is_coupon > 0) {
             $coupon = Coupon::where('coupon_code', $request->coupon_code)->first();
@@ -253,6 +253,7 @@ class CartController extends ApiBaseController
                     $coupon_message = $usability['message'];
                 } else {
                     $coupon = null; // Invalid coupon
+                    $is_coupon_used = 0;
                     $coupon_message = $usability['message'] ?? 'Coupon not valid.';
                 }
             }
