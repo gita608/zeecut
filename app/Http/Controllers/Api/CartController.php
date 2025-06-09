@@ -238,8 +238,8 @@ class CartController extends ApiBaseController
             $cart_data[$key]->collection    = $data['collection'];
             $cart_data[$key]->unit          = $data['unit'];
             $cart_data[$key]->thumbnai      = $data['product_image'];
-            $cart_data[$key]->price         = $price;
-            $cart_data[$key]->sale_price    = $sale_price;
+            $cart_data[$key]->price         = round($price);
+            $cart_data[$key]->sale_price    = round($sale_price);
         }
 
         $coupon = null;
