@@ -92,7 +92,7 @@ class CartController extends ApiBaseController
         }
 
 
-        $cart_data = $this->cart->get_user_cart_data($this->userId);
+        $cart_data = $this->cart->get_user_cart_data($this->userId,null,null,0);
         $data = [
             'cart_items' => $cart,
             'min_order_amout' => get_setting('min_order_amout'),
@@ -270,10 +270,11 @@ class CartController extends ApiBaseController
         $summary = [
             'is_coupon_used' => $is_coupon_used,
             'coupon_message' => $coupon_message,
-            'total_amount' => $cart_total_data['total_amount'],
-            'delivery_charge' => $cart_total_data['delivery_charge'],
+            'coupon_discount' => $cart_total_data['coupon_discount'] ?? 0,
             'discount_amount' => $cart_total_data['total_discount'],
-            'total_payable' => $cart_total_data['total_payable'] + $cart_total_data['delivery_charge'],
+            'delivery_charge' => $cart_total_data['delivery_charge'],
+            'total_amount' => $cart_total_data['total_amount'],
+            'total_payable' => $cart_total_data['total_payable'],
         ];
 
         $data = [

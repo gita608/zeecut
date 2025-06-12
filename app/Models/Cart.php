@@ -26,7 +26,7 @@ class Cart extends BaseModel
     }
 
 
-    public function get_user_cart_data($user_id, $cart_id = null, $coupon = null)
+    public function get_user_cart_data($user_id, $cart_id = null, $coupon = null,$delivery_charge_applied = 1)
     {
         $this->stock = new Stock();
 
@@ -72,6 +72,11 @@ class Cart extends BaseModel
             }
         }
 
+        if($delivery_charge_applied == 1){
+            $actual_total_amount = get_setting('delivery_charge') + $actual_total_amount;
+            $total_amount       = get_setting('delivery_charge') + $total_amount;
+        }
+
         // Apply coupon discount if provided
         $coupon_discount = 0;
         if ($coupon && is_object($coupon) && isset($coupon->percentage)) {
@@ -80,12 +85,12 @@ class Cart extends BaseModel
         }
 
         $data = [
-            'total_amount' => round($actual_total_amount),
-            'total_payable' => round($total_amount),
-            'total_discount' => round($total_discount + $coupon_discount),
-            'coupon_discount' => round($coupon_discount),
-            'delivery_charge' => get_setting('delivery_charge'),
-            'product_count' => $carts->count(),
+            'total_discount'    => round($total_discount),
+            'coupon_discount'   => round($coupon_discount),
+            'delivery_charge'   => (int) get_setting('delivery_charge'),
+            'total_amount'      => round($actual_total_amount),
+            'total_payable'     => round($total_amount),
+            'product_count'     => $carts->count(),
         ];
 
         return $data;

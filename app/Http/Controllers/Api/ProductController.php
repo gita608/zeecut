@@ -100,7 +100,7 @@ class ProductController extends ApiBaseController
             $collection->cart_quantity = $this->product_collection->get_quantity_of_collection($collection->id,$collection->cart_amount);
         }       
 
-        $data->cart = $this->cart->get_user_cart_data($this->userId);
+        $data->cart = $this->cart->get_user_cart_data($this->userId,null,null,0);
 
         return $this->sendSuccessResponse($data, 'Success');
     }
