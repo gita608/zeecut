@@ -22,6 +22,7 @@ Route::get('/', [AuthController::class, 'login'])->name('login');
 Route::post('/verify', [AuthController::class, 'verify'])->name('verify');
 Route::get('/register', [AuthController::class, 'register'])->name('register');
 Route::get('/privacy', [HomeController::class, 'privacy'])->name('privacy');
+Route::get('/contact', [HomeController::class, 'contact'])->name('contact');
 Route::get('/delete-account', [HomeController::class, 'delete_account'])->name('delete-account');
 
 
