@@ -24,6 +24,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/home', [HomeController::class, 'index']);
+    Route::get('/coupon-valid', [HomeController::class, 'is_coupon_valid']);
     Route::post('/update_notification_token', [HomeController::class, 'update_notification_token']);
     Route::get('test-notification', [HomeController::class, 'send_test_notification']);
 

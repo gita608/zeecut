@@ -50,9 +50,4 @@ class Coupon extends Model
         return $this->hasMany(Payment::class);
     }
 
-    public function usages()
-    {
-        return $this->hasMany(CouponUsage::class);
-    }
-
 }
