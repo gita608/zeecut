@@ -9,6 +9,8 @@ use App\Models\Banners;
 use App\Models\Product;
 use App\Models\Product_images;
 use App\Models\Cart;
+use App\Models\Coupon;
+use Illuminate\Support\Facades\Validator;
 
 class HomeController extends ApiBaseController
 {
@@ -84,6 +86,26 @@ class HomeController extends ApiBaseController
         }
 
         return $this->sendSuccessResponse([], $message);
+    }
+
+    public function is_coupon_valid(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'coupon_code' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->sendSuccessResponse($validator->errors()->first());
+        }
+
+        $coupon = Coupon::where('coupon_code', $request->coupon_code)->first();
+
+        if (!$coupon) {
+            $message = ['status' => 0, 'message' => 'Coupon not found.'];
+        } else {
+            $message = $coupon->getUsabilityMessage($this->userId) ?? 'Coupon is valid and applied.';
+        }
+        return $this->sendSuccessResponse($message['message']);
     }
 
 }
