@@ -11,6 +11,11 @@ class HomeController extends Controller
         $data['page_title'] = 'Privacy';
         return view('frontend.privacy', $data);
     }
+    public function contact()
+    {
+        $data['page_title'] = 'Contact';
+        return view('frontend.contact', $data);
+    }
     public function delete_account()
     {
         $data['page_title'] = 'Delete Account';
