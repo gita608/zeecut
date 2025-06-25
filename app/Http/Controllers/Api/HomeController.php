@@ -34,7 +34,11 @@ class HomeController extends ApiBaseController
 
     public function index(Request $request)
     {
-        $user = User::where('id', $this->userId)->first();
+        $user = [];
+        if($this->userId > 0 || $this->userId != null){
+            $user = User::where('id', $this->userId)->first();
+        }
+
         $categories = $this->category->getData();
         foreach ($categories as &$category) {
             $category->icon = $category->icon ? asset('storage/' . $category->icon) : '';
@@ -56,7 +60,7 @@ class HomeController extends ApiBaseController
         $cartCount = count($cartItems);
 
         $data = [
-            'user_data' => $user->userdata(),
+            'user_data' => $user == null ? [] : $user->userdata(),
             'categories' => $categories,
             'banners' => $banners,
             'offer_products' => $offer_products,
