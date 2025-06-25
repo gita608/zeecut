@@ -1,4 +1,5 @@
 <?php
+use App\Http\Middleware\OptionalAuth;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -16,6 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // ✅ Register custom API middleware
         $middleware->alias([
             'api.auth' => ApiAuthMiddleware::class,
+            'api.optional' => OptionalAuth::class
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
