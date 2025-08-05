@@ -10,6 +10,7 @@ use App\Models\Product;
 use App\Models\Product_images;
 use App\Models\Cart;
 use App\Models\Coupon;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Validator;
 
 class HomeController extends ApiBaseController
@@ -112,4 +113,5 @@ class HomeController extends ApiBaseController
         return $this->sendSuccessResponse($message['message']);
     }
 
+    
 }

@@ -24,7 +24,7 @@ Route::get('/register', [AuthController::class, 'register'])->name('register');
 Route::get('/privacy', [HomeController::class, 'privacy'])->name('privacy');
 Route::get('/contact', [HomeController::class, 'contact'])->name('contact');
 Route::get('/delete-account', [HomeController::class, 'delete_account'])->name('delete-account');
-
+Route::get('/print-sticker/{id}',[HomeController::class,'sticker_print'])->name('sticker.print');
 
 Route::middleware(RoleMiddleware::class)->group(function () {
     //dashboard

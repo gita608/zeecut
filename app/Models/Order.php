@@ -14,7 +14,14 @@ class Order extends BaseModel
         'status',
     ];
 
-    
+    public function order_items(){
+
+        return $this->hasMany(OrderItem::class,'order_id');
+    }
+
+    public function user(){
+        return $this->belongsTo(User::class,'user_id');
+    }
 
     public function generate_order_number()
     {
