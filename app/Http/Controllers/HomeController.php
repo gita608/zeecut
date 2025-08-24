@@ -37,6 +37,7 @@ class HomeController extends Controller
         }
 
         $data = [
+            
             'order' => $order,
             'order_items' => $order->order_items
         ];
