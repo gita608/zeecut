@@ -14,7 +14,8 @@ class Coupon extends Model
         'start_date',
         'end_date',
         'usage_limit',
-        'per_user_limit'
+        'per_user_limit',
+        'percentage'
     ];
 
     protected $dates = ['start_date', 'end_date'];

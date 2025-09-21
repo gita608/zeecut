@@ -30,10 +30,107 @@ class OrderController extends Controller
      */
 
 
-    public function index()
+    public function index(Request $request)
     {
-        $data['list_items'] = $this->order->getData();
+        // Define join details for fetching orders with user info
+        $joins = [
+            ['users', 'users.id', 'orders.user_id', 'leftJoin'],
+        ];
 
+        // Define which fields to select
+        $select = [
+            'orders.*',
+            'users.name as user_name',
+            'users.email as user_email',
+            'users.phone as user_phone',
+        ];
+
+        $where = [];
+
+        // Apply status filter
+        if ($request->filled('status')) {
+            $where[] = ['orders.status', '=', $request->status];
+        }
+
+        // Debug: Log the request parameters
+        // \Illuminate\Support\Facades\Log::info('Order Filter Debug', [
+        //     'date_range' => $request->date_range,
+        //     'date_from' => $request->date_from,
+        //     'date_to' => $request->date_to,
+        //     'status' => $request->status
+        // ]);
+
+        // Apply date range filter
+        if ($request->filled('date_range') && $request->date_range !== 'custom') {
+            // Handle predefined date ranges
+            $today = now();
+            $fromDate = null;
+            $toDate = null;
+            
+            switch($request->date_range) {
+                case 'today':
+                    $fromDate = $today->copy()->startOfDay();
+                    $toDate = $today->copy()->endOfDay();
+                    break;
+                case 'yesterday':
+                    $yesterday = $today->copy()->subDay();
+                    $fromDate = $yesterday->copy()->startOfDay();
+                    $toDate = $yesterday->copy()->endOfDay();
+                    break;
+                case 'last_7_days':
+                    $fromDate = $today->copy()->subDays(6)->startOfDay();
+                    $toDate = $today->copy()->endOfDay();
+                    break;
+                case 'this_month':
+                    $fromDate = $today->copy()->startOfMonth();
+                    $toDate = $today->copy()->endOfDay();
+                    break;
+                case 'last_month':
+                    $lastMonth = $today->copy()->subMonth();
+                    $fromDate = $lastMonth->copy()->startOfMonth();
+                    $toDate = $lastMonth->copy()->endOfMonth();
+                    break;
+                case 'two_months_ago':
+                    $twoMonthsAgo = $today->copy()->subMonths(2);
+                    $fromDate = $twoMonthsAgo->copy()->startOfMonth();
+                    $toDate = $twoMonthsAgo->copy()->endOfMonth();
+                    break;
+            }
+            
+            if ($fromDate && $toDate) {
+                $fromDateStr = $fromDate->format('Y-m-d H:i:s');
+                $toDateStr = $toDate->format('Y-m-d H:i:s');
+                
+                \Illuminate\Support\Facades\Log::info('Date Range Calculated', [
+                    'range' => $request->date_range,
+                    'from' => $fromDateStr,
+                    'to' => $toDateStr
+                ]);
+                
+                $where[] = ['orders.created_at', '>=', $fromDateStr];
+                $where[] = ['orders.created_at', '<=', $toDateStr];
+            }
+        } else {
+            // Handle custom date range or individual date filters
+            if ($request->filled('date_from')) {
+                $where[] = ['orders.created_at', '>=', $request->date_from . ' 00:00:00'];
+            }
+
+            if ($request->filled('date_to')) {
+                $where[] = ['orders.created_at', '<=', $request->date_to . ' 23:59:59'];
+            }
+        }
+
+        // Debug: Log the where conditions
+        \Illuminate\Support\Facades\Log::info('Where conditions', $where);
+        
+        // Get orders with user information, ordered by latest first
+        $data['list_items'] = $this->order->getJoin($joins, $where, $select, ['orders.created_at' => 'DESC']);
+        
+        // Debug: Log the count of results
+        \Illuminate\Support\Facades\Log::info('Orders found', ['count' => count($data['list_items'])]);
+
+        // Get order items for each order
         foreach ($data['list_items'] as $key => $order) {
             $items = OrderItem::where('order_id', $order->id)
                 ->join('products', 'order_items.product_id', '=', 'products.id')
@@ -42,6 +139,14 @@ class OrderController extends Controller
 
             $data['list_items'][$key]->order_items = $items;
         }
+
+        // Pass filter values to view
+        $data['filters'] = [
+            'status' => $request->status,
+            'date_range' => $request->date_range,
+            'date_from' => $request->date_from,
+            'date_to' => $request->date_to,
+        ];
 
         $data['page_title'] = 'Order';
         $data['page_name']  = 'admin.order.index';
