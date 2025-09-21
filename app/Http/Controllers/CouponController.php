@@ -29,6 +29,7 @@ class CouponController extends Controller
             'end_date' => 'required|date|after_or_equal:start_date',
             'usage_limit' => 'nullable|integer|min:1',
             'per_user_limit' => 'nullable|integer|min:1',
+            'percentage' => 'nullable|numeric|min:0|max:100',
         ]);
 
         $data = $request->all();

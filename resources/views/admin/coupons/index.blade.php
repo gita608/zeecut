@@ -22,6 +22,7 @@
                             <th>End</th>
                             <th>Usage Limit</th>
                             <th>Per User Limit</th>
+                            <th>Percentage</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -41,9 +42,10 @@
                                 <td>{{ $coupon->end_date ? date('d-m-Y', strtotime($coupon->end_date)) : '' }}</td>
                                 <td>{{ $coupon->usage_limit }}</td>
                                 <td>{{ $coupon->per_user_limit }}</td>
+                                <td>{{ $coupon->percentage ? $coupon->percentage . '%' : 'N/A' }}</td>
                                 <td>
                                     <a class="btn btn-sm btn-outline-danger" href="javascript:void(0);"
-                                        onclick="delete_modal('{{ route('coupons.delete',$coupon->id) }}')"
+                                        onclick="delete_modal('{{ route('coupons.delete', $coupon->id) }}')"
                                         data-bs-toggle="tooltip" data-bs-placement="top" title="Delete">
                                         <i class="fas fa-trash"></i>
                                     </a>
