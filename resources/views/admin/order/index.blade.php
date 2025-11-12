@@ -134,6 +134,9 @@
                         <a href="{{ route('orders.details', $order->id) }}" class="btn btn-primary btn-sm flex-fill">
                             <i class="fas fa-eye"></i> Details
                         </a>
+                        <a href="{{ route('sticker.print', $order->id) }}" target="_blank" class="btn btn-success btn-sm" title="Print Sticker">
+                            <i class="fas fa-print"></i>
+                        </a>
                         <div class="dropdown">
                             <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button" id="statusDropdown{{ $order->id }}" data-bs-toggle="dropdown">
                                 <i class="fas fa-edit"></i>

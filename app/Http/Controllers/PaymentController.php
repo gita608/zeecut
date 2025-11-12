@@ -12,7 +12,7 @@ class PaymentController extends Controller
     // Payment list
     public function index()
     {
-        $data['payments'] = Payment::with(['user', 'order'])->latest()->paginate(10);
+        $data['payments'] = Payment::with(['user', 'order'])->latest()->get();
 
         $data['page_title'] = 'Payment';
         $data['page_name'] = 'admin.payments.index';

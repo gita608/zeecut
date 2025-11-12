@@ -159,11 +159,11 @@
                     <tr>
                         <td colspan="2" class="footer">{{ date('M d, Y') }} • Item {{ $index+1 }} of {{ count($order_items) }}</td>
                     </tr>
-                    <tr>
+                    {{-- <tr>
                         <td colspan="2" class="logo-cell">
                             <img src="{{ public_path('assets/stickerLogo.png') }}" alt="Logo" class="logo-img">
                         </td>
-                    </tr>
+                    </tr> --}}
                 </table>
             </div>
             
